@@ -1,0 +1,11 @@
+syntax = "proto3";
+
+package pb;
+
+option go_package = "../service";
+
+message CommonResponse{
+  int32 code = 1;
+  string msg = 2;
+  string data = 3;
+}

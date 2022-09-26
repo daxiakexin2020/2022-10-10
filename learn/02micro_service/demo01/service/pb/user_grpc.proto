@@ -1,0 +1,18 @@
+syntax = "proto3";
+
+package pb;
+
+option go_package = "../service";
+
+message UserReuqest{
+  uint64 id = 1;
+}
+
+message UserResponse{
+  string name = 1;
+}
+
+service UserService{
+  rpc Test(UserReuqest) returns (UserResponse);
+  rpc Test2(UserReuqest) returns (UserResponse);
+}
