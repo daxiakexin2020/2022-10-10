@@ -1,0 +1,3 @@
+# 书写wire文件，例如 wire.Build.....
+# 安装命令：go get github.com/google/wire/cmd/wire
+# 运行命令：go run github.com/google/wire/cmd/wire
