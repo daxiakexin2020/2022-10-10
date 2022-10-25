@@ -27,6 +27,9 @@ func (p *Pool) Add(n int) {
 	fmt.Println("test03")
 	fmt.Println("test04")
 	fmt.Println("test05")
+	fmt.Println("test07")
+	fmt.Println("test08")
+
 	p.wg.Add(n)
 }
 
