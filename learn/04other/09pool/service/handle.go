@@ -24,7 +24,7 @@ func (p *Pool) Add(n int) {
 	for i := 0; i < n; i++ {
 		p.queue <- 1
 	}
-	fmt.Println("test02")
+	fmt.Println("test03")
 	p.wg.Add(n)
 }
 
