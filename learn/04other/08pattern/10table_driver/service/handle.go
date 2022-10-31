@@ -37,6 +37,7 @@ func NewT1() *T1 {
 
 func NewT2() *T2 {
 	fmt.Println("t1 被实例化了")
+	fmt.Println("t1 main")
 	return &T2{}
 }
 
