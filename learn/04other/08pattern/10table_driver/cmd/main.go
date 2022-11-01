@@ -17,4 +17,6 @@ func handle() {
 	ti2.SetName("t1 name 2")
 	ti2.Pname()
 
+	ti2.SetName("t1 name 2*************")
+
 }
