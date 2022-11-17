@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"google.golang.org/grpc"
-	"log"
 	"net"
 	"service/service"
 )
@@ -35,13 +34,18 @@ func HandleTest() {
 	service.RegisterUserServiceServer(srv, &Demo{})
 
 	listen, err := net.Listen("tcp", "127.0.0.1:8081")
+
 	if err != nil {
-		log.Fatalln("listen 8081 failed ")
+		fmt.Println("listen 8081 failed ")
+		return
 	}
 
 	err = srv.Serve(listen)
 
 	if err != nil {
-		log.Fatalln("srv server failed")
+		fmt.Println("srv server failed")
+		return
 	}
+
+	fmt.Println("start ok")
 }
