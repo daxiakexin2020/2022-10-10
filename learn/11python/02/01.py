@@ -8,5 +8,4 @@ def PrintInfo():
 def TestMysql():
     tm=mysql.connector.connect()
 
-
 PrintInfo()
