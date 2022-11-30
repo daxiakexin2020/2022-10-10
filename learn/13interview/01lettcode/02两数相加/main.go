@@ -1,8 +1,6 @@
 package main
 
-import (
-	"01lettcode/helper"
-)
+import node "01lettcode/helper"
 
 func main() {
 	l1 := node.MakeList(3)
