@@ -1,19 +1,19 @@
 package main
 
-import node "01lettcode/helper"
+import "01lettcode/helper"
 
 func main() {
-	l1 := node.MakeList(3)
-	l2 := node.MakeList(4)
+	l1 := helper.MakeList(3)
+	l2 := helper.MakeList(4)
 
-	node.ShowList(l1)
-	node.ShowList(l2)
+	helper.ShowList(l1)
+	helper.ShowList(l2)
 
 	res := addTwoNumbers(l1, l2) //321+4321 = 4642    2->4->6->4
-	node.ShowList(res)
+	helper.ShowList(res)
 }
 
-func addTwoNumbers(l1 *node.ListNode, l2 *node.ListNode) *node.ListNode {
+func addTwoNumbers(l1 *helper.ListNode, l2 *helper.ListNode) *helper.ListNode {
 	/*
 		给你两个 非空 的链表，表示两个非负的整数。它们每位数字都是按照 逆序 的方式存储的，并且每个节点只能存储 一位 数字。
 
@@ -30,8 +30,8 @@ func addTwoNumbers(l1 *node.ListNode, l2 *node.ListNode) *node.ListNode {
 		链接：https://leetcode.cn/problems/add-two-numbers
 		著作权归领扣网络所有。商业转载请联系官方授权，非商业转载请注明出处。
 	*/
-	var head *node.ListNode
-	var tail *node.ListNode
+	var head *helper.ListNode
+	var tail *helper.ListNode
 	var carry int
 
 	for l1 != nil || l2 != nil {
@@ -52,16 +52,16 @@ func addTwoNumbers(l1 *node.ListNode, l2 *node.ListNode) *node.ListNode {
 		sum, carry = sum%10, sum/10
 
 		if head == nil {
-			head = &node.ListNode{Val: sum}
+			head = &helper.ListNode{Val: sum}
 			tail = head
 		} else {
-			tail.Next = &node.ListNode{Val: sum}
+			tail.Next = &helper.ListNode{Val: sum}
 			tail = tail.Next
 		}
 	}
 
 	if carry > 0 {
-		tail.Next = &node.ListNode{Val: carry}
+		tail.Next = &helper.ListNode{Val: carry}
 	}
 
 	return head
