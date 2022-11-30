@@ -61,3 +61,7 @@ func (e *Etcd) KeepAlive(ID clientv3.LeaseID) {
 		fmt.Println("ttl:", ka.TTL)
 	}
 }
+
+func (e *Etcd) Name() string {
+	return "etcd"
+}

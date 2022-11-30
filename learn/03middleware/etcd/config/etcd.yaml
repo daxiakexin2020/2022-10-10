@@ -1,4 +1,3 @@
-address:
-  127.0.0.1
-port:
-  2379
+etcd:
+  address: 127.0.0.1
+  port: 2379
