@@ -21,46 +21,38 @@ type Register interface {
 	Put(ctx context.Context, key string, val string) error
 }
 
-type Service struct {
-	ServerName string   `json:"server_name"`
-	Address    []string `json:"address"`
-	RType      regTyep
-	reg        Register
+type RegisteServer struct {
+	RType regTyep  `json:"rtype"`
+	reg   Register `json:"reg"`
 }
 
-func NewService(serviceName string, addreess []string, rtype regTyep) (*Service, error) {
-	service := &Service{
-		ServerName: serviceName,
-		Address:    addreess,
-		RType:      rtype,
-	}
-
-	switch rtype {
+func NewRegisteServer(addr []string, rtyep regTyep) (*RegisteServer, error) {
+	rs := &RegisteServer{RType: rtyep}
+	switch rtyep {
 	case ETCD:
-		r, err := etcd.NewEtcd([]string{"127.0.0.1:2379"})
+		r, err := etcd.NewEtcd(addr)
 		if err != nil {
 			return nil, err
 		}
-		service.reg = r
+		rs.reg = r
+		return rs, nil
 	default:
-		return nil, errors.New("没有注册中心可用")
+		return nil, errors.New("没有注册中心可以使用")
 	}
-
-	return service, nil
 }
 
-func (s *Service) Register() error {
-	key, val := s.Gerenral()
-	return s.reg.Put(context.TODO(), key, val)
+func (rs *RegisteServer) Register(serverName string, addr []string) error {
+	return rs.reg.Put(context.Background(), rs.makeKey(serverName), rs.makeValue(addr))
 }
 
-func (s *Service) Get(key string) ([]string, error) {
-	return s.reg.Get(context.TODO(), key)
+func (rs *RegisteServer) Get(key string) ([]string, error) {
+	return rs.reg.Get(context.TODO(), rs.makeKey(key))
 }
 
-func (s *Service) Gerenral() (string, string) {
-	addrs := strings.Join(s.Address, "-")
-	key := fmt.Sprintf("%s/%s", s.ServerName, addrs)
-	val := fmt.Sprintf("%s", addrs)
-	return key, val
+func (rs *RegisteServer) makeKey(key string) string {
+	return fmt.Sprintf("service_%s", key)
+}
+
+func (rs *RegisteServer) makeValue(val []string) string {
+	return strings.Join(val, "-")
 }
