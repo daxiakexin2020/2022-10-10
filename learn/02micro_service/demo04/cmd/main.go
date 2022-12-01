@@ -15,7 +15,7 @@ func test() {
 	if err != nil {
 		log.Fatalf("获取服务实体错误=>>>%v", err)
 	}
-	if err = s.Register("test_key", []string{"127.0.0.1:80"}); err != nil {
+	if err = s.Register("test_key", []string{"127.0.0.1:81"}); err != nil {
 		log.Fatalf("注册服务失败=>>>", err)
 	}
 	fmt.Println("服务注册成功")

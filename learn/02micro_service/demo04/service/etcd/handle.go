@@ -13,7 +13,7 @@ type Etcd struct {
 }
 
 func NewEtcd(addr []string) (*Etcd, error) {
-	es, err := etcd_service.NewEtcd(addr, etcd_service.WithDialTimeout(1*time.Second))
+	es, err := etcd_service.NewEtcd(addr, etcd_service.WithDialTimeout(5*time.Second))
 	if err != nil {
 		return nil, errors.New("连接etcd服务失败")
 	}

@@ -1,4 +1,4 @@
-module 05uuid
+module 06uuid
 
 go 1.18
 

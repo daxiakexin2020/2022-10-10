@@ -14,10 +14,10 @@ type Service interface {
 
 type Server struct {
 	ReServices []Service
-	AH         *backend.A     `rtag:"ah"`
-	BH         *backend.B     `rtag:"bh"`
-	CH         *backend.C     `rtag:"ch"`
-	ConH       backend.Config `rtag:"conh"`
+	AH         *backend.A `rtag:"ah"`
+	BH         *backend.B `rtag:"bh"`
+	CH         *backend.C `rtag:"ch"`
+	//ConH       backend.Config `rtag:"conh"`
 }
 
 func NewServer() *Server {

@@ -45,6 +45,10 @@ func (rs *RegisteServer) Register(serverName string, addr []string) error {
 	return rs.reg.Put(context.Background(), rs.makeKey(serverName), rs.makeValue(addr))
 }
 
+func (rs *RegisteServer) UnRegister(serverName string) {
+
+}
+
 func (rs *RegisteServer) Get(key string) ([]string, error) {
 	return rs.reg.Get(context.TODO(), rs.makeKey(key))
 }
