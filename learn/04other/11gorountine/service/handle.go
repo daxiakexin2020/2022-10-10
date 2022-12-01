@@ -28,7 +28,7 @@ func Handle01() {
 		}
 	}()
 
-	for v := range ch {
+	for v := range ch { //关闭的chan，也会一直遍历，直到没有数据，则退出，使用range方式，一定要保证有地方关闭chan，否则会阻塞...
 		fmt.Printf("**********data:%d**********\n", v)
 		time.Sleep(1 * time.Second)
 	}
