@@ -1,0 +1,25 @@
+etcd:
+  endpoints: [ "127.0.0.1:2379" ]
+  username: zz
+  password: "11"
+  dial_timeout: 5
+  dial_keep_alive_time: 5
+
+mysql:
+  database: test
+  host: 127.0.0.1
+  port: 3306
+  username: root
+  password: "12345678"
+
+redis:
+  addr: 127.0.0.1
+  port: 6379
+  db: 1
+  password:
+  prefix: 
+
+jwt:
+  token_issuer: GATEWAY
+  token_secret: cons2022@!.KX2012?.Zz.
+  token_timeout: 20
