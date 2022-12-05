@@ -1,9 +1,15 @@
+web_server:
+  addr: 127.0.0.1
+  port: 6001
+grpc_server:
+  addr:
+  port:
 etcd:
   endpoints: [ "127.0.0.1:2379" ]
-  username: zz
-  password: "11"
-  dial_timeout: 5
-  dial_keep_alive_time: 5
+  username:
+  password:
+  dial_timeout:
+  dial_keep_alive_time:
 
 mysql:
   database: test
@@ -17,7 +23,8 @@ redis:
   port: 6379
   db: 1
   password:
-  prefix: 
+  prefix:
+  pool_size: 10
 
 jwt:
   token_issuer: GATEWAY

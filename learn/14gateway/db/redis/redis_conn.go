@@ -30,6 +30,12 @@ func WithPassword(password string) Option {
 	}
 }
 
+func WithPoolSize(poolSize int) Option {
+	return func(r *rclient) {
+		r.config.PoolSize = poolSize
+	}
+}
+
 func (r *rclient) apply(opts []Option) {
 	for _, opt := range opts {
 		opt(r)

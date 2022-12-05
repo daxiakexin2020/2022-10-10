@@ -16,6 +16,7 @@ type RedisConfig struct {
 	DB       int    `json:"db"`
 	Password string `json:"password"`
 	Prefix   string `json:"prefix"`
+	PoolSize int    `json:"pool_size"`
 }
 
 func (rc *RedisConfig) CName() string {

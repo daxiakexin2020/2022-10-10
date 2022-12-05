@@ -3,7 +3,6 @@ package config
 import (
 	"log"
 	"sync"
-	"time"
 )
 
 var (
@@ -12,11 +11,11 @@ var (
 )
 
 type EtcdConfig struct {
-	Endpoints         []string      `json:"endpoints" mapstructure:"endpoints"`
-	Username          string        `json:"username" mapstructure:"username"`
-	Password          string        `json:"password" mapstructure:"password"`
-	DialTimeout       time.Duration `json:"dial_timeout" mapstructure:"dialTimeout"`
-	DialKeepAliveTime time.Duration `json:"dial_keep_alive_time" mapstructure:"dialKeepAliveTime"`
+	Endpoints         []string `json:"endpoints" mapstructure:"endpoints"`
+	Username          string   `json:"username" mapstructure:"username"`
+	Password          string   `json:"password" mapstructure:"password"`
+	DialTimeout       int64    `json:"dial_timeout" mapstructure:"dialTimeout"`
+	DialKeepAliveTime int64    `json:"dial_keep_alive_time" mapstructure:"dialKeepAliveTime"`
 }
 
 func (ec *EtcdConfig) CName() string {
