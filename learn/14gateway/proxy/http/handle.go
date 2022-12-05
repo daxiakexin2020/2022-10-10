@@ -1,6 +1,9 @@
 package http
 
 import (
+	"bytes"
+	"encoding/json"
+	"io"
 	"net/http"
 	nurl "net/url"
 )
@@ -32,26 +35,48 @@ type ProxyRequest struct {
 	Request *http.Request
 }
 
-func NewProxyRequest(url string, reqData map[string]interface{}) (*ProxyRequest, error) {
+func makeJsonDatas(reqDatas map[string]interface{}) io.Reader {
+	requestBody := new(bytes.Buffer)
+	json.NewEncoder(requestBody).Encode(reqDatas)
+	return requestBody
+}
 
-	if reqData != nil {
-		//requestBody := new(bytes.Buffer)
-		//json.NewEncoder(requestBody).Encode(reqData) //发送携带json格式的数据
+func makeFormDatas(reqDatas map[string]interface{}) io.Reader {
+	formValues := nurl.Values{}
+	for k, v := range reqDatas {
+		if rv, ok := v.(string); ok {
+			formValues.Set(k, rv)
+		}
 	}
-	//formValues := nurl.Values{}
-	//formValues.Set("name", "name")
-	//formDataStr := formValues.Encode()
-	//formDataBytes := []byte(formDataStr)
-	//formBytesReader := bytes.NewReader(formDataBytes)
+	formDataBytes := []byte(formValues.Encode())
+	return bytes.NewReader(formDataBytes)
+}
 
-	req, err := http.NewRequest(string(GET_METHOD), url, nil)
-	req.Form = nurl.Values{}
-	req.PostForm = nurl.Values{}
+func makeReqDatas(reqDatas map[string]interface{}, applicationType application_type) io.Reader {
+	if reqDatas == nil {
+		return nil
+	}
+	switch applicationType {
+	case URLENCODE_TYPE:
+		return makeFormDatas(reqDatas)
+	case JSON_TYPE:
+		return makeJsonDatas(reqDatas)
+	default:
+		return nil
+	}
+}
+
+func makeApplicationType(applicationType application_type) {
+}
+
+func NewProxyRequest(url string, reqDatas map[string]interface{}, applicationType application_type) (*ProxyRequest, error) {
+
+	ioReader := makeReqDatas(reqDatas, applicationType)
+	req, err := http.NewRequest(string(GET_METHOD), url, ioReader)
 	if err != nil {
 		return nil, err
 	}
-
-	req.Header.Set(CONTENT_TYPE, string(URLENCODE_TYPE))
+	req.Header.Set(CONTENT_TYPE, string(applicationType))
 
 	return &ProxyRequest{
 		Clinet:  &http.Client{},
