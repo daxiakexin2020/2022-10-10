@@ -31,17 +31,33 @@ const (
 const CONTENT_TYPE = "Content-Type"
 
 type ProxyRequest struct {
-	Clinet  *http.Client
-	Request *http.Request
+	clinet          *http.Client
+	request         *http.Request
+	reqData         map[string]interface{} `json:"req_data"`
+	applicationType application_type       `json:"application_type"`
 }
 
-func makeJsonDatas(reqDatas map[string]interface{}) io.Reader {
+type Option func(pr *ProxyRequest)
+
+func WithReqData(reqData map[string]interface{}) Option {
+	return func(pr *ProxyRequest) {
+		pr.reqData = reqData
+	}
+}
+
+func WithApplicationType(applicationType application_type) Option {
+	return func(pr *ProxyRequest) {
+		pr.applicationType = applicationType
+	}
+}
+
+func makeJsonDatas(reqData map[string]interface{}) io.Reader {
 	requestBody := new(bytes.Buffer)
-	json.NewEncoder(requestBody).Encode(reqDatas)
+	json.NewEncoder(requestBody).Encode(reqData)
 	return requestBody
 }
 
-func makeFormDatas(reqDatas map[string]interface{}) io.Reader {
+func makeFormData(reqDatas map[string]interface{}) io.Reader {
 	formValues := nurl.Values{}
 	for k, v := range reqDatas {
 		if rv, ok := v.(string); ok {
@@ -52,36 +68,38 @@ func makeFormDatas(reqDatas map[string]interface{}) io.Reader {
 	return bytes.NewReader(formDataBytes)
 }
 
-func makeReqDatas(reqDatas map[string]interface{}, applicationType application_type) io.Reader {
-	if reqDatas == nil {
+func (pr *ProxyRequest) makeReqData() io.Reader {
+	if pr.reqData == nil {
 		return nil
 	}
-	switch applicationType {
+	switch pr.applicationType {
 	case URLENCODE_TYPE:
-		return makeFormDatas(reqDatas)
+		return makeFormData(pr.reqData)
 	case JSON_TYPE:
-		return makeJsonDatas(reqDatas)
+		return makeJsonDatas(pr.reqData)
 	default:
 		return nil
 	}
 }
 
-func makeApplicationType(applicationType application_type) {
+func (pr *ProxyRequest) apply(opts []Option) {
+	for _, opt := range opts {
+		opt(pr)
+	}
 }
 
-func NewProxyRequest(url string, reqDatas map[string]interface{}, applicationType application_type) (*ProxyRequest, error) {
+func NewProxyRequest(url string, opts ...Option) (*ProxyRequest, error) {
 
-	ioReader := makeReqDatas(reqDatas, applicationType)
-	req, err := http.NewRequest(string(GET_METHOD), url, ioReader)
+	pr := &ProxyRequest{applicationType: JSON_TYPE}
+	pr.apply(opts)
+	req, err := http.NewRequest(string(GET_METHOD), url, pr.makeReqData())
 	if err != nil {
 		return nil, err
 	}
-	req.Header.Set(CONTENT_TYPE, string(applicationType))
-
-	return &ProxyRequest{
-		Clinet:  &http.Client{},
-		Request: req,
-	}, nil
+	pr.clinet = &http.Client{}
+	pr.request = req
+	pr.SetContextType(pr.applicationType)
+	return pr, nil
 }
 
 func (pr *ProxyRequest) SetContextType(val application_type) *ProxyRequest {
@@ -89,7 +107,7 @@ func (pr *ProxyRequest) SetContextType(val application_type) *ProxyRequest {
 }
 
 func (pr *ProxyRequest) SetHeader(key string, val string) *ProxyRequest {
-	pr.Request.Header.Set(key, val)
+	pr.request.Header.Set(key, val)
 	return pr
 }
 
@@ -100,32 +118,11 @@ func (pr *ProxyRequest) SetHeaders(heads map[string]string) *ProxyRequest {
 	return pr
 }
 
-func (pr *ProxyRequest) SetForm(key string, val string) *ProxyRequest {
-	pr.Request.Form.Set(key, val)
-	return pr
-}
-
-func (pr *ProxyRequest) SetForms(heads map[string]string) *ProxyRequest {
-	for k, v := range heads {
-		pr.SetForm(k, v)
+func (pr *ProxyRequest) Close() error {
+	if pr.request.Body == nil {
+		return nil
 	}
-	return pr
-}
-
-func (pr *ProxyRequest) SetPostForm(key string, val string) *ProxyRequest {
-	pr.Request.PostForm.Set(key, val)
-	return pr
-}
-
-func (pr *ProxyRequest) SetPostForms(heads map[string]string) *ProxyRequest {
-	for k, v := range heads {
-		pr.SetPostForm(k, v)
-	}
-	return pr
-}
-
-func (pr *ProxyRequest) Close() {
-	pr.Request.Body.Close()
+	return pr.request.Body.Close()
 }
 
 func (pr *ProxyRequest) Get() (*http.Response, error) {
@@ -149,7 +146,11 @@ func (pr *ProxyRequest) OPTIONS() (*http.Response, error) {
 	return pr.do(OPTIONS_METHOD)
 }
 
+func (pr *ProxyRequest) Send(method method_type) (*http.Response, error) {
+	return pr.do(method)
+}
+
 func (pr *ProxyRequest) do(method method_type) (*http.Response, error) {
-	pr.Request.Method = string(method)
-	return pr.Clinet.Do(pr.Request)
+	pr.request.Method = string(method)
+	return pr.clinet.Do(pr.request)
 }

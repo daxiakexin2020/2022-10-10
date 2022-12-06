@@ -6,7 +6,6 @@ import (
 	proxy_http "14gateway/proxy/http"
 	etcd_service "14gateway/register_center/etcd/service"
 	"fmt"
-	"io"
 	"log"
 )
 
@@ -16,30 +15,25 @@ func main() {
 
 func test() {
 
-	//initCondition()
+	initCondition()
 
 	reqData := map[string]interface{}{}
 	reqData["name"] = "zz_test_name"
 	reqData["code"] = "1234"
-	pr, _ := proxy_http.NewProxyRequest("http://127.0.0.1:9002/test_json", reqData, proxy_http.JSON_TYPE)
+	reqData["password"] = "abc中"
+	pr, _ := proxy_http.NewProxyRequest("http://127.0.0.1:9002/test_json")
 	resp, err := pr.POST()
-	fmt.Println("get err : ", err)
-	for {
-		// 接收服务端信息
-		buf := make([]byte, 1024)
-		n, err := resp.Body.Read(buf)
-		if err != nil && err != io.EOF {
-			fmt.Println(err)
-			return
-		} else {
-			fmt.Println("读取完毕")
-			res := string(buf[:n])
-			fmt.Println(res)
-			break
-		}
-	}
-
 	defer resp.Body.Close()
+	defer pr.Close()
+
+	fmt.Println("get err : ", err)
+
+	result, err := proxy_http.Parse(resp)
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Println("result", result)
+
 }
 
 func initCondition() {
