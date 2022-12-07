@@ -156,6 +156,20 @@ func (pr *ProxyRequest) do(method method_type) (*http.Response, error) {
 }
 
 func GetMethod(method string) method_type {
-	m := method_type(method)
-	return m
+	switch method_type(method) {
+	case GET_METHOD:
+		return GET_METHOD
+	case POST_METHOD:
+		return POST_METHOD
+	case PUT_METHOD:
+		return PUT_METHOD
+	case HEAD_METHOD:
+		return HEAD_METHOD
+	case DELETE_METHOD:
+		return DELETE_METHOD
+	case OPTIONS_METHOD:
+		return OPTIONS_METHOD
+	default:
+		return ""
+	}
 }

@@ -51,7 +51,7 @@ func ParseMiddleWare() gin.HandlerFunc {
 		fmt.Println(" body raw : ", helper.GetBody(ctx))
 		fmt.Println(" path : ", helper.GetPathParams(ctx))
 
-		fmt.Println("dddddd", proxy_http.GetMethod("aaa"))
+		fmt.Println("dddddd", proxy_http.GetMethod(cmethod))
 
 	}
 }
