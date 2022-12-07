@@ -27,6 +27,7 @@ func MakeList(len int) *ListNode {
 }
 
 func ShowList(node *ListNode) {
+	fmt.Println("**********************showList start**********************")
 	for node != nil {
 		fmt.Printf("value=%d\n", node.Val)
 		node = node.Next

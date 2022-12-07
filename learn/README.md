@@ -17,6 +17,11 @@
 
 # 模块设计
 + 服务注册
+  +  服务名称 string Y
+     服务地址 array  Y 
+     服务端口 int    Y
+     服务类型 string （http｜grpc）  Y
+     请求方式 string  (GET POST PUT DELETE OPTIONS HEAD ANY) Y
 + 服务发现
 + 权限验证
   + token验证
@@ -27,6 +32,7 @@
   + http:
     + 路由：login接口、刷新token接口、请求服务接口...
     + 请求微服务的方式，http
+    + 解析请求，path，params，透传
   + grpc
     + 路由：login接口、刷新token接口、请求各个服务接口...
     + 请求微服务的方式，grpc

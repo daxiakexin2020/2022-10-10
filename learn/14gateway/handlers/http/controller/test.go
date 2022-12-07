@@ -16,6 +16,7 @@ func Tes(ctx *gin.Context) {
 	ctx.JSON(200, gin.H{
 		"code": "0",
 		"msg":  "ok",
+		"data": ctx.Request.Form,
 	})
 }
 

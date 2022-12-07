@@ -154,3 +154,8 @@ func (pr *ProxyRequest) do(method method_type) (*http.Response, error) {
 	pr.request.Method = string(method)
 	return pr.clinet.Do(pr.request)
 }
+
+func GetMethod(method string) method_type {
+	m := method_type(method)
+	return m
+}
