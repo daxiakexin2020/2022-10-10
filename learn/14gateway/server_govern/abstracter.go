@@ -49,3 +49,22 @@ func (s *server) makeKey() string {
 func (s *server) makeValue() string {
 	return strings.Join(s.Addr, ",")
 }
+
+func GetMethod(method string) method_type {
+	switch method_type(method) {
+	case GET_TYPE:
+		return GET_TYPE
+	case POST_TYPE:
+		return POST_TYPE
+	case PUT_TYPE:
+		return PUT_TYPE
+	case HEAD_TYPE:
+		return HEAD_TYPE
+	case DELETE_TYPE:
+		return DELETE_TYPE
+	case OPTIONS_TYPE:
+		return OPTIONS_TYPE
+	default:
+		return ""
+	}
+}

@@ -2,6 +2,7 @@ package controller
 
 import (
 	cvalidator "14gateway/components/validator"
+	"14gateway/handlers/http/service"
 	"github.com/gin-gonic/gin"
 )
 
@@ -13,72 +14,53 @@ type Login struct {
 }
 
 func Tes(ctx *gin.Context) {
-	ctx.JSON(200, gin.H{
-		"code": "0",
-		"msg":  "ok",
-		"data": ctx.Request.Form,
-	})
+
+	service := service.NewClientServer(ctx)
+	resp, err := service.Do()
+
+	if err != nil {
+		ctx.JSON(200, gin.H{
+			"code": "1002",
+			"msg":  "请求失败",
+			"data": ctx.Request,
+			"err":  err.Error(),
+		})
+	} else {
+		ctx.JSON(200, resp)
+	}
 }
 
 // body
 func TestJsonHandler(ctx *gin.Context) {
 
-	login := &Login{}
-	err := ctx.ShouldBindJSON(login)
+	service := service.NewClientServer(ctx)
+	resp, err := service.Do()
 	if err != nil {
-		ctx.JSON(0, gin.H{
-			"code": 1001,
-			"msg":  err.Error(),
-			"data": login,
+		ctx.JSON(200, gin.H{
+			"code":  "1002",
+			"msg":   "请求失败",
+			"data":  ctx.Request.URL,
+			"error": err.Error(),
 		})
-		return
+	} else {
+		ctx.JSON(200, resp)
 	}
-
-	verr := cvalidator.Check(login)
-	if verr != nil {
-		ctx.JSON(0, gin.H{
-			"code": 1002,
-			"msg":  verr.Error(),
-			"data": login,
-		})
-		return
-	}
-
-	ctx.JSON(0, gin.H{
-		"code": 0,
-		"msg":  "ok",
-		"data": login,
-	})
 }
 
 // form
 func TestFormHandler(ctx *gin.Context) {
-	login := &Login{}
-	err := ctx.Bind(login)
+	service := service.NewClientServer(ctx)
+	resp, err := service.Do()
 	if err != nil {
-		ctx.JSON(0, gin.H{
-			"code": 1001,
-			"msg":  err.Error(),
-			"data": login,
+		ctx.JSON(200, gin.H{
+			"code":  "1002",
+			"msg":   "请求失败",
+			"data":  ctx.Request.URL,
+			"error": err.Error(),
 		})
-		return
+	} else {
+		ctx.JSON(200, resp)
 	}
-
-	verr := cvalidator.Check(login)
-	if verr != nil {
-		ctx.JSON(0, gin.H{
-			"code": 1002,
-			"msg":  verr.Error(),
-			"data": login,
-		})
-		return
-	}
-
-	ctx.JSON(0, gin.H{
-		"code": 0,
-		"msg":  "ok",
-		"data": login,
-	})
 }
 
 // param

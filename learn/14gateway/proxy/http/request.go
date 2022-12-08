@@ -3,6 +3,7 @@ package http
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"io"
 	"net/http"
 	nurl "net/url"
@@ -33,13 +34,13 @@ const CONTENT_TYPE = "Content-Type"
 type ProxyRequest struct {
 	clinet          *http.Client
 	request         *http.Request
-	reqData         map[string]interface{} `json:"req_data"`
-	applicationType application_type       `json:"application_type"`
+	reqData         interface{}      `json:"req_data"`
+	applicationType application_type `json:"application_type"`
 }
 
 type Option func(pr *ProxyRequest)
 
-func WithReqData(reqData map[string]interface{}) Option {
+func WithReqData(reqData interface{}) Option {
 	return func(pr *ProxyRequest) {
 		pr.reqData = reqData
 	}
@@ -51,9 +52,11 @@ func WithApplicationType(applicationType application_type) Option {
 	}
 }
 
-func makeJsonDatas(reqData map[string]interface{}) io.Reader {
+func makeJsonDatas(reqData []byte) io.Reader {
 	requestBody := new(bytes.Buffer)
-	json.NewEncoder(requestBody).Encode(reqData)
+	data := make(map[string]interface{})
+	json.Unmarshal(reqData, &data)
+	json.NewEncoder(requestBody).Encode(data)
 	return requestBody
 }
 
@@ -69,14 +72,30 @@ func makeFormData(reqDatas map[string]interface{}) io.Reader {
 }
 
 func (pr *ProxyRequest) makeReqData() io.Reader {
+	fmt.Println("****************************applicationType****************************", pr.reqData, pr.applicationType)
+
 	if pr.reqData == nil {
 		return nil
 	}
 	switch pr.applicationType {
 	case URLENCODE_TYPE:
-		return makeFormData(pr.reqData)
+		v, ok := pr.reqData.(map[string]interface{})
+		if ok {
+			return makeFormData(v)
+		}
+		return nil
+	case FORM_DATA_TYPE:
+		v, ok := pr.reqData.(map[string]interface{})
+		if ok {
+			return makeFormData(v)
+		}
+		return nil
 	case JSON_TYPE:
-		return makeJsonDatas(pr.reqData)
+		v, ok := pr.reqData.([]byte)
+		if ok {
+			return makeJsonDatas(v)
+		}
+		return nil
 	default:
 		return nil
 	}
@@ -90,9 +109,11 @@ func (pr *ProxyRequest) apply(opts []Option) {
 
 func NewProxyRequest(url string, opts ...Option) (*ProxyRequest, error) {
 
-	pr := &ProxyRequest{applicationType: JSON_TYPE}
+	pr := &ProxyRequest{}
 	pr.apply(opts)
+	pr.applicationType = FORM_DATA_TYPE
 	req, err := http.NewRequest(string(GET_METHOD), url, pr.makeReqData())
+	fmt.Println("pr.makeReqData()makeReqDatamakeReqDatamakeReqData", pr.makeReqData())
 	if err != nil {
 		return nil, err
 	}
@@ -130,13 +151,22 @@ func (pr *ProxyRequest) Get() (*http.Response, error) {
 }
 
 func (pr *ProxyRequest) POST() (*http.Response, error) {
+	if pr.applicationType == "" {
+		pr.applicationType = FORM_DATA_TYPE
+	}
 	return pr.do(POST_METHOD)
 }
 
 func (pr *ProxyRequest) PUT() (*http.Response, error) {
+	if pr.applicationType == "" {
+		pr.applicationType = FORM_DATA_TYPE
+	}
 	return pr.do(PUT_METHOD)
 }
 func (pr *ProxyRequest) DELTE() (*http.Response, error) {
+	if pr.applicationType == "" {
+		pr.applicationType = FORM_DATA_TYPE
+	}
 	return pr.do(DELETE_METHOD)
 }
 func (pr *ProxyRequest) HEAD() (*http.Response, error) {
@@ -152,6 +182,11 @@ func (pr *ProxyRequest) Send(method method_type) (*http.Response, error) {
 
 func (pr *ProxyRequest) do(method method_type) (*http.Response, error) {
 	pr.request.Method = string(method)
+
+	//body := &bytes.Buffer{}
+	//writer := multipart.NewWriter(body)
+
+	//pr.request.Header.Set(CONTENT_TYPE, writer.FormDataContentType())
 	return pr.clinet.Do(pr.request)
 }
 

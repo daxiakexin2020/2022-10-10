@@ -57,3 +57,75 @@ func GetBody(c *gin.Context) []byte {
 	c.Request.Body = ioutil.NopCloser(bytes.NewBuffer(body))
 	return body
 }
+
+func GetCMethod(ctx *gin.Context) (string, bool) {
+	cv, cexists := get(ctx, CMETHOD)
+	if !cexists {
+		return "", false
+	}
+	str, ok := cv.(string)
+	if !ok {
+		return "", ok
+	}
+	return str, true
+}
+
+func GetCPath(ctx *gin.Context) (string, bool) {
+	cv, cexists := get(ctx, CPATH)
+	if !cexists {
+		return "", false
+	}
+	str, ok := cv.(string)
+	if !ok {
+		return "", ok
+	}
+	return str, true
+}
+
+func GetCApi(ctx *gin.Context) (string, bool) {
+	cv, cexists := get(ctx, CAPI)
+	if !cexists {
+		return "", false
+	}
+	str, ok := cv.(string)
+	if !ok {
+		return "", ok
+	}
+	return str, true
+}
+
+func GetCReqData(ctx *gin.Context) (interface{}, bool) {
+	return get(ctx, CReqData)
+}
+
+func GetVal(ctx *gin.Context, key string) (val any, exists bool) {
+	return get(ctx, key)
+}
+
+func get(ctx *gin.Context, key string) (val any, exists bool) {
+	return ctx.Get(key)
+}
+
+func SetCMethod(ctx *gin.Context, val any) {
+	set(ctx, CMETHOD, val)
+}
+
+func SetCPath(ctx *gin.Context, val any) {
+	set(ctx, CPATH, val)
+}
+
+func SetCApi(ctx *gin.Context, val any) {
+	set(ctx, CAPI, val)
+}
+
+func SetCReqData(ctx *gin.Context, val any) {
+	set(ctx, CReqData, val)
+}
+
+func SetKV(ctx *gin.Context, key string, val any) {
+	set(ctx, key, val)
+}
+
+func set(ctx *gin.Context, key string, val any) {
+	ctx.Set(key, val)
+}

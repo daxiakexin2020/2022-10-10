@@ -2,7 +2,6 @@ package middleware
 
 import (
 	"14gateway/helper"
-	proxy_http "14gateway/proxy/http"
 	"fmt"
 	"github.com/gin-gonic/gin"
 )
@@ -36,22 +35,29 @@ func ParseMiddleWare() gin.HandlerFunc {
 						path/query的参数，直接在路径url上带着呢，直接透传url即可，需要获取到form和body的数据，组成io.Reader
 		*/
 
-		cmethod := ctx.Request.Method
-		cpth := ctx.Request.URL
-		capi := ctx.Request.URL.Path
+		helper.SetCMethod(ctx, ctx.Request.Method)
+		helper.SetCPath(ctx, ctx.Request.URL.RawPath)
+		helper.SetCApi(ctx, ctx.Request.URL.Path)
 
-		fmt.Println(" method : ", cmethod)
-		fmt.Println(" path : ", cpth)
-		fmt.Println(" api : ", capi)
+		fmt.Println(" method : ", ctx.Request.Method)
+		fmt.Println(" path : ", ctx.Request.URL.RawQuery)
+		fmt.Println(" api : ", ctx.Request.URL.Path)
 		fmt.Println(" Context-type : ", ctx.Request.Header.Get("Content-Type"))
 
-		fmt.Println(" get query : ", helper.GetQueryParams(ctx))
 		postForm, err := helper.GetPostFormParams(ctx)
-		fmt.Println(" body form-data || application/x-www-form-urlencoded : ", postForm, err)
-		fmt.Println(" body raw : ", helper.GetBody(ctx))
-		fmt.Println(" path : ", helper.GetPathParams(ctx))
 
-		fmt.Println("dddddd", proxy_http.GetMethod(cmethod))
+		if err == nil && postForm != nil {
+			helper.SetCReqData(ctx, postForm)
+		}
 
+		bodyData := helper.GetBody(ctx)
+		fmt.Println(" ********************body******************** : ", bodyData, ctx.Request.Body)
+		if len(bodyData) > 0 {
+			helper.SetCReqData(ctx, bodyData)
+		}
+		//fmt.Println(" body form-data || application/x-www-form-urlencoded : ", postForm, err)
+		//fmt.Println(" body raw : ", helper.GetBody(ctx))
+		//fmt.Println(" path : ", helper.GetPathParams(ctx))
+		ctx.Next()
 	}
 }

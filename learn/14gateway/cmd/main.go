@@ -21,7 +21,7 @@ func test() {
 	reqData["name"] = "zz_test_name"
 	reqData["code"] = "1234"
 	reqData["password"] = "abc中"
-	pr, _ := proxy_http.NewProxyRequest("http://127.0.0.1:9002/test_json")
+	pr, _ := proxy_http.NewProxyRequest("http://127.0.0.1:9002/test")
 	resp, err := pr.POST()
 	defer resp.Body.Close()
 	defer pr.Close()
