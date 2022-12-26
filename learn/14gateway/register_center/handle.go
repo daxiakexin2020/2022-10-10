@@ -13,13 +13,6 @@ const (
 	CONSOL regTyep = "consol"
 )
 
-type Register interface {
-	Name() string
-	Get(ctx context.Context, key string) ([]string, error)
-	Put(ctx context.Context, key string, val string, options ...interface{}) error
-	Delete(ctx context.Context, key string) error
-}
-
 type RegisteServer struct {
 	RType regTyep  `json:"rtype"`
 	reg   Register `json:"reg"`

@@ -14,53 +14,23 @@ type Login struct {
 }
 
 func Tes(ctx *gin.Context) {
-
-	service := service.NewClientServer(ctx)
-	resp, err := service.Do()
-
-	if err != nil {
-		ctx.JSON(200, gin.H{
-			"code": "1002",
-			"msg":  "请求失败",
-			"data": ctx.Request,
-			"err":  err.Error(),
-		})
-	} else {
-		ctx.JSON(200, resp)
-	}
+	s := service.NewClientServer(ctx)
+	resp, _ := s.Do()
+	service.CommonResponse(resp, s)
 }
 
 // body
 func TestJsonHandler(ctx *gin.Context) {
-
-	service := service.NewClientServer(ctx)
-	resp, err := service.Do()
-	if err != nil {
-		ctx.JSON(200, gin.H{
-			"code":  "1002",
-			"msg":   "请求失败",
-			"data":  ctx.Request.URL,
-			"error": err.Error(),
-		})
-	} else {
-		ctx.JSON(200, resp)
-	}
+	s := service.NewClientServer(ctx)
+	resp, _ := s.Do()
+	service.CommonResponse(resp, s)
 }
 
 // form
 func TestFormHandler(ctx *gin.Context) {
-	service := service.NewClientServer(ctx)
-	resp, err := service.Do()
-	if err != nil {
-		ctx.JSON(200, gin.H{
-			"code":  "1002",
-			"msg":   "请求失败",
-			"data":  ctx.Request.URL,
-			"error": err.Error(),
-		})
-	} else {
-		ctx.JSON(200, resp)
-	}
+	s := service.NewClientServer(ctx)
+	resp, _ := s.Do()
+	service.CommonResponse(resp, s)
 }
 
 // param

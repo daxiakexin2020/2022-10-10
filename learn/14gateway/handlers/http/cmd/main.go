@@ -32,13 +32,16 @@ func initCondition() error {
 }
 
 func tmpRegister() {
-	sg := server_govern.NewServer("/test_query", []string{"http://127.0.0.1:9002"}, server_govern.HTTP_TYPE, server_govern.GET_TYPE)
-	err := sg.Register()
+	err := server_govern.NewServer("/test_query", server_govern.WithAddr([]string{"http://127.0.0.1:9002"})).Register()
 
-	sg2 := server_govern.NewServer("/test_json", []string{"http://127.0.0.1:9002"}, server_govern.HTTP_TYPE, server_govern.POST_TYPE)
-	err2 := sg2.Register()
+	err2 := server_govern.NewServer("/test_json",
+		server_govern.WithAddr([]string{"http://127.0.0.1:9002"}),
+		server_govern.WithMethodType(server_govern.POST),
+	).Register()
 
-	sg3 := server_govern.NewServer("/test_form", []string{"http://127.0.0.1:9002"}, server_govern.HTTP_TYPE, server_govern.POST_TYPE)
-	err3 := sg3.Register()
+	err3 := server_govern.NewServer("/test_form",
+		server_govern.WithAddr([]string{"http://127.0.0.1:9002"}),
+		server_govern.WithMethodType(server_govern.POST),
+	).Register()
 	fmt.Println("临时测试的注册结果2", err, err2, err3)
 }

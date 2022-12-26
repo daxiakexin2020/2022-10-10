@@ -7,7 +7,7 @@ func (s *server) Register() error {
 	if err != nil {
 		return err
 	}
-	if len(s.Addr) == 0 {
+	if len(s.addr) == 0 {
 		return errors.New("Register服务，不允许服务地址为空")
 	}
 	return rs.Put(s.makeKey(), s.makeValue())

@@ -2,6 +2,7 @@ package controller
 
 import (
 	cvalidator "f_gin/validator"
+	"fmt"
 	"github.com/gin-gonic/gin"
 )
 
@@ -20,7 +21,7 @@ func TestJsonHandler(ctx *gin.Context) {
 	if err != nil {
 		ctx.JSON(0, gin.H{
 			"code": 1001,
-			"msg":  err.Error(),
+			"msg":  "Bind失败",
 			"data": login,
 		})
 		return
@@ -45,11 +46,14 @@ func TestJsonHandler(ctx *gin.Context) {
 
 // form
 func TestFormHandler(ctx *gin.Context) {
+
+	fmt.Print("ctx.ContentType()", ctx.ContentType())
+
 	login := &Login{}
 	err := ctx.Bind(login)
 	if err != nil {
 		ctx.JSON(0, gin.H{
-			"code": 1001,
+			"code": 10011,
 			"msg":  err.Error(),
 			"data": login,
 		})
@@ -59,7 +63,7 @@ func TestFormHandler(ctx *gin.Context) {
 	verr := cvalidator.Check(login)
 	if verr != nil {
 		ctx.JSON(0, gin.H{
-			"code": 1002,
+			"code": 1003,
 			"msg":  verr.Error(),
 			"data": login,
 		})

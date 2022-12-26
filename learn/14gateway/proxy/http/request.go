@@ -3,7 +3,6 @@ package http
 import (
 	"bytes"
 	"encoding/json"
-	"fmt"
 	"io"
 	"net/http"
 	nurl "net/url"
@@ -52,7 +51,7 @@ func WithApplicationType(applicationType application_type) Option {
 	}
 }
 
-func makeJsonDatas(reqData []byte) io.Reader {
+func makeJsonData(reqData []byte) io.Reader {
 	requestBody := new(bytes.Buffer)
 	data := make(map[string]interface{})
 	json.Unmarshal(reqData, &data)
@@ -72,7 +71,6 @@ func makeFormData(reqDatas map[string]interface{}) io.Reader {
 }
 
 func (pr *ProxyRequest) makeReqData() io.Reader {
-	fmt.Println("****************************applicationType****************************", pr.reqData, pr.applicationType)
 
 	if pr.reqData == nil {
 		return nil
@@ -93,7 +91,7 @@ func (pr *ProxyRequest) makeReqData() io.Reader {
 	case JSON_TYPE:
 		v, ok := pr.reqData.([]byte)
 		if ok {
-			return makeJsonDatas(v)
+			return makeJsonData(v)
 		}
 		return nil
 	default:
@@ -113,7 +111,6 @@ func NewProxyRequest(url string, opts ...Option) (*ProxyRequest, error) {
 	pr.apply(opts)
 	pr.applicationType = FORM_DATA_TYPE
 	req, err := http.NewRequest(string(GET_METHOD), url, pr.makeReqData())
-	fmt.Println("pr.makeReqData()makeReqDatamakeReqDatamakeReqData", pr.makeReqData())
 	if err != nil {
 		return nil, err
 	}
@@ -182,10 +179,10 @@ func (pr *ProxyRequest) Send(method method_type) (*http.Response, error) {
 
 func (pr *ProxyRequest) do(method method_type) (*http.Response, error) {
 	pr.request.Method = string(method)
-
+	//todo
 	//body := &bytes.Buffer{}
 	//writer := multipart.NewWriter(body)
-
+	//pr.request.Header.Del("Content-Type")
 	//pr.request.Header.Set(CONTENT_TYPE, writer.FormDataContentType())
 	return pr.clinet.Do(pr.request)
 }

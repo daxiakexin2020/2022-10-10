@@ -55,9 +55,6 @@ func ParseMiddleWare() gin.HandlerFunc {
 		if len(bodyData) > 0 {
 			helper.SetCReqData(ctx, bodyData)
 		}
-		//fmt.Println(" body form-data || application/x-www-form-urlencoded : ", postForm, err)
-		//fmt.Println(" body raw : ", helper.GetBody(ctx))
-		//fmt.Println(" path : ", helper.GetPathParams(ctx))
 		ctx.Next()
 	}
 }
