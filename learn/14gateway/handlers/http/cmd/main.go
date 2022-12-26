@@ -16,7 +16,7 @@ func main() {
 		log.Fatalf("initCondition error ： ", err)
 	}
 	addr := fmt.Sprintf("%s:%d", config.GetWebServerConfig().Addr, config.GetWebServerConfig().Port)
-	tmpRegister()
+	//tmpRegister()
 	router.E.Run(addr)
 }
 

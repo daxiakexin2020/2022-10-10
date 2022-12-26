@@ -11,6 +11,7 @@ var E *gin.Engine
 func InitApiRouter() error {
 	E = gin.New()
 	E.Use(middleware.ParseMiddleWare())
+	E.Use(middleware.LimiterMiddleware())
 	api := E.Group("/")
 	api.Any("/test", controller.Tes)
 	api.POST("/test_json", controller.TestJsonHandler)

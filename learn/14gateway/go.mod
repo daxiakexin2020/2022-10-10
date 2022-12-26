@@ -13,6 +13,7 @@ require (
 	github.com/pkg/errors v0.9.1
 	github.com/spf13/viper v1.14.0
 	go.etcd.io/etcd/client/v3 v3.5.5
+	golang.org/x/time v0.0.0-20220609170525-579cf78fd858
 )
 
 require (
