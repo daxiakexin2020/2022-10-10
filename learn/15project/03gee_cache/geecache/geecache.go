@@ -2,6 +2,7 @@ package geecache
 
 import (
 	"fmt"
+	"gee_cache/geecache/singleflight"
 	"log"
 	"sync"
 )
@@ -43,6 +44,8 @@ type Group struct {
 	name      string
 	getter    Getter
 	mainCache cache
+	peers     PeerPicker
+	loader    *singleflight.Group
 }
 
 var (
@@ -56,10 +59,14 @@ func NewGroup(name string, cacheByte int64, getter Getter) *Group {
 	}
 	mu.Lock()
 	defer mu.Unlock()
+	if groups == nil {
+		groups = make(map[string]*Group)
+	}
 	g := &Group{
 		name:      name,
 		getter:    getter,
 		mainCache: cache{cacheBytes: cacheByte},
+		loader:    &singleflight.Group{},
 	}
 	groups[name] = g
 	return g
@@ -70,6 +77,13 @@ func GetGroup(name string) *Group {
 	g := groups[name]
 	mu.RUnlock()
 	return g
+}
+
+func (g *Group) RegisterPeers(peers PeerPicker) {
+	if g.peers != nil {
+		panic("RegisterPeerPicker called more than once")
+	}
+	g.peers = peers
 }
 
 func (g *Group) Get(key string) (ByteView, error) {
@@ -83,8 +97,38 @@ func (g *Group) Get(key string) (ByteView, error) {
 	return g.load(key)
 }
 
+// 新增 RegisterPeers() 方法，将 实现了 PeerPicker 接口的 HTTPPool 注入到 Group 中。
+// 新增 getFromPeer() 方法，使用实现了 PeerGetter 接口的 httpGetter 从访问远程节点，获取缓存值。
+// 修改 load 方法，使用 PickPeer() 方法选择节点，若非本机节点，则调用 getFromPeer() 从远程获取。若是本机节点或失败，则回退到 getLocally()。
+// 修改 geecache.go 中的 Group，添加成员变量 loader，并更新构建函数 NewGroup。
+// 修改 load 函数，将原来的 load 的逻辑，使用 g.loader.Do 包裹起来即可，这样确保了并发场景下针对相同的 key，load 过程只会调用一次。
 func (g *Group) load(key string) (value ByteView, err error) {
-	return g.getLocally(key)
+	// each key is only fetched once (either locally or remotely)
+	// regardless of the number of concurrent callers.
+	viewi, err := g.loader.Do(key, func() (interface{}, error) {
+		if g.peers != nil {
+			if peer, ok := g.peers.PickPeer(key); ok {
+				if value, err = g.getFromPeer(peer, key); err == nil {
+					return value, nil
+				}
+				log.Println("[GeeCache] Failed to get from peer", err)
+			}
+		}
+		return g.getLocally(key)
+	})
+
+	if err == nil {
+		return viewi.(ByteView), nil
+	}
+	return
+}
+
+func (g *Group) getFromPeer(peer PeerGetter, key string) (ByteView, error) {
+	bytes, err := peer.Get(g.name, key)
+	if err != nil {
+		return ByteView{}, err
+	}
+	return ByteView{b: bytes}, nil
 }
 
 func (g *Group) getLocally(key string) (ByteView, error) {
