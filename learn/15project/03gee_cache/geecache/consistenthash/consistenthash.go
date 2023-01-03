@@ -45,9 +45,9 @@ Add 函数允许传入 0 或 多个真实节点的名称。
 func (m *Map) Add(keys ...string) {
 	for _, key := range keys {
 		for i := 0; i < m.relicas; i++ {
-			hash := int(m.hash([]byte(strconv.Itoa(i) + key)))
-			m.keys = append(m.keys, hash)
-			m.hashMap[hash] = key
+			hashKey := int(m.hash([]byte(strconv.Itoa(i) + key)))
+			m.keys = append(m.keys, hashKey)
+			m.hashMap[hashKey] = key
 		}
 	}
 	sort.Ints(m.keys)
@@ -63,9 +63,9 @@ func (m *Map) Get(key string) string {
 	if len(m.keys) == 0 {
 		return ""
 	}
-	hash := int(m.hash([]byte(key)))
+	hashKey := int(m.hash([]byte(key)))
 	idx := sort.Search(len(m.keys), func(i int) bool {
-		return m.keys[i] >= hash
+		return m.keys[i] >= hashKey //找到了第一个大于等于hashKey的i，从keys中取出此key=>idx
 	})
 	return m.hashMap[m.keys[idx%len(m.keys)]]
 }

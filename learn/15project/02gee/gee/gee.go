@@ -10,7 +10,7 @@ type HandlerFunc func(c *Context)
 type Engine struct {
 	*RouterGroup
 	router *router
-	groups []*RouterGroup //保存所有的
+	groups []*RouterGroup //保存所有的middleware+controller
 }
 
 type RouterGroup struct {
