@@ -17,7 +17,7 @@ func (v ByteView) ByteSlice() []byte {
 // b 是只读的，使用 ByteSlice() 方法返回一个拷贝，防止缓存值被外部程序修改。
 func cloneBytes(b []byte) []byte {
 	c := make([]byte, len(b))
-	copy(c, b)
+	copy(c, b) //todo copy会产生新的切片c，c不是基于b的底层数组，因此，b依赖的底层数组，会被gc掉
 	return c
 }
 

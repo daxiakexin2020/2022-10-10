@@ -10,9 +10,14 @@ type Code uint32
 type Msg string
 
 func main() {
+
+	//todo-gcflags=-m参数 查看具体堆栈情况
 	//test()
-	res := test2()
-	fmt.Printf("res=%d", res)
+	//res := test2()
+	//fmt.Printf("res=%d", res)
+	//res := test03()
+	res := test04()
+	fmt.Printf("res=%+v,%p", res, res)
 }
 
 func test2() int {
@@ -33,4 +38,27 @@ func test() {
 	}
 
 	t(int32(res))
+}
+
+func test03() []int {
+	a := []int{1, 2, 3, 4}
+	b := make([]int, len(a))
+	c := a[0:4]
+	copy(b, a)
+	_ = c
+	//fmt.Printf("%p %p %p \n", a, b, c)
+	//fmt.Println(a, b, c)
+	//fmt.Println(&a[0], &b[0], &c[0])
+	return b
+}
+
+type C struct {
+	Name string
+}
+
+func test04() *C {
+	cccccccccccccc := &C{
+		Name: "test",
+	}
+	return cccccccccccccc
 }
