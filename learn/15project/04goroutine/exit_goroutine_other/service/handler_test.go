@@ -20,3 +20,10 @@ func TestDoGood(t *testing.T) {
 	runtime.GC()
 	t.Log(runtime.NumGoroutine())
 }
+
+func TestDoCancel(t *testing.T) {
+	t.Log(runtime.NumGoroutine())
+	doCancel()
+	runtime.GC()
+	t.Log(runtime.NumGoroutine())
+}

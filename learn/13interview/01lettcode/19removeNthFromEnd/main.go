@@ -24,7 +24,7 @@ func removeNthFromEnd(head *helper.ListNode, n int) *helper.ListNode {
 	for cur != nil {
 		cur = cur.Next
 		if i > n {
-			prev = prev.Next //上一个节点==上一个下一个节点
+			prev = prev.Next //上一个节点=上一个下一个节点
 		}
 		i++
 	}

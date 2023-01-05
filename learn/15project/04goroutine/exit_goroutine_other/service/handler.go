@@ -1,6 +1,7 @@
 package service
 
 import (
+	"context"
 	"fmt"
 	"sync"
 	"time"
@@ -59,4 +60,24 @@ func sendGoodTasks() {
 	fmt.Println("关闭管道")
 	wg.Wait()
 	fmt.Println("主协程退出")
+}
+
+func doCancel() {
+	_, cancel := context.WithCancel(context.Background())
+	var wg sync.WaitGroup
+	for j := 0; j < 40; j++ {
+		wg.Add(1)
+		go func(j int) {
+			defer wg.Done()
+			if j%2 == 0 {
+				fmt.Printf("需要取消操作=%d\n", j)
+				cancel()
+				fmt.Println("继续我的业务")
+			} else {
+				fmt.Printf("**************ok=%d\n*************", j)
+			}
+		}(j)
+	}
+	wg.Wait()
+	fmt.Println("结束")
 }

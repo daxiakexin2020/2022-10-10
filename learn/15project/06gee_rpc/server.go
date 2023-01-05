@@ -1,4 +1,4 @@
-package service
+package geerpc
 
 import (
 	"encoding/json"
@@ -8,6 +8,7 @@ import (
 	"io"
 	"log"
 	"net"
+	"net/http"
 	"reflect"
 	"strings"
 	"sync"
@@ -22,6 +23,38 @@ import (
 对于 GeeRPC 来说，目前需要协商的唯一一项内容是消息的编解码方式。我们将这部分信息，放到结构体 Option 中承载。目前，已经进入到服务端的实现阶段了。
 */
 const MagicNumber = 0x3bef5c
+
+const (
+	connected        = "200 Connnected to Gee RPC"
+	defaultRPCPath   = "_geerpc_"
+	defaultDebugPath = "/default/geerpc"
+)
+
+func (server *Server) ServeHTTP(w http.ResponseWriter, req *http.Request) {
+	if req.Method != "CONNECT" {
+		w.Header().Set("Content-Type", "text/plain;charset=utf-8")
+		w.WriteHeader(http.StatusMethodNotAllowed)
+		_, _ = io.WriteString(w, "405 must CONNECT\n")
+		return
+	}
+	conn, _, err := w.(http.Hijacker).Hijack()
+	if err != nil {
+		log.Print("rpc hijacking ", req.RemoteAddr, ": ", err.Error())
+		return
+	}
+	_, _ = io.WriteString(conn, "HTTP/1.0 "+connected+"\n\n")
+	server.ServeConn(conn)
+}
+
+func (server *Server) HandleHTTP() {
+	http.Handle(defaultRPCPath, server)
+	http.Handle(defaultDebugPath, debugHTTP{server})
+	log.Println("rpc server debug path:", defaultDebugPath)
+}
+
+func HandleHTTP() {
+	DefaultServer.HandleHTTP()
+}
 
 type Option struct {
 	MagicNumber    int
@@ -112,7 +145,7 @@ func (server *Server) Accept(lis net.Listener) {
 			log.Println("rpc server: accept error:", err)
 			return
 		}
-		go server.ServerCoon(coon)
+		go server.ServeConn(coon)
 	}
 }
 
@@ -126,7 +159,7 @@ ServeConn 的实现就和之前讨论的通信过程紧密相关了，
 然后根据 CodeType 得到对应的消息编解码器，接下来的处理交给 serverCodec。
 */
 
-func (server *Server) ServerCoon(coon io.ReadWriteCloser) {
+func (server *Server) ServeConn(coon io.ReadWriteCloser) {
 	defer func() {
 		_ = coon.Close()
 	}()
@@ -183,7 +216,7 @@ func (server *Server) serverCodec(cc codec.Codec) {
 		}
 		wg.Add(1)
 		//处理请求 handleRequest
-		go server.handleRequest(cc, req, sending, wg, 2)
+		go server.handleRequest(cc, req, sending, wg, 0)
 	}
 	wg.Wait()
 	_ = cc.Close()

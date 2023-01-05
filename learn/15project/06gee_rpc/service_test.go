@@ -1,7 +1,8 @@
-package service
+package geerpc
 
 import (
-	"fmt"
+	"log"
+	"net"
 	"reflect"
 	"testing"
 )
@@ -15,16 +16,19 @@ func (f Foo) Sum(args Args, reply *int) error {
 	return nil
 }
 
-// it's not a exported Method
-func (f Foo) sum(args Args, reply *int) error {
-	*reply = args.Num1 + args.Num2
-	return nil
-}
-
-func _assert(condition bool, msg string, v ...interface{}) {
-	if !condition {
-		panic(fmt.Sprintf("assertion failed: "+msg, v...))
+func startServer(addr chan string) {
+	var foo Foo
+	if err := Register(&foo); err != nil {
+		log.Fatal("register error:", err)
 	}
+	// pick a free port
+	l, err := net.Listen("tcp", ":0")
+	if err != nil {
+		log.Fatal("network error:", err)
+	}
+	log.Println("start rpc server on", l.Addr())
+	addr <- l.Addr().String()
+	Accept(l)
 }
 
 func TestNewService(t *testing.T) {
