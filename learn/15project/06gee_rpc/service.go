@@ -8,10 +8,10 @@ import (
 )
 
 type methodType struct {
-	method    reflect.Method
-	ArgType   reflect.Type
-	ReplyType reflect.Type
-	numCalls  uint64
+	method    reflect.Method //方法
+	ArgType   reflect.Type   //参数类型
+	ReplyType reflect.Type   //响应类型
+	numCalls  uint64         //调用次数
 }
 
 /*
@@ -23,16 +23,13 @@ rcvr 即结构体的实例本身，保留 rcvr 是因为在调用时需要 rcvr 
 method 是 map 类型，存储映射的结构体的所有符合条件的方法。 todo 结构体的方法
 */
 type service struct {
-	name   string
-	typ    reflect.Type
-	rcvr   reflect.Value
-	method map[string]*methodType
+	name   string                 //结构体的名称
+	typ    reflect.Type           //结构体的类型
+	rcvr   reflect.Value          //结构体实例本身
+	method map[string]*methodType //结构体的方法集合
 }
 
-/**
-完成构造函数 newService，入参是任意需要映射为服务的结构体实例。
-*/
-
+// todo 构造函数 newService，入参是任意需要映射为服务的结构体实例。
 func newService(rcvr interface{}) *service {
 	s := new(service)
 	s.rcvr = reflect.ValueOf(rcvr)
@@ -75,6 +72,7 @@ func (s *service) registerMethods() {
 	}
 }
 
+// 发起对结构体的方法的具体调用
 func (s *service) call(m *methodType, argv reflect.Value, replyv reflect.Value) error {
 	atomic.AddUint64(&m.numCalls, 1)
 	f := m.method.Func

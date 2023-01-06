@@ -30,6 +30,21 @@ const (
 	defaultDebugPath = "/default/geerpc"
 )
 
+var invalidRequest = struct{}{}
+
+type Option struct {
+	MagicNumber    int
+	CodecType      codec.Type
+	ConnectTimeout time.Duration
+	HandleTimeout  time.Duration
+}
+
+var DefaultOption = &Option{
+	MagicNumber:    MagicNumber,
+	CodecType:      codec.GobType,
+	ConnectTimeout: time.Second * 10,
+}
+
 func (server *Server) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	if req.Method != "CONNECT" {
 		w.Header().Set("Content-Type", "text/plain;charset=utf-8")
@@ -37,6 +52,8 @@ func (server *Server) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 		_, _ = io.WriteString(w, "405 must CONNECT\n")
 		return
 	}
+
+	//获取unix套接字
 	conn, _, err := w.(http.Hijacker).Hijack()
 	if err != nil {
 		log.Print("rpc hijacking ", req.RemoteAddr, ": ", err.Error())
@@ -54,19 +71,6 @@ func (server *Server) HandleHTTP() {
 
 func HandleHTTP() {
 	DefaultServer.HandleHTTP()
-}
-
-type Option struct {
-	MagicNumber    int
-	CodecType      codec.Type
-	ConnectTimeout time.Duration
-	HandleTimeout  time.Duration
-}
-
-var DefaultOption = &Option{
-	MagicNumber:    MagicNumber,
-	CodecType:      codec.GobType,
-	ConnectTimeout: time.Second * 10,
 }
 
 /**
@@ -117,7 +121,9 @@ findService 的实现看似比较繁琐，但是逻辑还是非常清晰的。
 现在 serviceMap 中找到对应的 service 实例，再从 service 实例的 method 中，找到对应的 methodType。
 */
 func (server *Server) findService(serviceMethod string) (svc *service, mtype *methodType, err error) {
-	//serviceMethod  格式   Foo.bar   （服务名.方法名）
+
+	//1. 查找最后的.出现位置，切割出服务名、方法名
+	//   serviceMethod  格式   Foo.bar   （服务名.方法名）
 	dot := strings.LastIndex(serviceMethod, ".")
 	if dot < 0 {
 		err = errors.New("rpc server: service/method request ill-formed: " + serviceMethod)
@@ -125,6 +131,8 @@ func (server *Server) findService(serviceMethod string) (svc *service, mtype *me
 	}
 	serviceName := serviceMethod[:dot]
 	methodName := serviceMethod[dot+1:]
+
+	//2. 通过服务名载入服务
 	svci, ok := server.serviceMap.Load(serviceName)
 	if !ok {
 		err = errors.New("rpc server: can't find service " + serviceName)
@@ -138,6 +146,7 @@ func (server *Server) findService(serviceMethod string) (svc *service, mtype *me
 	return
 }
 
+// 阻塞，等待客户端连接
 func (server *Server) Accept(lis net.Listener) {
 	for {
 		coon, err := lis.Accept()
@@ -149,22 +158,23 @@ func (server *Server) Accept(lis net.Listener) {
 	}
 }
 
+// 暴露的门面，方便上游调用
 func Accept(lis net.Listener) {
 	DefaultServer.Accept(lis)
 }
 
-/**
+/*
+*
 ServeConn 的实现就和之前讨论的通信过程紧密相关了，
 首先使用 json.NewDecoder 反序列化得到 Option 实例，检查 MagicNumber 和 CodeType 的值是否正确。
 然后根据 CodeType 得到对应的消息编解码器，接下来的处理交给 serverCodec。
 */
-
 func (server *Server) ServeConn(coon io.ReadWriteCloser) {
 	defer func() {
 		_ = coon.Close()
 	}()
 
-	//首先使用 json.NewDecoder 反序列化得到 Option 实例，检查 MagicNumber 和 CodeType 的值是否正确。
+	//1. 首先使用 json.NewDecoder 反序列化得到 Option 实例，检查 MagicNumber 和 CodeType 的值是否正确。
 	var opt Option
 	if err := json.NewDecoder(coon).Decode(&opt); err != nil {
 		log.Println("rpc server: options error: ", err)
@@ -175,16 +185,16 @@ func (server *Server) ServeConn(coon io.ReadWriteCloser) {
 		return
 	}
 
-	//然后根据 CodeType 得到对应的消息编解码器，接下来的处理交给 serverCodec。
+	//2. 然后根据 CodeType 得到对应的消息编解码器，接下来的处理交给 serverCodec。
 	f := codec.NewCodecFuncMap[opt.CodecType]
 	if f == nil {
 		log.Printf("rpc server: invalid codec type %s", opt.CodecType)
 		return
 	}
+
+	//3. 交给serverCodec处理
 	server.serverCodec(f(coon))
 }
-
-var invalidRequest = struct{}{}
 
 /*
 *
@@ -203,33 +213,35 @@ func (server *Server) serverCodec(cc codec.Codec) {
 	sending := new(sync.Mutex)
 	wg := new(sync.WaitGroup)
 	for {
-		//读取请求 readRequest
+		//1. 读取请求信息
 		req, err := server.readRequest(cc)
 		if err != nil {
 			if req == nil {
 				break
 			}
 			req.h.Error = err.Error()
-			//回复请求 sendResponse
+			//2. 回复请求   无效的请求
 			server.sendResponse(cc, req.h, invalidRequest, sending)
 			continue
 		}
 		wg.Add(1)
-		//处理请求 handleRequest
+		//3. 合法的请求，处理请求
 		go server.handleRequest(cc, req, sending, wg, 0)
 	}
 	wg.Wait()
 	_ = cc.Close()
 }
 
+// 一次请求
 type request struct {
-	h      *codec.Header
-	argv   reflect.Value
-	replyv reflect.Value
-	mtype  *methodType
-	svc    *service
+	h      *codec.Header //header头
+	argv   reflect.Value //参数
+	replyv reflect.Value //回复
+	mtype  *methodType   //方法类型
+	svc    *service      //具体服务
 }
 
+// 读取请求的header头
 func (server *Server) readRequestHeader(cc codec.Codec) (*codec.Header, error) {
 	var h codec.Header
 	if err := cc.ReadHeader(&h); err != nil {
@@ -249,15 +261,23 @@ readRequest 方法中最重要的部分，
 在这里同样需要注意 argv 可能是值类型，也可能是指针类型，所以处理方式有点差异。
 */
 func (server *Server) readRequest(cc codec.Codec) (*request, error) {
+
+	//1.读取header信息
 	h, err := server.readRequestHeader(cc)
 	if err != nil {
 		return nil, err
 	}
+
+	//2.传入header，构造request
 	req := &request{h: h}
+
+	//3. 查找相应的服务
 	req.svc, req.mtype, err = server.findService(h.ServiceMethod)
 	if err != nil {
 		return req, err
 	}
+
+	//4. 构造请求的参数，构造回复的参数
 	req.argv = req.mtype.newArgv()
 	req.replyv = req.mtype.newReplyv()
 
@@ -266,6 +286,7 @@ func (server *Server) readRequest(cc codec.Codec) (*request, error) {
 	if req.argv.Type().Kind() != reflect.Ptr {
 		argvi = req.argv.Addr().Interface()
 	}
+	//5. 读取body信息至参数中
 	if err = cc.ReadBody(argvi); err != nil {
 		log.Println("rpc server: read body err:", err)
 		return req, err
@@ -273,9 +294,12 @@ func (server *Server) readRequest(cc codec.Codec) (*request, error) {
 	return req, nil
 }
 
+// 发送响应
 func (server *Server) sendResponse(cc codec.Codec, h *codec.Header, body interface{}, sending *sync.Mutex) {
 	sending.Lock()
 	defer sending.Unlock()
+
+	// 输出字节流
 	if err := cc.Write(h, body); err != nil {
 		log.Println("rpc server: write response error:", err)
 	}
@@ -292,23 +316,35 @@ func (server *Server) handleRequest(cc codec.Codec, req *request, sending *sync.
 	called := make(chan struct{})
 	sent := make(chan struct{})
 	go func() {
+
+		//1. todo 传入参数，调用具体的服务
 		err := req.svc.call(req.mtype, req.argv, req.replyv)
+
+		//代表调用服务结束
 		called <- struct{}{}
+
 		if err != nil {
 			req.h.Error = err.Error()
+			//2-1发送无效的请求结果至客户端
 			server.sendResponse(cc, req.h, invalidRequest, sending)
+			//代表发送服务结果结束
 			sent <- struct{}{}
 			return
 		}
+		//2-2. 发送正常响应结果至客户端
 		server.sendResponse(cc, req.h, req.replyv.Interface(), sending)
+		//代表发送服务结束
 		sent <- struct{}{}
 	}()
 
+	//todo 3-1. 上游没有设置超时限制，直接从2个管道读取数据，这里可能会一直阻塞
 	if timeout == 0 {
 		<-called
 		<-sent
 		return
 	}
+
+	//todo 3-2 上游设置了超时限制，使用select，监听是否超时，如果超时，直接发送超时响应
 	select {
 	case <-time.After(timeout):
 		req.h.Error = fmt.Sprintf("rpc server: request handle timeout: expect within %s", timeout)

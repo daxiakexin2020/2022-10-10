@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"sort"
+	"time"
 )
 
 type Code uint32
@@ -16,8 +17,9 @@ func main() {
 	//res := test2()
 	//fmt.Printf("res=%d", res)
 	//res := test03()
-	res := test04()
-	fmt.Printf("res=%+v,%p", res, res)
+	//res := test04()
+	//fmt.Printf("res=%+v,%p", res, res)
+	test05()
 }
 
 func test2() int {
@@ -61,4 +63,13 @@ func test04() *C {
 		Name: "test",
 	}
 	return cccccccccccccc
+}
+
+func test05() {
+	d := time.Second * 2
+	for {
+		t := time.NewTimer(d)
+		<-t.C
+		fmt.Println("time:", time.Now().Format("2006-01-02 15:04:05"))
+	}
 }

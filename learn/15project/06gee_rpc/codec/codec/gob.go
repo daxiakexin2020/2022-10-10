@@ -8,10 +8,10 @@ import (
 )
 
 type GobCodec struct {
-	coon io.ReadWriteCloser
-	buf  *bufio.Writer
-	dec  *gob.Decoder
-	enc  *gob.Encoder
+	coon io.ReadWriteCloser //实现了io.Writer 、io.Reader  、 io.Closer 3个接口
+	buf  *bufio.Writer      //内部属性有wr，是io.Writer类型
+	dec  *gob.Decoder       //解码器
+	enc  *gob.Encoder       //编码器
 }
 
 var _ Codec = (*GobCodec)(nil)
