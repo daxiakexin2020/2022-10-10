@@ -24,6 +24,7 @@ func main() {
 	//test06()
 	s := test07(tf01)
 	fmt.Println("S", s)
+	test08()
 }
 
 func test2() int {
@@ -83,6 +84,10 @@ type User struct {
 	Age  int
 }
 
+func (u *User) ShowName(value interface{}) {
+	fmt.Printf("User的名字是=%s\n", u.Name)
+}
+
 func test06() {
 	//dest := 1
 	//dest := []int{1, 2}
@@ -106,4 +111,7 @@ func tf01(str string) string {
 func test07(tf TF) string {
 	tstr := "abc"
 	return tf(tstr)
+}
+
+func test08() {
 }

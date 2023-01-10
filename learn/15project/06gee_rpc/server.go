@@ -220,7 +220,7 @@ func (server *Server) serverCodec(cc codec.Codec) {
 				break
 			}
 			req.h.Error = err.Error()
-			//2. 回复请求   无效的请求
+			//2. 无效的请求  回复请求
 			server.sendResponse(cc, req.h, invalidRequest, sending)
 			continue
 		}
