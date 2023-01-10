@@ -61,7 +61,50 @@ func main() {
 						return c
 				}
 			2、发送数据
-
+				当我们需要向channel发送数据时，就会使用类似这样的操作   ch<-i ,编译器会将其解析成OSEND节点，操作过程中，比如会检查管道是否关闭
+				func chansend(c *hchan, ep unsafe.Pointer, block bool, callerpc uintptr) bool {
+					1. 加锁
+						lock(&c.lock)
+					2. 判断管道是否关闭
+						if c.closed != 0 {
+							unlock(&c.lock)
+							panic(plainError("send on closed channel"))
+						}
+					3. 如果目标 Channel 没有被关闭并且已经有处于读等待的 Goroutine，那么 runtime.chansend 会从接收队列 recvq 中取出最先陷入等待的 Goroutine 并直接向它发送数据
+						if sg := c.recvq.dequeue(); sg != nil {
+							send(c, sg, ep, func() { unlock(&c.lock) }, 3)
+							return true
+						}
+					4.缓冲区，如果创建的 Channel 包含缓冲区并且 Channel 中的数据没有装满，会执行下面流程
+						在这里我们首先会使用 runtime.chanbuf 计算出下一个可以存储数据的位置，然后通过 runtime.typedmemmove 将发送的数据拷贝到缓冲区中并增加 sendx 索引和 qcount 计数器。
+						if c.qcount < c.dataqsiz {
+								qp := chanbuf(c, c.sendx)
+								typedmemmove(c.elemtype, qp, ep)
+								c.sendx++
+								if c.sendx == c.dataqsiz {
+									c.sendx = 0
+								}
+								c.qcount++
+								unlock(&c.lock)
+								return true
+						}
+				}
+			3、接收数据
+				直接接收 #
+					当 Channel 的 sendq 队列中包含处于等待状态的 Goroutine 时，该函数会取出队列头等待的 Goroutine，处理的逻辑和发送时相差无几，
+					只是发送数据时调用的是 runtime.send 函数，而接收数据时使用 runtime.recv
+			4、关闭管道
+				编译器会将用于关闭管道的 close 关键字转换成 OCLOSE 节点以及 runtime.closechan 函数。
+				func closechan(c *hchan) {
+					if c == nil {
+						panic(plainError("close of nil channel")) 当 Channel 是一个空指针或者已经被关闭时，Go 语言运行时都会直接崩溃并抛出异常
+					}
+					lock(&c.lock)
+					if c.closed != 0 {
+						unlock(&c.lock)
+						panic(plainError("close of closed channel"))
+					}
+				}
 	*/
 
 }

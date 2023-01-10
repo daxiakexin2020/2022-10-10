@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"reflect"
 	"sort"
 	"time"
 )
@@ -19,7 +20,10 @@ func main() {
 	//res := test03()
 	//res := test04()
 	//fmt.Printf("res=%+v,%p", res, res)
-	test05()
+	//test05()
+	//test06()
+	s := test07(tf01)
+	fmt.Println("S", s)
 }
 
 func test2() int {
@@ -72,4 +76,34 @@ func test05() {
 		<-t.C
 		fmt.Println("time:", time.Now().Format("2006-01-02 15:04:05"))
 	}
+}
+
+type User struct {
+	Name string
+	Age  int
+}
+
+func test06() {
+	//dest := 1
+	//dest := []int{1, 2}
+	dest := &User{
+		Name: "zz",
+		Age:  20,
+	}
+	r := reflect.ValueOf(&dest)
+	destValue := reflect.Indirect(r)
+	//fmt.Printf("r的值=%+v,destValue的值=%+v\n", r, destValue)
+	//fmt.Printf("r的类型=%T,destValue的类型=%T\n", r, destValue)
+	fmt.Println(destValue.FieldByName("Name").Interface())
+}
+
+type TF func(str string) string
+
+func tf01(str string) string {
+	return "tf01" + str
+}
+
+func test07(tf TF) string {
+	tstr := "abc"
+	return tf(tstr)
 }
