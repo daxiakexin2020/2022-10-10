@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"reflect"
 	"sort"
+	"strconv"
 	"time"
 )
 
@@ -22,8 +23,8 @@ func main() {
 	//fmt.Printf("res=%+v,%p", res, res)
 	//test05()
 	//test06()
-	s := test07(tf01)
-	fmt.Println("S", s)
+	//s := test07(tf01)
+	//fmt.Println("S", s)
 	test08()
 }
 
@@ -114,4 +115,14 @@ func test07(tf TF) string {
 }
 
 func test08() {
+	res := digui(0)
+	fmt.Println(res)
+}
+
+func digui(i int) string {
+	if i == 5 {
+		return "退出了" + strconv.Itoa(i)
+	}
+	i++
+	return digui(i)
 }
