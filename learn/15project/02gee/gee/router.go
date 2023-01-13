@@ -1,6 +1,7 @@
 package gee
 
 import (
+	"fmt"
 	"net/http"
 	"strings"
 )
@@ -57,18 +58,30 @@ func (r *router) handle(c *Context) {
 }
 
 func (r *router) getRoute(method string, path string) (*node, map[string]string) {
+
+	fmt.Println("******************path****************", path)
+	//searchParts [api test ]
 	searchParts := parsePattern(path)
 	params := make(map[string]string)
 	root, ok := r.roots[method]
 	if !ok {
 		return nil, nil
 	}
+
+	//找到相应的节点
 	n := root.search(searchParts, 0)
 	if n != nil {
 		parts := parsePattern(n.pattern)
+		//part => api test :name
 		for index, part := range parts {
+
+			fmt.Println("******************************index******************************", index, parts, part, searchParts)
+			//part中，第一个字符，例如    :name => :
 			if part[0] == ':' {
+				//part[1:] 把：截取掉，留下key=>name 作为params的key
+				//[hello :name]   => [hello zz]   一一对对应上
 				params[part[1:]] = searchParts[index]
+				fmt.Println("*******************searchParts[index]**********", index, params, part[1:], searchParts[index])
 			}
 			if part[0] == '*' && len(part) > 1 {
 				params[part[1:]] = strings.Join(searchParts[index:], "/")
@@ -77,6 +90,5 @@ func (r *router) getRoute(method string, path string) (*node, map[string]string)
 		}
 		return n, params
 	}
-
 	return nil, nil
 }
