@@ -7,10 +7,18 @@ type ListNode struct {
 	Next *ListNode
 }
 
-func MakeList(len int) *ListNode {
+type sort_type string
+
+const (
+	DESC sort_type = "desc"
+	ASC  sort_type = "asc"
+)
+
+func MakeList(len int, tsort sort_type) *ListNode {
 	var tail *ListNode
 	var head *ListNode
-	for v := 1; v <= len; v++ {
+
+	m := func(v int) {
 		l := &ListNode{
 			Val:  v,
 			Next: nil,
@@ -21,6 +29,16 @@ func MakeList(len int) *ListNode {
 		} else {
 			tail.Next = l
 			tail = tail.Next
+		}
+	}
+
+	if tsort == DESC {
+		for v := len; v >= 1; v-- {
+			m(v)
+		}
+	} else {
+		for v := 1; v <= len; v++ {
+			m(v)
 		}
 	}
 	return head

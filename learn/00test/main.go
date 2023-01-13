@@ -25,7 +25,8 @@ func main() {
 	//test06()
 	//s := test07(tf01)
 	//fmt.Println("S", s)
-	test08()
+	//test08()
+	test09()
 }
 
 func test2() int {
@@ -125,4 +126,25 @@ func digui(i int) string {
 	}
 	i++
 	return digui(i)
+}
+
+func test09() {
+
+	data := make(map[int]*User)
+	dest := make([]*User, 0)
+	data[0] = &User{Name: "zz", Age: 18}
+	data[1] = &User{Name: "kx", Age: 16}
+	for i := 0; i < 4; i += 2 {
+		itme, ok := data[i]
+		if ok {
+			itme.Name = "被更新了"
+		} else {
+			itme = &User{"不在", 30}
+			dest = append(dest, itme)
+		}
+	}
+	for _, item := range dest {
+		fmt.Println("item", item)
+	}
+	fmt.Println(data)
 }
