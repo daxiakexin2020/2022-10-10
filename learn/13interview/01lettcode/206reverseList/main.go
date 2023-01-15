@@ -5,7 +5,7 @@ import (
 )
 
 func main() {
-	head := helper.MakeList(3)
+	head := helper.MakeList(3, helper.ASC)
 	reverseListRes := reverseList(head)
 	helper.ShowList(head)
 	helper.ShowList(reverseListRes)

@@ -26,7 +26,37 @@ func main() {
 	//s := test07(tf01)
 	//fmt.Println("S", s)
 	//test08()
-	test09()
+	//test09()
+	test10()
+}
+
+func test10() {
+	limit := 10
+	res := testBackTrack(limit)
+	fmt.Printf("最终结果=%d", res)
+}
+
+// todo 递归的执行流程和栈一样的，都是后进先出
+/**
+运动开始时，首先为递归调用建立一个工作栈，其结构包括值参、局部变量和返回地址；
+
+每次执行递归调用之前，把递归函数的值参、局部变量的当前值以及调用后的返回地址压栈；
+
+每次递归调用结束后，将栈顶元素出栈，使相应的值参和局部变量恢复为调用前的值，然后转向返回地址指定的位置继续执行。
+*/
+func testBackTrack(i int) int {
+	fmt.Printf("刚进来的i=%d\n", i)
+	if i >= 13 {
+		return i
+	}
+	testBackTrack(i + 1)
+
+	//todo 后进先出
+	//递归结束i=12
+	//递归结束i=11
+	//递归结束i=10
+	fmt.Printf("递归结束i=%d\n", i)
+	return i
 }
 
 func test2() int {
