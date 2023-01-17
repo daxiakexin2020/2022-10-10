@@ -42,7 +42,7 @@ func NewRand() *Rand {
 	return &Rand{su: makeShareUnit()}
 }
 
-// 返回此数字，需要生成多少次
+// 返回此dest数字，需要生成多少次
 func (r *Rand) MakeCount(dest int32) int32 {
 	if _, ok := r.su.flags[int(dest)]; ok {
 		return dest

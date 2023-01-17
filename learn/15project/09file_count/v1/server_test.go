@@ -5,8 +5,20 @@ import (
 	"testing"
 )
 
-func Test01(t *testing.T) {
+func TestInitializeBigFile(t *testing.T) {
 	dir, _ := os.Getwd()
 	s := NewServer(dir + "/test_files")
 	s.InitializeBigFile()
+}
+
+func TestSpiltSmallFiles(t *testing.T) {
+	dir, _ := os.Getwd()
+	s := NewServer(dir + "/test_files")
+	s.SpiltSmallFiles()
+}
+
+func TestEverySmallFileCount(t *testing.T) {
+	dir, _ := os.Getwd()
+	s := NewServer(dir + "/test_files")
+	s.EverySmallFileCount()
 }
