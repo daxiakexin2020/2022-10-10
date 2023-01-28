@@ -34,7 +34,12 @@ func main() {
 													first *sudog
 													last  *sudog
 												}
-				}
+												type sudog struct {
+													next *sudog
+													prev *sudog
+												}
+
+					}
 
 	todo	流程
 				1、创建管道
