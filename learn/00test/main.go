@@ -1,7 +1,9 @@
 package main
 
 import (
+	"bytes"
 	"fmt"
+	"math"
 	"reflect"
 	"sort"
 	"strconv"
@@ -27,7 +29,70 @@ func main() {
 	//fmt.Println("S", s)
 	//test08()
 	//test09()
-	test10()
+	//test10()
+	//test11()
+	//test12()
+	//key := "abc"
+	//fmt.Println("fnv", fnv32(key))
+	test13()
+}
+func test13() {
+	n := 17
+	n |= n >> 1 //8
+	fmt.Println("n", n, 17^8, 1<<31, 1<<4, 2<<1, 2>>1, 2>>2)
+}
+
+const prime32 = uint32(16777619)
+
+func fnv32(key string) uint32 {
+	hash := uint32(2166136261)
+	for i := 0; i < len(key); i++ {
+		hash *= prime32
+		hash ^= uint32(key[i])
+	}
+	return hash
+}
+
+func test12() {
+
+	hash := uint32(2)
+
+	hash *= prime32
+	fmt.Println("hash", hash, uint32("a"[0]))
+	return
+	k := 19
+	fmt.Printf("二进制=%b\n", k) //00010011 1*2^0 + 1*2^1 + 0*2^2 +  0*2^3 + 1*2^4 = 1+2+0+0+16=19
+
+	fmt.Println("ddd", 19/2)
+	fmt.Println("asss", 19<<2)
+	//将一个数左移N位相当于将一个数乘以2^N，而将一个数右移N位相当于将这个数除以2^N。
+	// 00010011=>00001001  右移1位
+	k2 := k >> 1
+	fmt.Println("19:", k, k2)
+	fmt.Printf("二进制=%b\n", k2) //0000 1001  1*2^0 + 0*2^2 +  0*2^3 + 1*2^3 = 1+0+0+8=9
+
+	return
+	param := 20
+	var n int
+	if param <= 16 {
+		n = 16
+	}
+	n = param - 1
+	n |= n >> 1
+	n |= n >> 2
+	n |= n >> 4
+	n |= n >> 8
+	n |= n >> 16
+	if n < 0 {
+		n = math.MaxInt32
+	}
+	n = n + 1
+	fmt.Println("n", n)
+}
+func test11() {
+	line := []byte{'a', 'b'}
+	line = bytes.TrimSuffix(line, []byte{'b'})
+	fmt.Printf("byte=%v", string(line))
 }
 
 func test10() {
@@ -38,11 +103,11 @@ func test10() {
 
 // todo 递归的执行流程和栈一样的，都是后进先出
 /**
-运动开始时，首先为递归调用建立一个工作栈，其结构包括值参、局部变量和返回地址；
+  运动开始时，首先为递归调用建立一个工作栈，其结构包括值参、局部变量和返回地址；
 
-每次执行递归调用之前，把递归函数的值参、局部变量的当前值以及调用后的返回地址压栈；
+  每次执行递归调用之前，把递归函数的值参、局部变量的当前值以及调用后的返回地址压栈；
 
-每次递归调用结束后，将栈顶元素出栈，使相应的值参和局部变量恢复为调用前的值，然后转向返回地址指定的位置继续执行。
+  每次递归调用结束后，将栈顶元素出栈，使相应的值参和局部变量恢复为调用前的值，然后转向返回地址指定的位置继续执行。
 */
 func testBackTrack(i int) int {
 	fmt.Printf("刚进来的i=%d\n", i)

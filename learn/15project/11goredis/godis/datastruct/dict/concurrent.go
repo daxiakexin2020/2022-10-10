@@ -58,8 +58,8 @@ const prime32 = uint32(16777619)
 func fnv32(key string) uint32 {
 	hash := uint32(2166136261)
 	for i := 0; i < len(key); i++ {
-		hash *= prime32
-		hash ^= uint32(key[i])
+		hash *= prime32        //乘积
+		hash ^= uint32(key[i]) //^按位异或  当二进制位有一个为1,另外一个0时，为1，否则为0    ；  & 按位与，当二进制位同时为1时，为1，否则为0
 	}
 	return hash
 }

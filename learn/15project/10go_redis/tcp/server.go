@@ -37,7 +37,7 @@ func ListenAndServeWithSignal(cfg *Config, handler tcp.Handler) error {
 	if err != nil {
 		return err
 	}
-	log.Printf("[bind %s=%s, start listening .....]", cfg.Address)
+	log.Printf("[bind %s=, start listening .....]", cfg.Address)
 	ListenAndServe(listen, handler, closeCh)
 	return nil
 }
@@ -56,6 +56,7 @@ func ListenAndServe(listenner net.Listener, handler tcp.Handler, closeCh <-chan 
 		log.Println("shutting down...")
 		_ = listenner.Close()
 		_ = handler.Close()
+		os.Exit(0)
 	}()
 
 	//循环监听连接进来，体现epoll
