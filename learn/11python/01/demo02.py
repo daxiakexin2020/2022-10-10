@@ -37,24 +37,36 @@ class Animal:
         print(self.name)
 
     '''todo __: 私有方法'''
+
     def __ShowAge(self):
         print(self.__age)
 
     def ShowAge(self):
         print(self.__age)
 
-a=Animal()
+
+a = Animal()
 a.ShowAge()
+
 
 class Dog(Animal):
     def Jiao(self):
         print("dog jiao")
 
-    def SetColor(self,color):
-        self.color=color
+    def SetColor(self, color):
+        self.color = color
 
 
-d=Dog()
+d = Dog()
 d.SetColor("hei")
 d.ShowColor()
 
+
+class Pa(Dog):
+    def a(self):
+        print("a")
+        self.Jiao()
+
+
+p = Pa()
+p.a()

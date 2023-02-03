@@ -37,6 +37,22 @@ func main() {
 	test13()
 }
 func test13() {
+
+	ei := []int{1, 2}
+	ev := reflect.ValueOf(ei)
+	fmt.Printf("ev类型=%v", ev.Kind())
+
+	typ := reflect.TypeOf(ei)
+
+	v := 2
+
+	//todo typ 某个变量的反射类型，reflect.New(typ) 生成一个此类型的变量指针
+	resultValue := reflect.New(typ).Elem()
+	resultValue = reflect.Append(resultValue, reflect.ValueOf(v))
+	fmt.Println("rv", resultValue.Interface())
+	fmt.Printf("rv:%T,rv:%T", resultValue, resultValue.Interface())
+	return
+
 	n := 17
 	n |= n >> 1 //8
 	fmt.Println("n", n, 17^8, 1<<31, 1<<4, 2<<1, 2>>1, 2>>2)

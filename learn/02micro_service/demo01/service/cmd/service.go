@@ -31,7 +31,7 @@ func main() {
 func HandleTest() {
 
 	srv := grpc.NewServer()
-	service.RegisterUserServiceServer(srv, &Demo{})
+	//service.RegisterUserServiceServer(srv, &Demo{})
 
 	listen, err := net.Listen("tcp", "127.0.0.1:8081")
 
@@ -48,4 +48,7 @@ func HandleTest() {
 	}
 
 	fmt.Println("start ok")
+	//s := &service.User{}
+	//c := s.GetA()
+	//fmt.Println("tt", c)
 }

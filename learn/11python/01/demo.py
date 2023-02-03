@@ -29,11 +29,14 @@ def demo5():
 def demo06(a,b):
     return a+b
 
+def demo07(a,b):
+    return a+b
 
-demo()
-demo2()
-demo3()
-demo4()
-print(demo5())
-print(type(demo06(1,2)))
-print(type(demo06("1","2")))
+# demo()
+# demo2()
+# demo3()
+# demo4()
+# print(demo5())
+# print(type(demo06(1,2)))
+# print(type(demo06("1","2")))
+print(demo07(2,1))

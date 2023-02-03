@@ -8,20 +8,25 @@ import (
 )
 
 func main() {
-	handle()
+	start()
 }
 
-func handle() {
-
+func start() {
 	e := gin.New()
-	router.InitApi(e)
-
-	ds := server.NewDrawService()
-	err := ds.Start()
-	if err != nil {
-		log.Panic("start draw err :", err)
-	}
+	initRouter(e)
+	initDrawPoll()
 	log.Println("draw server is starting.................")
 	e.Run(":8090")
+}
 
+func initRouter(e *gin.Engine) {
+	router.InitApi(e)
+}
+
+func initDrawPoll() {
+	ds := server.NewDrawService()
+	if err := ds.Start(); err != nil {
+		log.Panic("start draw err :", err)
+	}
+	ds.SelectTimeDrawPoll()
 }

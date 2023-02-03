@@ -151,15 +151,15 @@ func Start() error {
 }
 
 func ResetTimeDrawPoll(h int) {
-	glock.Lock()
-	defer glock.Unlock()
-	log.Println("check draw........................................")
 	t := checkTimeKey(h)
 	if t == currentTimeKey {
 		return
 	}
+	glock.Lock()
+	defer glock.Unlock()
 	currentTimeKey = t
 	time_draw_poll = drawTimeSet[t]
+	log.Println("........................................draw is reseted........................................")
 }
 
 func initTimeDrawPoll(h int) error {

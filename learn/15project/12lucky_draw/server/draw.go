@@ -2,6 +2,8 @@ package server
 
 import (
 	mdraw "12lucky_draw/model/draw"
+	"github.com/robfig/cron/v3"
+	"time"
 )
 
 type drawService struct{}
@@ -15,8 +17,16 @@ func (ds *drawService) Draw(weight int32) (int, error) {
 	return int(res), err
 }
 
-func (ds *drawService) ResetTimeDrawPoll(h int) {
+func (ds *drawService) resetTimeDrawPoll(h int) {
 	mdraw.ResetTimeDrawPoll(h)
+}
+
+func (ds *drawService) SelectTimeDrawPoll() {
+	c := cron.New()
+	c.AddFunc("@every 1s", func() {
+		ds.resetTimeDrawPoll(time.Now().Hour())
+	})
+	c.Start()
 }
 
 func (ds *drawService) Start() error {

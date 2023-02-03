@@ -93,7 +93,27 @@ func testValueOf(value interface{}) reflect.Value {
 	return reflect.ValueOf(value)
 }
 
-// New返回一个Value类型值，该值持有一个指向类型为typ的新申请的零值的指针，返回值的Type为PtrTo(typ)。
+/*
+*
+New返回一个Value类型值，该值持有一个指向类型为typ的新申请的零值的指针，返回值的Type为PtrTo(typ)。
+ei := []int{1, 2}
+
+	ev := reflect.ValueOf(ei)
+	fmt.Printf("ev类型=%v", ev.Kind())
+
+	typ := reflect.TypeOf(ei)
+
+	v := 2
+
+	//todo typ 某个变量的反射类型，reflect.New(typ) 生成一个此类型的变量指针
+	resultValue := reflect.New(typ).Elem()
+	resultValue = reflect.Append(resultValue, reflect.ValueOf(v)) todo
+	fmt.Println("rv", resultValue.Interface())
+	fmt.Printf("rv:%T,rv:%T", resultValue, resultValue.Interface())
+	return
+
+	常用来生成一个指定类型的变量
+*/
 func testNew(typ reflect.Type) reflect.Value {
 	return reflect.New(typ)
 }

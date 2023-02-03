@@ -6,6 +6,10 @@ option go_package = "../service";
 
 message UserReuqest{
   uint64 id = 1;
+  oneof V{
+    string a = 2;
+    int64 b = 3;
+  }
 }
 
 message UserResponse{
