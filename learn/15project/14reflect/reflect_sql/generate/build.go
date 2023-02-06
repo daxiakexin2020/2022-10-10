@@ -4,23 +4,52 @@ import (
 	"errors"
 	"fmt"
 	"reflect"
+	"strings"
 )
 
 type Build struct {
+	sql  string
+	vals []interface{}
 }
 
-func B(dest interface{}) error {
+func B(dest interface{}) (*Build, error) {
 	destValue := reflect.ValueOf(dest)
 	destType := reflect.TypeOf(dest)
 	switch destType.Kind() {
 	case reflect.Struct:
-		fmt.Println("类型正确", destType.Name())
+		fmt.Println("typo ok", destType.Name())
+	case reflect.Ptr:
+		fmt.Println("type ptr", destType.Name())
+		destType = destType.Elem()
+		destValue = destValue.Elem()
+		if destType.Kind() != reflect.Struct {
+			return nil, errors.New("ptr type inner error")
+		}
 	default:
-		fmt.Println("类型错误，不能转换", destType.Kind())
-		return errors.New("类型错误，不能转换")
+		fmt.Println("type error", destType.Kind())
+		return nil, errors.New("type error " + destType.Kind().String())
 	}
+	return b(destType, destValue)
+}
+
+func b(destType reflect.Type, destValue reflect.Value) (*Build, error) {
+	fields := make([]string, 0)
+	values := make([]interface{}, 0)
 	for i := 0; i < destValue.NumField(); i++ {
-		fmt.Println("k,v:", destType.Field(i).Tag.Get("zorm"), destValue.Field(i))
+		val := destValue.Field(i).Interface()
+		tag, ok := destType.Field(i).Tag.Lookup("zorm")
+		if ok {
+			fields = append(fields, tag)
+			values = append(values, val)
+		}
 	}
-	return nil
+	fstr := strings.Join(fields, ",")
+	sql := fmt.Sprintf("INSERT into %s (%s) VALUES", destType.Name(), fstr)
+
+	nb := &Build{
+		sql:  sql,
+		vals: values,
+	}
+	fmt.Println("sql:", sql, nb)
+	return nb, nil
 }

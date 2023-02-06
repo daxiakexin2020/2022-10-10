@@ -1,14 +1,21 @@
 package generate
 
-import "testing"
+import (
+	"fmt"
+	"testing"
+)
 
 type TestStruct struct {
-	Name string `zorm:ame`
+	Name string `zorm:"name"`
+	Age  int    `zorm:"age"`
 }
 
 func TestB(t *testing.T) {
 	data := TestStruct{
 		Name: "zz",
 	}
-	B(data)
+	B(&data)
+	a := 1
+	build, err := B(a)
+	fmt.Println("b res : ", build, err)
 }
