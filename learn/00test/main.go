@@ -3,7 +3,10 @@ package main
 import (
 	"bytes"
 	"fmt"
+	"io"
 	"math"
+	"net/http"
+	"os"
 	"reflect"
 	"sort"
 	"strconv"
@@ -38,6 +41,16 @@ func main() {
 }
 func test13() {
 
+	url := "https://www.baidu.com/"
+
+	resp, err := http.Get(url)
+	if err != nil {
+		fmt.Println("err:", err)
+	}
+	f, err := os.Create("./body2.txt")
+	fmt.Println("err2:", err)
+	io.Copy(f, resp.Body)
+	return
 	ei := []int{1, 2}
 	ev := reflect.ValueOf(ei)
 	fmt.Printf("ev类型=%v", ev.Kind())

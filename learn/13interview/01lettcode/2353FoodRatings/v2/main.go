@@ -27,6 +27,7 @@ func main() {
 	c := Constructor(foods, cuisines, ratings)
 	res := c.HighestRated("A")
 	fmt.Println("res", res, c)
+
 }
 
 // 初始化、修改时需要维护有序，否则会超时
@@ -34,13 +35,13 @@ type FoodRatings struct {
 	Socres map[string]int
 	Types  map[string]string
 	//map[类型]map[rate][]string  //维护有序,包括
-	DataSet map[string]map[int]string
+	DataSet map[string]map[int][]string
 }
 
 func Constructor(foods []string, cuisines []string, ratings []int) FoodRatings {
 	scores := make(map[string]int)
 	types := make(map[string]string)
-	dataSet := make(map[string]map[int]string)
+	dataSet := make(map[string]map[int][]string)
 
 	return FoodRatings{
 		Socres:  scores,
