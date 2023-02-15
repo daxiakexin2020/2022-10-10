@@ -41,6 +41,9 @@ func main() {
 }
 func test13() {
 
+	fmt.Println("📂 Do you want to override the folder ?")
+
+	return
 	url := "https://www.baidu.com/"
 
 	resp, err := http.Get(url)
