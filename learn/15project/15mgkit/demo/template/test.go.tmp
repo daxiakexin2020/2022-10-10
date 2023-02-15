@@ -1,0 +1,8 @@
+`
+paackage server
+import "log"
+
+func Test(){
+    fmt.Println("test mgkit")
+}
+`

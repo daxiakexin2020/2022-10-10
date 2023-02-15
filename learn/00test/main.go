@@ -10,6 +10,7 @@ import (
 	"reflect"
 	"sort"
 	"strconv"
+	"text/template"
 	"time"
 )
 
@@ -17,27 +18,38 @@ type Code uint32
 
 type Msg string
 
-func main() {
+type Info struct {
+	Name string
+}
 
+func main() {
 	//todo-gcflags=-m参数 查看具体堆栈情况
-	//test()
-	//res := test2()
-	//fmt.Printf("res=%d", res)
-	//res := test03()
-	//res := test04()
-	//fmt.Printf("res=%+v,%p", res, res)
-	//test05()
-	//test06()
-	//s := test07(tf01)
-	//fmt.Println("S", s)
-	//test08()
-	//test09()
-	//test10()
-	//test11()
-	//test12()
-	//key := "abc"
-	//fmt.Println("fnv", fnv32(key))
-	test13()
+	test14()
+}
+
+func test14() {
+
+	dir, _ := os.Getwd()
+	file := dir + "/learn/00test/a/test.go.t"
+	targetFile := dir + "/learn/00test/a/test.go"
+	t, err := template.ParseFiles(file)
+	if err != nil {
+		fmt.Printf("err:%v", err)
+		return
+	}
+
+	f, err := os.OpenFile(targetFile, os.O_CREATE|os.O_WRONLY, 0644)
+	if err != nil {
+		fmt.Printf("open file err:%v", err)
+		return
+	}
+	config := Info{Name: "zz"}
+	err = t.Execute(f, config)
+	if err != nil {
+		fmt.Printf("err:%v", err)
+		return
+	}
+	fmt.Println("**********ok*************")
 }
 func test13() {
 
