@@ -5,7 +5,7 @@ import (
 )
 
 func main() {
-	head := helper.MakeList(10)
+	head := helper.MakeList(10, helper.ASC)
 	helper.ShowList(head)
 	resList := removeNthFromEnd(head, 2)
 	helper.ShowList(resList)

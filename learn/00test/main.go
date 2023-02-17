@@ -24,7 +24,17 @@ type Info struct {
 
 func main() {
 	//todo-gcflags=-m参数 查看具体堆栈情况
-	test14()
+	test15()
+}
+
+func test15() {
+	dir, _ := os.Getwd()
+	fmt.Println("dir", dir)
+
+	return
+	start := time.Date(int(1970), time.Month(1), 1, 0, 0, 0, 0, time.UTC)
+	end := time.Date(int(1970), time.Month(1), 1, 0, 0, 0, 0, time.UTC)
+	fmt.Println(start, end)
 }
 
 func test14() {

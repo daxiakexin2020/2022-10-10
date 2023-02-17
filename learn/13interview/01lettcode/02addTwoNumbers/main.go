@@ -3,8 +3,8 @@ package main
 import "01lettcode/helper"
 
 func main() {
-	l1 := helper.MakeList(3)
-	l2 := helper.MakeList(4)
+	l1 := helper.MakeList(3, helper.ASC)
+	l2 := helper.MakeList(4, helper.ASC)
 
 	helper.ShowList(l1)
 	helper.ShowList(l2)

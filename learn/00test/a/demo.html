@@ -1,0 +1,80 @@
+<html>
+<div id="test_box">
+
+</div>
+
+
+
+<input type="file" id="file-input" style="opacity:0"/>
+<button id="read-button">Read File</button>
+<pre id="file-contents"></pre>
+
+<script>
+    document.querySelector("#read-button").addEventListener('click', function() {
+        let file = document.querySelector("#file-input").files[0];
+        let reader = new FileReader();
+        reader.addEventListener('load', function(e) {
+            let text = e.target.result;
+            document.querySelector("#file-contents").textContent = text;
+        });
+        reader.readAsText(file);
+    });
+</script>
+
+
+</html>
+
+<script>
+
+    var filename = "/Users/cszk/project/2022-10-10/learn/00test/a/test.go.t"
+
+    var str = "/a/b/c/d/a/e"
+    a = str.split("/")
+    var data = []
+    //  去除空字符串
+    for (i in a) {
+        if (a[i] != "") {
+            data.push(a[i])
+        }
+    }
+
+    var htmlstr = ""
+    var box = document.getElementById("test_box")
+    for (i = 0; i < data.length; i++) {
+        htmlstr = htmlstr + "<div onclick=c(this) index='" + i + "'>" + data[i] + "</div>"
+    }
+    box.innerHTML = htmlstr
+
+    function c(e) {
+
+        openFileIIs(filename)
+        return
+        var path = "/"
+        var index = e.getAttribute("index")
+        for (i = 0; i <= index; i++) {
+            path = path + data[i] + "/"
+        }
+        console.log("path", path)
+    }
+
+    function openFileIIs(filename) {
+        try {
+            var obj = new ActiveXObject("wscript.shell");
+            if (obj) {
+                alert(456)
+                obj.Run("\"" + filename + "\"", 1, false);
+                //obj.run("osk");/*打开屏幕键盘*/
+                //obj.Run('"'+filename+'"');
+                obj = null;
+                alert(223)
+            }
+        } catch (e) {
+            alert(filename);
+        }
+
+    }
+
+
+
+
+</script>
