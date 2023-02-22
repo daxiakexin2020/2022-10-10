@@ -10,6 +10,7 @@ import (
 	"reflect"
 	"sort"
 	"strconv"
+	"strings"
 	"text/template"
 	"time"
 )
@@ -24,7 +25,23 @@ type Info struct {
 
 func main() {
 	//todo-gcflags=-m参数 查看具体堆栈情况
-	test15()
+	//test15()
+	str := "ABc"
+	fmt.Println(test16(str))
+}
+func test16(s string) string {
+	var buffer bytes.Buffer
+	for idx, chr := range s {
+		if isUpper := 'A' <= chr && chr <= 'Z'; isUpper {
+			if idx > 0 {
+				buffer.WriteRune('_')
+			}
+			chr -= ('A' - 'a')
+		}
+		buffer.WriteRune(chr)
+	}
+
+	return strings.ToLower(buffer.String())
 }
 
 func test15() {

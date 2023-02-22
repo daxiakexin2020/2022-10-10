@@ -9,6 +9,8 @@ func main() {
 		find
 		gerp
 		tail
+		tailf
+		tail -f
 		cat
 		head
 		vi
