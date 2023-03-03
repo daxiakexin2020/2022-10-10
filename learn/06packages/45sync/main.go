@@ -136,7 +136,6 @@ func main() {
 					mainNeedExit = true
 				}
 			}()
-			//如果管道没有关闭，会阻塞等待，接收数据，如果管道关闭了，则会把数据读完，退出阻塞
 			for res := range data5 {
 				if j == 10 {
 					time.Sleep(time.Second * 4)
