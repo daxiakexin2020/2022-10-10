@@ -26,4 +26,9 @@ func main() {
 	//正在使用的字节数
 	bytes := record.InUseBytes()
 	fmt.Println("in use bytes : ", bytes)
+
+	//Stack 返回格式化的go程的调用栈踪迹。 对于每一个调用栈，它包括原文件的行信息和PC值；对go函数还会尝试获取调用该函数的函数或方法，及调用所在行的文本。
+	rbyte := make([]byte, 1024)
+	stack := runtime.Stack(rbyte, true)
+	fmt.Println("stack:", stack, string(rbyte))
 }

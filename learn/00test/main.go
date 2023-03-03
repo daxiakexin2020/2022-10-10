@@ -27,6 +27,11 @@ func main() {
 
 	//todo-gcflags=-m参数 查看具体堆栈情况
 	//test15()
+
+	start := time.Date(int(1970), time.Month(1), 1, 0, 0, 0, 0, time.UTC)
+	end := time.Date(int(1970), time.Month(1), 1, 0, 0, 0, 0, time.UTC)
+	fmt.Println(start, end)
+
 	str := "ABc"
 	fmt.Println(test16(str))
 }

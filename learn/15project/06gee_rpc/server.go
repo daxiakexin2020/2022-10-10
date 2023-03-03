@@ -281,9 +281,10 @@ func (server *Server) readRequest(cc codec.Codec) (*request, error) {
 	req.argv = req.mtype.newArgv()
 	req.replyv = req.mtype.newReplyv()
 
-	// make sure that argvi is a pointer, ReadBody need a pointer as parameter
+	//通过反射，构造出接收client的参数的变量，方便后续将client中传来的参数，读取至❤新变量中
 	argvi := req.argv.Interface()
 	if req.argv.Type().Kind() != reflect.Ptr {
+		//函数返回一个持有指向v持有者的指针的Value封装。如果v.CanAddr()返回假，调用本方法会panic。Addr一般用于获取结构体字段的指针或者切片的元素（的Value封装）以便调用需要指针类型接收者的方法。
 		argvi = req.argv.Addr().Interface()
 	}
 	//5. 读取body信息至参数中
