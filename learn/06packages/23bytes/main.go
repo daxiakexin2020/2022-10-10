@@ -3,6 +3,7 @@ package main
 import (
 	"bytes"
 	"fmt"
+	"io"
 )
 
 func main() {
@@ -61,6 +62,9 @@ func main() {
 	buf := make([]byte, 0, 10)
 	fmt.Println("len , cap", len(buf), cap(buf))
 	buffer := bytes.NewBuffer(buf)
+
+	var _ io.Reader = (buffer)
+
 	fmt.Println("newBuffer:", buffer)
 
 	//write string

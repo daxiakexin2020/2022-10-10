@@ -90,7 +90,6 @@ func main() {
 	flag4 := make(chan struct{}, 1)
 
 	go func() {
-		//如果管道没有关闭，会阻塞等待，接收数据，如果管道关闭了，则会把数据读完，退出阻塞
 		defer func() {
 			flag4 <- struct{}{}
 		}()

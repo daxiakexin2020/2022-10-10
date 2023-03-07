@@ -31,7 +31,7 @@ func main() {
 	fmt.Println("newReader read:", n, p, err)
 
 	//创建新的scanner
-	//scanner := bufio.NewScanner(&OSConsumer{})
-	//scan := scanner.Scan()
-	//fmt.Println("scanner Scan:", scan)
+	scanner := bufio.NewScanner(&OSConsumer{})
+	scan := scanner.Scan()
+	fmt.Println("scanner Scan:", scan)
 }

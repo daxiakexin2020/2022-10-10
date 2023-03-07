@@ -80,11 +80,11 @@ func startServer6(addrCh chan string) {
 }
 
 func main() {
-	testDay01()
+	//testDay01()
 	//testDay02()
 	//testReflect()
 	//testDay03()
-	//testDay05()
+	testDay05()
 	//testDay06()
 	//testDay07()
 }
