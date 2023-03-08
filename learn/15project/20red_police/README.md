@@ -129,8 +129,9 @@ red_police
 
 	实现
 		tcp http连接实现
-		   
+		protocol {method:"","data":{}}	   
 			
 
 	代码结构
 		server->service->data->(mermory db ..)依赖interface
+	

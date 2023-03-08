@@ -19,6 +19,7 @@ type Room interface {
 	JoinRoom(player *model.Player, roomID string) error
 	OutRoom(player *model.Player, roomID string) error
 	List() []model.Room
+	Broadcast(rootID string) error
 }
 
 type Player interface {

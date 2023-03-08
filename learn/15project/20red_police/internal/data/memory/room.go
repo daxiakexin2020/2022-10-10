@@ -50,3 +50,7 @@ func (r *Room) JoinRoom(player *model.Player, roomID string) error {
 func (r *Room) OutRoom(player *model.Player, roomID string) error {
 	return nil
 }
+
+func (r *Room) Broadcast(rootID string) error {
+	return nil
+}

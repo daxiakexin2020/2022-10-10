@@ -8,10 +8,14 @@ type Server struct {
 	PlayerSrc *service.PlayerService
 }
 
-func NewServer(userSrc *service.UserService, roomSrc *service.RoomService, playerSrc *service.PlayerService) *Server {
-	return &Server{
-		UserSrc:   userSrc,
-		RoomSrc:   roomSrc,
-		PlayerSrc: playerSrc,
-	}
+//func NewServer(userSrc *service.UserService, roomSrc *service.RoomService, playerSrc *service.PlayerService) *Server {
+//	return &Server{
+//		UserSrc:   userSrc,
+//		RoomSrc:   roomSrc,
+//		PlayerSrc: playerSrc,
+//	}
+//}
+
+func NewServer() *Server {
+	return &Server{}
 }

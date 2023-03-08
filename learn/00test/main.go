@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"encoding/json"
 	"fmt"
 	"io"
 	"math"
@@ -20,10 +21,17 @@ type Code uint32
 type Msg string
 
 type Info struct {
-	Name string
+	Name string `json:"name"`
 }
 
 func main() {
+
+	info := &Info{}
+	var s interface{}
+	s = "{\"name\":\"zz\", \"msg\":18}"
+	err := json.Unmarshal([]byte(s.(string)), info)
+	fmt.Println(err, info)
+	return
 
 	//todo-gcflags=-m参数 查看具体堆栈情况
 	//test15()
