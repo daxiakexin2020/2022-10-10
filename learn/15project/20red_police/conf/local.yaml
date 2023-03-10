@@ -1,9 +1,9 @@
 web_server:
   addr: 127.0.0.1
-  port: 6002
+  port: 9115
 grpc_server:
-  addr:
-  port:
+  addr: 127.0.0.1
+  port: 9115
 etcd:
   endpoints: [ "127.0.0.1:2379" ]
   username:

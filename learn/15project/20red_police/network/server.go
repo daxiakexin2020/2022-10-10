@@ -1,9 +1,11 @@
 package network
 
 import (
+	"20red_police/config"
 	"20red_police/tools"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"github.com/mitchellh/mapstructure"
 	"io"
 	"log"
@@ -27,6 +29,9 @@ var (
 )
 
 func NewServer(address string) *Server {
+	if address == "" {
+		address = fmt.Sprintf("%s:%d", config.GetGrpcServerConfig().Addr, config.GetGrpcServerConfig().Port)
+	}
 	return &Server{address: address, conns: map[string]*net.Conn{}}
 }
 
@@ -48,12 +53,11 @@ func (s *Server) Register(rcvr interface{}) error {
 
 func (s *Server) Run() {
 
-	//go s.ping()
-
 	listen, err := net.Listen("tcp4", s.address)
 	if err != nil {
 		panic(err)
 	}
+	fmt.Printf("run at in address: %s.........................\n", s.address)
 	for {
 		conn, err := listen.Accept()
 		if err != nil {
