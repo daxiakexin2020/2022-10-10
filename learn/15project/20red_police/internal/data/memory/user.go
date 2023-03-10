@@ -1,14 +1,17 @@
 package memory
 
 import (
+	"20red_police/internal/data"
 	"20red_police/internal/model"
+	"20red_police/tools"
 	"errors"
 	"fmt"
 	"sync"
-	"time"
 )
 
 type User struct{}
+
+var _ data.User = (*User)(nil)
 
 type users struct {
 	list map[string]*model.User
@@ -28,17 +31,18 @@ var (
 )
 
 func init() {
+	gonce = sync.Once{}
 	gonce.Do(func() {
 		gusers = &users{
-			list: map[string]*model.User{},
+			list: make(map[string]*model.User),
 		}
 		gonLineUsers = &onLineUsers{
-			list: map[string]*model.User{},
+			list: make(map[string]*model.User),
 		}
 	})
 }
 
-func NewUser() *User {
+func NewUser() data.User {
 	return &User{}
 }
 
@@ -46,7 +50,7 @@ func (u *User) Register(user *model.User) error {
 	gusers.mu.Lock()
 	defer gusers.mu.Unlock()
 	if _, ok := gusers.list[user.Name]; ok {
-		return fmt.Errorf("此用户名:%s已经存在", user.Name)
+		return fmt.Errorf("此用户名:%s,已经存在", user.Name)
 	}
 	gusers.list[user.Name] = user
 	return nil
@@ -64,7 +68,7 @@ func (u *User) Login(name string, pwd string) (model.User, error) {
 	cuser.Pwd = ""
 	gonLineUsers.mu.Lock()
 	defer gonLineUsers.mu.Unlock()
-	muser.LastLoginTime = time.Now().Format("2006-01-02 15:04:05")
+	muser.LastLoginTime = tools.NowTimeFormatTimeToString()
 	gonLineUsers.list[name] = muser
 	return cuser, nil
 }

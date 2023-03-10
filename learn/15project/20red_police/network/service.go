@@ -60,11 +60,10 @@ func (s *service) registerMethods() {
 		if mType.NumIn() != 3 || mType.NumOut() != 1 {
 			continue
 		}
-		//if mType.Out(0) != reflect.TypeOf((*error)(nil)).Elem() {
-		//	continue
-		//}
+		if mType.Out(0) != reflect.TypeOf((*error)(nil)).Elem() {
+			continue
+		}
 		argType, replyType := mType.In(1), mType.In(2)
-		//argType, replyType := mType.In(1), mType.Out(0)
 		if !isExportedOrBuiltinType(argType) || !isExportedOrBuiltinType(replyType) {
 			continue
 		}

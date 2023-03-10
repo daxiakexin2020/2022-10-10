@@ -1,0 +1,32 @@
+web_server:
+  addr: 127.0.0.1
+  port: 6002
+grpc_server:
+  addr:
+  port:
+etcd:
+  endpoints: [ "127.0.0.1:2379" ]
+  username:
+  password:
+  dial_timeout:
+  dial_keep_alive_time:
+
+mysql:
+  database: test
+  host: 127.0.0.1
+  port: 3306
+  username: root
+  password: "12345678"
+
+redis:
+  addr: 127.0.0.1
+  port: 6379
+  db: 1
+  password:
+  prefix:
+  pool_size: 10
+
+jwt:
+  token_issuer: REDPOLICE
+  token_secret: ab12@!.KX2012?.Zz.
+  token_timeout: 20

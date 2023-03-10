@@ -6,7 +6,7 @@ type User interface {
 	Register(user *model.User) error
 	Login(name string, pwd string) (model.User, error)
 	ForgetPwd(name string, pwd string) error
-	LoginOut(name string) error
+	LoginOut(user model.User) error
 	Update(user model.User) error
 	OnLineUserList() []model.User
 	UserList() []model.User
