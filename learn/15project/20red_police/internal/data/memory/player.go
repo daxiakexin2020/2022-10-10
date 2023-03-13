@@ -13,6 +13,6 @@ func NewPlayer() data.Player {
 	return &Player{}
 }
 
-func (p *Player) Create(name string) model.Player {
+func (p *Player) Create(mode model.Player) model.Player {
 	return model.Player{}
 }

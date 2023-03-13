@@ -67,7 +67,6 @@ red_police
 		结构设计
 			Player
 				name		string	
-				isOwner 	bool
 				country_name 	string
 				color 		string
 				status		bool 

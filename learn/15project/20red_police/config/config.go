@@ -27,7 +27,6 @@ func newProxyViper() *proxyViper {
 	return &proxyViper{}
 }
 
-// todo 建议还是由业务主动调用(显示调用)，而不是在init中默认写一堆逻辑,当然，效果是一样的，只是触发时机不同
 func InitializeProxyViper() error {
 	pvOnce.Do(func() {
 		pv = newProxyViper()

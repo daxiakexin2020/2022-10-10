@@ -4,4 +4,4 @@ import (
 	"github.com/google/wire"
 )
 
-var ProviderSet = wire.NewSet(NewUser, NewPlayer)
+var ProviderSet = wire.NewSet(NewUser, NewRoom, NewPlayer, NewPMap)

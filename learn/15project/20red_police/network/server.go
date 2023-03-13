@@ -25,7 +25,7 @@ type Server struct {
 
 var (
 	DefaultServer  = NewServer(DefaultAddress)
-	DefaultAddress = ":9114"
+	DefaultAddress = ":9115"
 )
 
 func NewServer(address string) *Server {

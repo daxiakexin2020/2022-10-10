@@ -64,12 +64,12 @@ func (u *User) Login(name string, pwd string) (model.User, error) {
 	if muser.Pwd != pwd {
 		return emptyUser, errors.New("用户名或密码错误")
 	}
-	cuser := *muser
-	cuser.Pwd = ""
 	gonLineUsers.mu.Lock()
 	defer gonLineUsers.mu.Unlock()
 	muser.LastLoginTime = tools.NowTimeFormatTimeToString()
 	gonLineUsers.list[name] = muser
+	cuser := *muser
+	cuser.Pwd = ""
 	return cuser, nil
 }
 
@@ -84,15 +84,27 @@ func (u *User) LoginOut(user model.User) error {
 	return nil
 }
 
+func (u *User) IsLogin(name string) (model.User, bool) {
+	gonLineUsers.mu.RLock()
+	defer gonLineUsers.mu.RUnlock()
+	if model, ok := gonLineUsers.list[name]; ok {
+		return *model, true
+	}
+	return emptyUser, false
+}
+
 func (u *User) Update(user model.User) error {
 	return nil
 }
 
-func (u *User) isOnLine(name string) bool {
+func (u *User) IsOnLine(name string) (model.User, bool) {
 	gonLineUsers.mu.RLock()
 	defer gonLineUsers.mu.RUnlock()
-	_, ok := gonLineUsers.list[name]
-	return ok
+	user, ok := gonLineUsers.list[name]
+	if !ok {
+		return emptyUser, false
+	}
+	return *user, true
 }
 
 func (u *User) OnLineUserList() []model.User {

@@ -45,6 +45,14 @@ type LoginResponse struct {
 	User
 }
 
+type LoginOutResquest struct {
+	Base
+}
+
+type LoginOutResponse struct {
+	Empry
+}
+
 func FormatUserByDBToPro(model model.User) User {
 	return User{
 		Id:            model.Id,

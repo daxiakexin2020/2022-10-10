@@ -18,8 +18,12 @@ import (
 func initApp() *server.Server {
 	user := memory.NewUser()
 	userService := service.NewUserService(user)
+	room := memory.NewRoom()
 	player := memory.NewPlayer()
+	roomService := service.NewRoomService(room, user, player)
 	playerService := service.NewPlayerService(player)
-	serverServer := server.NewServer(userService, playerService)
+	pMap := memory.NewPMap()
+	pMapService := service.NewPMapService(pMap)
+	serverServer := server.NewServer(userService, roomService, playerService, pMapService)
 	return serverServer
 }

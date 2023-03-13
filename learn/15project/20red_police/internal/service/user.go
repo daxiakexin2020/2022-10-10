@@ -15,7 +15,8 @@ func NewUserService(data data.User) *UserService {
 	return &UserService{data: data}
 }
 
-func (us *UserService) Register(userModel *model.User) error {
+func (us *UserService) Register(name, pwd, phone string) error {
+	userModel := model.NewUserModel(name, pwd, phone)
 	return us.data.Register(userModel)
 }
 
@@ -32,6 +33,14 @@ func (us *UserService) Login(name, pwd string) (model.User, string, error) {
 	}
 
 	return umodel, token, nil
+}
+
+func (us *UserService) IsLogin(name string) (model.User, bool) {
+	return us.data.IsLogin(name)
+}
+
+func (us *UserService) LoginOut(user model.User) error {
+	return us.data.LoginOut(user)
 }
 
 func (us *UserService) UserList() ([]model.User, error) {

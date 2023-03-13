@@ -1,6 +1,7 @@
 package main
 
 import (
+	"20red_police/config"
 	"fmt"
 	"io"
 	"log"
@@ -15,12 +16,14 @@ func main() {
 
 func run() {
 	var wg sync.WaitGroup
-	limit := 120
+	limit := 2
+	addr := fmt.Sprintf("%s:%d", config.GetGrpcServerConfig().Addr, config.GetGrpcServerConfig().Port)
+	fmt.Println(addr)
 	for i := 0; i < limit; i++ {
 		wg.Add(1)
 		go func() {
 			defer wg.Done()
-			dial, err := net.Dial("tcp4", ":9114")
+			dial, err := net.Dial("tcp4", addr)
 			if err != nil {
 				fmt.Println("dial err:", err)
 				return
