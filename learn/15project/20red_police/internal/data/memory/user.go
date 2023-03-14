@@ -46,6 +46,10 @@ func NewUser() data.User {
 	return &User{}
 }
 
+func (s *User) Name() string {
+	return "User"
+}
+
 func (u *User) Register(user *model.User) error {
 	gusers.mu.Lock()
 	defer gusers.mu.Unlock()

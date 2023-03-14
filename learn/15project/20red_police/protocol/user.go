@@ -19,7 +19,7 @@ type User struct {
 type RegisterRequest struct {
 	Name  string `json:"name" mapstructure:"name" validate:"required"`
 	Pwd   string `json:"pwd"  mapstructure:"pwd" validate:"required"`
-	RePwd string `json:"pwd"  mapstructure:"repwd" validate:"required"`
+	RePwd string `json:"repwd"  mapstructure:"repwd" validate:"required"`
 	Phone string `json:"phone"  mapstructure:"phone" validate:"required"`
 }
 

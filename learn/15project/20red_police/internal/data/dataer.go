@@ -12,6 +12,7 @@ type User interface {
 	OnLineUserList() []model.User
 	UserList() []model.User
 	IsOnLine(name string) (model.User, bool)
+	ClassR
 }
 
 type Room interface {
@@ -29,7 +30,11 @@ type Player interface {
 }
 
 type PMap interface {
-	Create(pmap model.PMap) (model.PMap, error)
+	Create(pmap *model.PMap) (model.PMap, error)
 	List() []model.PMap
 	FetchPMap(id string) (model.PMap, error)
+}
+
+type ClassR interface {
+	Name() string
 }

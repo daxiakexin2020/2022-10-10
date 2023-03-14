@@ -21,6 +21,7 @@ type Server struct {
 	services sync.Map
 	conns    map[string]*net.Conn
 	mu       sync.Mutex
+	m        *middle
 }
 
 var (
@@ -32,7 +33,7 @@ func NewServer(address string) *Server {
 	if address == "" {
 		address = fmt.Sprintf("%s:%d", config.GetGrpcServerConfig().Addr, config.GetGrpcServerConfig().Port)
 	}
-	return &Server{address: address, conns: map[string]*net.Conn{}}
+	return &Server{address: address, conns: map[string]*net.Conn{}, m: newMiddle()}
 }
 
 func Run() {
@@ -41,6 +42,14 @@ func Run() {
 
 func Register(rcvr interface{}) error {
 	return DefaultServer.Register(rcvr)
+}
+
+func RegisterMiddleware(mf ...MiddleFunc) {
+	DefaultServer.RegisterMiddleware(mf...)
+}
+
+func (s *Server) RegisterMiddleware(mf ...MiddleFunc) {
+	s.m.f = append(s.m.f, mf...)
 }
 
 func (s *Server) Register(rcvr interface{}) error {
@@ -94,7 +103,7 @@ L:
 
 func (s *Server) handleRequest(req *Request, writer io.WriteCloser) {
 
-	//log.Printf("**************************[read data=%+v]**************************\n", *req)
+	log.Printf("**************************[read data=%+v]**************************\n", *req)
 
 	svc, mtype, serr := s.findService(req.ServiceMethod)
 	if serr != nil {
@@ -117,6 +126,13 @@ func (s *Server) handleRequest(req *Request, writer io.WriteCloser) {
 		s.sendResponse(req, err, writer)
 		return
 	}
+
+	//call middle
+	if err := s.m.run(req); err != nil {
+		s.sendResponse(nil, err, writer)
+		return
+	}
+
 	if err := iReq.svc.call(iReq.mtype, reflect.ValueOf(farg), iReq.replyv); err != nil {
 		s.sendResponse(nil, err, writer)
 		return

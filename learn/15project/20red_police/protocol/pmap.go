@@ -1,7 +1,44 @@
 package protocol
 
+import "20red_police/internal/model"
+
 type PMap struct {
-	Id    string
-	Name  string
-	Count int
+	Id    string `json:"id"`
+	Name  string `json:"name"`
+	Count int    `json:"count"`
+}
+
+type CreatePMapRequest struct {
+	Base  `json:"base"`
+	Name  string `json:"name" mapstructure:"name" validate:"required"`
+	Count int    `json:"count" mapstructure:"count" validate:"required"`
+}
+
+type CreatePMapResponse struct {
+	PMap
+}
+
+type FetchPMapRequest struct {
+	Base
+	Id string `json:"id" mapstructure:"id" validate:"required"`
+}
+
+type FetchPMapResponse struct {
+	PMap
+}
+
+type PMapListRequest struct {
+	Base `json:""`
+}
+
+type PMapListResponse struct {
+	List []PMap `json:"list"`
+}
+
+func FormatPMapByDBToPro(model *model.PMap) PMap {
+	return PMap{
+		Id:    model.Id,
+		Name:  model.Name,
+		Count: model.Count,
+	}
 }

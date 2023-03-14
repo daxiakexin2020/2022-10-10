@@ -23,7 +23,7 @@ type JoinRoomResponse struct {
 }
 
 type CreateRoomRequest struct {
-	Base
+	Base     `json:"base"`
 	RoomName string `json:"room_name" mapstructure:"room_name" validate:"required"`
 	PMapID   string `json:"pmap_id" mapstructure:"room_name" validate:"required"`
 }

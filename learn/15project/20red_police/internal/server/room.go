@@ -13,7 +13,13 @@ func (s *Server) CreateRoom(req *protocol.CreateRoomRequest, res *protocol.Creat
 	if err := tools.Validator(req); err != nil {
 		return err
 	}
-	//test   check igonore
+	if err := s.check(req.Cookie, req.BName); err != nil {
+		return err
+	}
+	_, ok := s.UserSrc.IsLogin(req.BName)
+	if !ok {
+		return errors.New("请先登陆")
+	}
 	pMap, err := s.PMapSrc.FetchPMap(req.PMapID)
 	if err != nil {
 		return err
