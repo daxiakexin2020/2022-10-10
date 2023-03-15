@@ -103,8 +103,6 @@ L:
 
 func (s *Server) handleRequest(req *Request, writer io.WriteCloser) {
 
-	log.Printf("**************************[read data=%+v]**************************\n", *req)
-
 	svc, mtype, serr := s.findService(req.ServiceMethod)
 	if serr != nil {
 		s.sendResponse(req, serr, writer)
@@ -128,7 +126,7 @@ func (s *Server) handleRequest(req *Request, writer io.WriteCloser) {
 	}
 
 	//call middle
-	if err := s.m.run(req); err != nil {
+	if err := s.m.call(req); err != nil {
 		s.sendResponse(nil, err, writer)
 		return
 	}

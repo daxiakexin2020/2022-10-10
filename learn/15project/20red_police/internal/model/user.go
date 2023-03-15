@@ -1,6 +1,10 @@
 package model
 
-import "20red_police/tools"
+import (
+	"20red_police/tools"
+	"errors"
+	"sync"
+)
 
 type User struct {
 	Id            string
@@ -13,6 +17,7 @@ type User struct {
 	GamesNumber   int
 	CreateTime    string
 	LastLoginTime string
+	Mu            sync.RWMutex `json:"-"`
 }
 
 type ulevel int
@@ -33,8 +38,9 @@ const (
 )
 
 const (
-	status_normal ustatus = iota + 1
+	status_playing ustatus = iota + 1
 	status_forbidden
+	status_prepare
 )
 
 func NewUserModel(name, pwd, phone string) *User {
@@ -44,7 +50,51 @@ func NewUserModel(name, pwd, phone string) *User {
 		Pwd:        pwd,
 		Phone:      phone,
 		Level:      level_01,
-		Status:     status_normal,
+		Status:     status_prepare,
 		CreateTime: tools.NowTimeFormatTimeToString(),
 	}
+}
+
+func (u *User) SetForbidden() error {
+	u.Mu.RLock()
+	defer u.Mu.RUnlock()
+	u.Status = status_forbidden
+	return nil
+}
+func (u *User) SetPlaying() error {
+	u.Mu.RLock()
+	defer u.Mu.RUnlock()
+	u.Status = status_playing
+	return nil
+}
+func (u *User) SetPrepare() error {
+	u.Mu.RLock()
+	defer u.Mu.RUnlock()
+	u.Status = status_prepare
+	return nil
+}
+
+func (u *User) IsForbidden() bool {
+	u.Mu.RLock()
+	defer u.Mu.RUnlock()
+	return u.Status == status_forbidden
+}
+
+func (u *User) IsPrepare() bool {
+	u.Mu.RLock()
+	defer u.Mu.RUnlock()
+	return u.Status == status_prepare
+}
+
+func (u *User) IsPlaying() bool {
+	u.Mu.RLock()
+	defer u.Mu.RUnlock()
+	return u.Status == status_playing
+}
+
+func (u *User) CanUpdate() error {
+	if u.Id == "" || u.Name == "" || u.Pwd == "" {
+		return errors.New("user field is missing")
+	}
+	return nil
 }

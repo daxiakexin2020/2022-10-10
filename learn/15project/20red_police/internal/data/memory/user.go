@@ -1,6 +1,7 @@
 package memory
 
 import (
+	"20red_police/common"
 	"20red_police/internal/data"
 	"20red_police/internal/model"
 	"20red_police/tools"
@@ -43,11 +44,13 @@ func init() {
 }
 
 func NewUser() data.User {
+	u := &User{}
+	data.GclassTree().Register(u)
 	return &User{}
 }
 
 func (s *User) Name() string {
-	return "User"
+	return common.REGISTER_DATA_USER
 }
 
 func (u *User) Register(user *model.User) error {
@@ -97,8 +100,27 @@ func (u *User) IsLogin(name string) (model.User, bool) {
 	return emptyUser, false
 }
 
-func (u *User) Update(user model.User) error {
-	return nil
+func (u *User) Update(user model.User) (model.User, error) {
+
+	if err := user.CanUpdate(); err != nil {
+		return user, err
+	}
+	gusers.mu.Lock()
+	defer gusers.mu.Unlock()
+	_, ok := gusers.list[user.Name]
+	if !ok {
+		return emptyUser, errors.New("this user is not register")
+	}
+	gusers.list[user.Name] = &user
+
+	gonLineUsers.mu.Lock()
+	defer gonLineUsers.mu.Unlock()
+	_, ok = gonLineUsers.list[user.Name]
+	if ok {
+		gonLineUsers.list[user.Name] = &user
+	}
+
+	return user, nil
 }
 
 func (u *User) IsOnLine(name string) (model.User, bool) {
@@ -125,4 +147,24 @@ func (u *User) UserList() []model.User {
 		res = append(res, *user)
 	}
 	return res
+}
+
+func (u *User) FetchUser(name string) (model.User, error) {
+	if user, ok := gusers.list[name]; ok {
+		return *user, nil
+	}
+	return emptyUser, errors.New("no this user")
+}
+
+func (u *User) UserCanTransformPlayer(name string) (model.User, error) {
+	gonLineUsers.mu.RLock()
+	defer gonLineUsers.mu.RUnlock()
+	user, ok := gonLineUsers.list[name]
+	if !ok {
+		return emptyUser, errors.New("this user is offline")
+	}
+	if !user.IsPrepare() {
+		return emptyUser, errors.New("this user status  is not prepare")
+	}
+	return *user, nil
 }

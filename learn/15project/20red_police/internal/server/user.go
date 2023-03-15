@@ -7,7 +7,7 @@ import (
 )
 
 /*
-{"service_method":"Server.Register","meta_data":{"name":"zz","pwd":"123","repwd":"123","phone":"45"}}
+{"service_method":"Server.Register","meta_data":{"name":"zz02","pwd":"123","repwd":"123","phone":"45"}}
 */
 func (s *Server) Register(req *protocol.RegisterRequest, res *protocol.RegisterResponse) error {
 	if err := tools.Validator(req); err != nil {
@@ -20,34 +20,31 @@ func (s *Server) Register(req *protocol.RegisterRequest, res *protocol.RegisterR
 }
 
 /*
-{"service_method":"Server.Login","meta_data":{"name":"zz","pwd":"123"}}
+{"service_method":"Server.Login","meta_data":{"name":"zz02","pwd":"123"}}
 */
 func (s *Server) Login(req *protocol.LoginRequest, res *protocol.LoginResponse) error {
 	if err := tools.Validator(req); err != nil {
 		return err
-	}
-	if _, ok := s.UserSrc.IsLogin(req.Name); ok {
-		return nil
 	}
 	user, token, err := s.UserSrc.Login(req.Name, req.Pwd)
 	if err != nil {
 		return err
 	}
 	*res = protocol.LoginResponse{User: protocol.FormatUserByDBToPro(user)}
-	res.Cookie = token
+	res.Token = token
 	res.BName = res.Name
 	return nil
 }
 
-// {"service_method":"Server.LoginOut","meta_data":{"base":{"cookie":"1","bname":"zz"}}}
-func (s *Server) LoginOut(req *protocol.LoginOutResquest, res *protocol.LoginOutResponse) error {
+/*
+*
+{"service_method":"Server.LoginOut","header":{"token":"1","bname":"zz01"},"meta_data":{"name":"zz"}}
+*/
+func (s *Server) LoginOut(req *protocol.LoginOutRequest, res *protocol.LoginOutResponse) error {
 	if err := tools.Validator(req); err != nil {
 		return err
 	}
-	if err := s.check(req.Cookie, req.BName); err != nil {
-		return err
-	}
-	user, ok := s.UserSrc.IsLogin(req.BName)
+	user, ok := s.UserSrc.IsLogin(req.Name)
 	if !ok {
 		return nil
 	}
@@ -55,20 +52,12 @@ func (s *Server) LoginOut(req *protocol.LoginOutResquest, res *protocol.LoginOut
 }
 
 /*
-{"service_method":"Server.UserList","meta_data":{"base":{"cookie":"1","bname":"zz"}}}
+{"service_method":"Server.UserList","header":{"token":"1","bname":"zz"},"meta_data":{}}
 */
 func (s *Server) UserList(req *protocol.UserListRequest, res *protocol.UserListResponse) error {
 	if err := tools.Validator(req); err != nil {
 		return err
 	}
-	if err := s.check(req.Cookie, req.BName); err != nil {
-		return err
-	}
-
-	if _, ok := s.UserSrc.IsLogin(req.BName); !ok {
-		return errors.New("请先登陆")
-	}
-
 	list, err := s.UserSrc.UserList()
 	*res = protocol.UserListResponse{List: make([]protocol.User, 0, len(list))}
 	if err != nil {

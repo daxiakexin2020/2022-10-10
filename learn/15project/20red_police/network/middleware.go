@@ -14,10 +14,9 @@ func (m *middle) register(mf ...MiddleFunc) {
 	m.f = append(m.f, mf...)
 }
 
-func (m *middle) run(request *Request) error {
+func (m *middle) call(request *Request) error {
 	for _, mf := range m.f {
-		err := mf(request)
-		if err != nil {
+		if err := mf(request); err != nil {
 			return err
 		}
 	}

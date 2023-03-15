@@ -6,7 +6,7 @@ import (
 )
 
 /*
-{"service_method":"Server.CreatePMap","meta_data":{"base":{"cookie":"1","bname":"zz"},"name":"1","count":8}}
+{"service_method":"Server.CreatePMap","meta_data":{"name":"btxd","count":8}}
 */
 func (s *Server) CreatePMap(req *protocol.CreatePMapRequest, res *protocol.CreatePMapResponse) error {
 	if err := tools.Validator(req); err != nil {
@@ -21,7 +21,7 @@ func (s *Server) CreatePMap(req *protocol.CreatePMapRequest, res *protocol.Creat
 }
 
 /*
-{"service_method":"Server.PMapList","meta_data":{"base":{"cookie":"1","bname":"zz"},"name":"1","count":8}}
+{"service_method":"Server.PMapList","meta_data":{}}
 */
 func (s *Server) PMapList(req *protocol.PMapListRequest, res *protocol.PMapListResponse) error {
 	if err := tools.Validator(req); err != nil {

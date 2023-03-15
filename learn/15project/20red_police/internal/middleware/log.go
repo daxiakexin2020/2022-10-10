@@ -2,10 +2,10 @@ package middleware
 
 import (
 	"20red_police/network"
-	"fmt"
+	"log"
 )
 
 func LogMiddleware(req *network.Request) error {
-	fmt.Println("log middler start", req)
+	log.Println("********************LogMiddleware  req:", req)
 	return nil
 }

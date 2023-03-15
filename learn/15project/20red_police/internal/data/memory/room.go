@@ -55,7 +55,7 @@ func (r *Room) Update(room *model.Room) (model.Room, error) {
 	return empty, nil
 }
 
-func (r *Room) List() []model.Room {
+func (r *Room) RoomList() []model.Room {
 	var res []model.Room
 	for _, room := range grooms.list {
 		res = append(res, *room)
@@ -76,7 +76,39 @@ func (r *Room) JoinRoom(player *model.Player, roomID string) (model.Room, error)
 	return *room, nil
 }
 
-func (r *Room) OutRoom(player *model.Player, roomID string) error {
+func (r *Room) FetchRoom(roomID string) (model.Room, error) {
+	grooms.mu.RLock()
+	defer grooms.mu.RUnlock()
+	if room, ok := grooms.list[roomID]; ok {
+		return *room, nil
+	}
+	return emptyRoom, errors.New("房间不存在")
+}
+
+func (r *Room) OutRoom(playerName string, roomID string) error {
+	grooms.mu.Lock()
+	defer grooms.mu.Unlock()
+	room, ok := grooms.list[roomID]
+	if !ok {
+		return errors.New("房间不存在")
+	}
+	if err := room.OutRoom(playerName); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (r *Room) DeleteRoom(playerName string, roomID string) error {
+	grooms.mu.Lock()
+	defer grooms.mu.Unlock()
+	room, ok := grooms.list[roomID]
+	if !ok {
+		return errors.New("房间不存在")
+	}
+	if err := room.DeleteRoom(playerName); err != nil {
+		return err
+	}
+	delete(grooms.list, roomID)
 	return nil
 }
 

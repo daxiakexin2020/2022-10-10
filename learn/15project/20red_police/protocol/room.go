@@ -14,8 +14,8 @@ type Room struct {
 }
 
 type JoinRoomRequest struct {
-	Base
-	RoomID string `json:"room_id" mapstructure:"room_id" validate:"required"`
+	Username string `json:"username" mapstructure:"username" validate:"required"`
+	RoomID   string `json:"room_id" mapstructure:"room_id" validate:"required"`
 }
 
 type JoinRoomResponse struct {
@@ -23,21 +23,41 @@ type JoinRoomResponse struct {
 }
 
 type CreateRoomRequest struct {
-	Base     `json:"base"`
+	Username string `json:"username" mapstructure:"username" validate:"required"`
 	RoomName string `json:"room_name" mapstructure:"room_name" validate:"required"`
-	PMapID   string `json:"pmap_id" mapstructure:"room_name" validate:"required"`
+	PMapID   string `json:"pmap_id" mapstructure:"pmap_id" validate:"required"`
 }
 
 type CreateRoomResponse struct {
 	Room
 }
 
-type RoomListRequest struct {
-	Base
-}
+type RoomListRequest struct{ Empry }
+
 type RoomListResponse struct {
 	List []Room `json:"list"`
 }
+
+type GameStartRequest struct {
+	Username string `json:"username" mapstructure:"username" validate:"required"`
+	RoomID   string `json:"room_id" mapstructure:"room_id" validate:"required"`
+}
+
+type GameStartResponse struct{ Empry }
+
+type OutRoomRequest struct {
+	Username string `json:"username" mapstructure:"username" validate:"required"`
+	RoomID   string `json:"room_id" mapstructure:"room_id" validate:"required"`
+}
+
+type OutRoomResponse struct{ Empry }
+
+type DelteRoomRequest struct {
+	Username string `json:"username" mapstructure:"username" validate:"required"`
+	RoomID   string `json:"room_id" mapstructure:"room_id" validate:"required"`
+}
+
+type DeleteRoomResponse struct{ Empry }
 
 func FormatRoomByDBToPro(model *model.Room) Room {
 	players := make(map[string]*Player, len(model.Players))

@@ -9,27 +9,19 @@ type PMap struct {
 }
 
 type CreatePMapRequest struct {
-	Base  `json:"base"`
 	Name  string `json:"name" mapstructure:"name" validate:"required"`
 	Count int    `json:"count" mapstructure:"count" validate:"required"`
 }
 
-type CreatePMapResponse struct {
-	PMap
-}
+type CreatePMapResponse struct{ PMap }
 
 type FetchPMapRequest struct {
-	Base
 	Id string `json:"id" mapstructure:"id" validate:"required"`
 }
 
-type FetchPMapResponse struct {
-	PMap
-}
+type FetchPMapResponse struct{ PMap }
 
-type PMapListRequest struct {
-	Base `json:""`
-}
+type PMapListRequest struct{ Empry }
 
 type PMapListResponse struct {
 	List []PMap `json:"list"`

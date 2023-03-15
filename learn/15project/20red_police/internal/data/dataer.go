@@ -3,16 +3,18 @@ package data
 import "20red_police/internal/model"
 
 type User interface {
+	Class
 	Register(user *model.User) error
 	Login(name string, pwd string) (model.User, error)
 	IsLogin(name string) (model.User, bool)
 	ForgetPwd(name string, pwd string) error
 	LoginOut(user model.User) error
-	Update(user model.User) error
+	Update(user model.User) (model.User, error)
 	OnLineUserList() []model.User
 	UserList() []model.User
 	IsOnLine(name string) (model.User, bool)
-	ClassR
+	FetchUser(name string) (model.User, error)
+	UserCanTransformPlayer(name string) (model.User, error)
 }
 
 type Room interface {
@@ -20,8 +22,10 @@ type Room interface {
 	Dissolve(roomID string, username string) error
 	Update(room *model.Room) (model.Room, error)
 	JoinRoom(player *model.Player, roomID string) (model.Room, error)
-	OutRoom(player *model.Player, roomID string) error
-	List() []model.Room
+	OutRoom(playerName string, roomID string) error
+	RoomList() []model.Room
+	FetchRoom(roomID string) (model.Room, error)
+	DeleteRoom(playerName string, roomID string) error
 	Broadcast(rootID string) error
 }
 
@@ -35,6 +39,6 @@ type PMap interface {
 	FetchPMap(id string) (model.PMap, error)
 }
 
-type ClassR interface {
+type Class interface {
 	Name() string
 }

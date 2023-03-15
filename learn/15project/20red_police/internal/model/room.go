@@ -11,17 +11,15 @@ type status int
 const (
 	STATUS_WAITING status = iota + 1
 	STATUS_PLAYING
-	STATUS_DISSOLVE
 	STATUS_OVER
 	STATUC_FULL
 )
 
 var STATUS_MAPING = map[status]string{
-	STATUS_WAITING:  "等待中",
-	STATUS_PLAYING:  "已开始",
-	STATUS_DISSOLVE: "已解散",
-	STATUS_OVER:     "已结束",
-	STATUC_FULL:     "已满员",
+	STATUS_WAITING: "等待中",
+	STATUS_PLAYING: "已开始",
+	STATUS_OVER:    "已结束",
+	STATUC_FULL:    "已满员",
 }
 
 type Room struct {
@@ -56,7 +54,6 @@ func (r *Room) JoinRoom(player *Player) error {
 	if err := r.isCanJoin(); err != nil {
 		return err
 	}
-
 	if _, ok := r.Players[player.Name]; ok {
 		return errors.New("你已经加入此房间，不可重复加入")
 	}
@@ -64,16 +61,42 @@ func (r *Room) JoinRoom(player *Player) error {
 	if len(r.Players) == r.MapUserCount {
 		r.Status = STATUC_FULL
 	}
+	return nil
+}
 
+func (r *Room) OutRoom(playerName string) error {
+	r.Mu.Lock()
+	defer r.Mu.Unlock()
+	if err := r.isCanOutRoom(); err != nil {
+		return err
+	}
+	if _, ok := r.Players[playerName]; !ok {
+		return errors.New("您已经退出房间")
+	}
+	delete(r.Players, playerName)
+	if r.Owner == playerName {
+		r.Status = STATUS_OVER
+	} else {
+		r.Status = STATUS_WAITING
+	}
+	return nil
+}
+
+func (r *Room) DeleteRoom(playerName string) error {
+	r.Mu.Lock()
+	r.Mu.Unlock()
+	if err := r.isCanOutRoom(); err != nil {
+		return err
+	}
+	if r.Owner != playerName {
+		return errors.New("您不是房主，不能解散房间")
+	}
+	r.Status = STATUS_OVER
 	return nil
 }
 
 func (r *Room) RoomStatus() status {
 	return r.Status
-}
-
-func (r *Room) IsDissolve() bool {
-	return r.Status == STATUS_DISSOLVE
 }
 
 func (r *Room) IsOver() bool {
@@ -85,6 +108,13 @@ func (r *Room) isCanJoin() error {
 		return nil
 	}
 	return errors.New("加入失败，游戏" + STATUS_MAPING[r.Status])
+}
+
+func (r *Room) isCanOutRoom() error {
+	if r.Status == STATUS_PLAYING {
+		return errors.New("游戏" + STATUS_MAPING[r.Status])
+	}
+	return nil
 }
 
 func (r *Room) IsCanCreate() bool {

@@ -23,17 +23,7 @@ type RegisterRequest struct {
 	Phone string `json:"phone"  mapstructure:"phone" validate:"required"`
 }
 
-type RegisterResponse struct {
-	Empry
-}
-
-type UserListRequest struct {
-	Base
-}
-
-type UserListResponse struct {
-	List []User `json:"list"`
-}
+type RegisterResponse struct{ Empry }
 
 type LoginRequest struct {
 	Name string `json:"name" mapstructure:"name" validate:"required"`
@@ -41,16 +31,20 @@ type LoginRequest struct {
 }
 
 type LoginResponse struct {
-	Base
+	Header
 	User
 }
 
-type LoginOutResquest struct {
-	Base
+type LoginOutRequest struct {
+	Name string `json:"name" mapstructure:"name" validate:"required"`
 }
 
-type LoginOutResponse struct {
-	Empry
+type LoginOutResponse struct{ Empry }
+
+type UserListRequest struct{ Empry }
+
+type UserListResponse struct {
+	List []User `json:"list"`
 }
 
 func FormatUserByDBToPro(model model.User) User {

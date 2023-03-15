@@ -5,7 +5,9 @@ import (
 	"encoding/json"
 	"fmt"
 	"net"
+	"strconv"
 	"testing"
+	"time"
 )
 
 var conn net.Conn
@@ -15,6 +17,7 @@ var (
 	LoginRes      = make(chan interface{}, 1)
 	CreateRoomRes = make(chan interface{}, 1)
 	CreatePMapRes = make(chan interface{}, 1)
+	JoinRoomRes   = make(chan interface{}, 10)
 )
 
 type Common struct {
@@ -59,6 +62,16 @@ type CreatePMapRequest struct {
 type CreatePMapResponse struct {
 	Data protocol.CreatePMapResponse `json:"data"`
 	Err  string                      `json:"err"`
+}
+
+type JoinRoomRequest struct {
+	Common
+	MetaData protocol.JoinRoomRequest `json:"meta_data"`
+}
+
+type JoinRoomResponse struct {
+	Data protocol.JoinRoomResponse `json:"data"`
+	Err  string                    `json:"err"`
 }
 
 func TestRegisterLoginCreateRoom(t *testing.T) {
@@ -120,8 +133,8 @@ func TestCreateRoom(t *testing.T) {
 	res := &CreateRoomResponse{}
 	req := CreateRoomRequest{}
 	req.Common.ServiceMethod = "Server.CreateRoom"
-	req.MetaData.Base.Cookie = ls.Data.Cookie
-	req.MetaData.Base.BName = ls.Data.BName
+	//req.MetaData= ls.Data.Cookie
+	//req.MetaData.BName = ls.Data.BName
 	req.MetaData.RoomName = "冰天雪地"
 	req.MetaData.PMapID = "fd7fd0c8-c246-11ed-2a8a-379c3320538f"
 	data, err := json.Marshal(req)
@@ -142,8 +155,8 @@ func TestCreatePMap(t *testing.T) {
 	res := &CreatePMapResponse{}
 	req := CreatePMapRequest{}
 	req.Common.ServiceMethod = "Server.CreatePMap"
-	req.MetaData.Base.Cookie = ls.Data.Cookie
-	req.MetaData.Base.BName = ls.Data.BName
+	//req.MetaData.Base.Cookie = ls.Data.Cookie
+	//req.MetaData.Base.BName = ls.Data.BName
 	req.MetaData.Name = "冰天雪地"
 	req.MetaData.Count = 8
 	data, err := json.Marshal(req)
@@ -164,6 +177,31 @@ func client() (net.Conn, error) {
 		return nil, err
 	}
 	return dial, nil
+}
+
+func TestJoinRoom(t *testing.T) {
+	limit := 10
+	for i := 0; i < limit; i++ {
+		go func(i int) {
+			dial, _ := net.Dial("tcp4", ":9115")
+			req := &JoinRoomRequest{}
+			res := &JoinRoomResponse{}
+			req.Common.ServiceMethod = "Server.JoinRoom"
+			req.MetaData.Username = "zz_" + strconv.Itoa(i)
+			req.MetaData.RoomID = "123"
+			data, err := json.Marshal(req)
+			if err != nil {
+				fmt.Println("join room req err:", err)
+			}
+			fmt.Println("join room req:", string(data))
+			dial.Write(data)
+			read(dial, JoinRoomRes, res)
+		}(i)
+	}
+	time.Sleep(time.Second * 3)
+	for data := range JoinRoomRes {
+		fmt.Println(data)
+	}
 }
 
 func read(conn net.Conn, resc chan interface{}, req interface{}) {
