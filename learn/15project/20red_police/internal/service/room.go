@@ -107,6 +107,32 @@ func (rs *RoomService) DeleteRoom(username, roomID string) error {
 	return nil
 }
 
+func (rs *RoomService) GameStart(username, roomID string) error {
+	room, err := rs.roomRepo.FetchRoom(roomID)
+	if err != nil {
+		return err
+	}
+	if err = rs.roomRepo.GameStart(username, roomID); err != nil {
+		return err
+	}
+	for playerName, _ := range room.Players {
+		user, err := rs.userRepo.FetchUser(playerName)
+		if err != nil {
+			fmt.Println("delete room , fetchuser err:", err)
+			continue
+		}
+		user.SetPlaying()
+		if _, err = rs.userRepo.Update(user); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func (rs *RoomService) UpdateRoomPlayer(roomID string, username string, status bool) error {
+	return rs.roomRepo.UpdateRoomPlayer(roomID, username, status)
+}
+
 func (rs *RoomService) RoomList() ([]model.Room, error) {
 	return rs.roomRepo.RoomList(), nil
 }

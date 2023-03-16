@@ -3,6 +3,7 @@ package model
 import (
 	"20red_police/tools"
 	"errors"
+	"fmt"
 	"sync"
 )
 
@@ -31,7 +32,7 @@ type Room struct {
 	CreateTime   string
 	Players      map[string]*Player
 	Owner        string
-	Mu           sync.Mutex `json:"-"`
+	mu           sync.RWMutex `json:"-"`
 }
 
 func NewRoom(roomName, username, pmapName string, count int) *Room {
@@ -48,14 +49,14 @@ func NewRoom(roomName, username, pmapName string, count int) *Room {
 }
 
 func (r *Room) JoinRoom(player *Player) error {
-	r.Mu.Lock()
-	defer r.Mu.Unlock()
+	r.mu.Lock()
+	defer r.mu.Unlock()
 
 	if err := r.isCanJoin(); err != nil {
 		return err
 	}
 	if _, ok := r.Players[player.Name]; ok {
-		return errors.New("你已经加入此房间，不可重复加入")
+		return errors.New("you already join this room,can not repeat join")
 	}
 	r.Players[player.Name] = player
 	if len(r.Players) == r.MapUserCount {
@@ -65,13 +66,13 @@ func (r *Room) JoinRoom(player *Player) error {
 }
 
 func (r *Room) OutRoom(playerName string) error {
-	r.Mu.Lock()
-	defer r.Mu.Unlock()
+	r.mu.Lock()
+	defer r.mu.Unlock()
 	if err := r.isCanOutRoom(); err != nil {
 		return err
 	}
 	if _, ok := r.Players[playerName]; !ok {
-		return errors.New("您已经退出房间")
+		return errors.New("you are out this room")
 	}
 	delete(r.Players, playerName)
 	if r.Owner == playerName {
@@ -83,13 +84,13 @@ func (r *Room) OutRoom(playerName string) error {
 }
 
 func (r *Room) DeleteRoom(playerName string) error {
-	r.Mu.Lock()
-	r.Mu.Unlock()
+	r.mu.Lock()
+	r.mu.Unlock()
 	if err := r.isCanOutRoom(); err != nil {
 		return err
 	}
 	if r.Owner != playerName {
-		return errors.New("您不是房主，不能解散房间")
+		return errors.New("room ower can start delete room")
 	}
 	r.Status = STATUS_OVER
 	return nil
@@ -97,6 +98,39 @@ func (r *Room) DeleteRoom(playerName string) error {
 
 func (r *Room) RoomStatus() status {
 	return r.Status
+}
+
+func (r *Room) GameStart(username string) error {
+	r.mu.RLock()
+	defer r.mu.RUnlock()
+	players := r.Players
+	if len(players) <= 1 {
+		return errors.New("this room has one player，geme can not start")
+	}
+	if r.Owner != username {
+		return errors.New("room ower can start game only")
+	}
+	for _, player := range players {
+		if !player.IsReady() {
+			return errors.New("has player no ready")
+		}
+	}
+	r.Status = STATUS_PLAYING
+	return nil
+}
+
+func (r *Room) UpdateRoomPlayer(playerName string, status bool) error {
+	r.mu.Lock()
+	defer r.mu.Unlock()
+	if r.Status == STATUS_PLAYING {
+		return errors.New("game is playing ,can not update player status")
+	}
+	player, ok := r.Players[playerName]
+	if !ok {
+		return fmt.Errorf("this player:%s not in this room:%s", playerName, r.Id)
+	}
+	player.Status = status
+	return nil
 }
 
 func (r *Room) IsOver() bool {
@@ -107,12 +141,12 @@ func (r *Room) isCanJoin() error {
 	if r.Status == STATUS_WAITING {
 		return nil
 	}
-	return errors.New("加入失败，游戏" + STATUS_MAPING[r.Status])
+	return errors.New("join failed，game" + STATUS_MAPING[r.Status])
 }
 
 func (r *Room) isCanOutRoom() error {
 	if r.Status == STATUS_PLAYING {
-		return errors.New("游戏" + STATUS_MAPING[r.Status])
+		return errors.New("game" + STATUS_MAPING[r.Status])
 	}
 	return nil
 }

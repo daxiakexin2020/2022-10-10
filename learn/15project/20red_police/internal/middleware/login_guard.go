@@ -15,7 +15,7 @@ func LoginGuardMiddleware(req *network.Request) error {
 	serviceMethod := req.ServiceMethod
 	al, ok := auth.AuthListMapping[serviceMethod]
 	if !ok {
-		return fmt.Errorf("serviceMethod:%s, 不在auth列表中，请配置", serviceMethod)
+		return fmt.Errorf("serviceMethod:%s, auth list has no this serviceMethod", serviceMethod)
 	}
 	if !al.IsNeedLogin {
 		return nil
@@ -36,7 +36,7 @@ func LoginGuardMiddleware(req *network.Request) error {
 		return errors.New("guard login class is err")
 	}
 	if _, isLogin := user.IsLogin(req.Header.BName); !isLogin {
-		return errors.New("用户离线，请先登陆")
+		return errors.New("user is offline ,please login")
 	}
 	return nil
 }

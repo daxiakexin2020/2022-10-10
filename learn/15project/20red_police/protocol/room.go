@@ -59,6 +59,22 @@ type DelteRoomRequest struct {
 
 type DeleteRoomResponse struct{ Empry }
 
+type UpdateRoomPlayerRequest struct {
+	Username string `json:"username" mapstructure:"username" validate:"required"`
+	RoomID   string `json:"room_id" mapstructure:"room_id" validate:"required"`
+	Status   bool   `json:"status" mapstructure:"status" validate:"required"`
+}
+
+type UpdateRoomPlayerResponse struct{ Empry }
+
+type KickRequest struct {
+	Username         string `json:"username" mapstructure:"username" validate:"required"`
+	BekickedUsername string `json:"bekick_username" mapstructure:"bekick_username" validate:"required"`
+	RoomID           string `json:"room_id" mapstructure:"room_id" validate:"required"`
+}
+
+type KickResponse struct{ Empry }
+
 func FormatRoomByDBToPro(model *model.Room) Room {
 	players := make(map[string]*Player, len(model.Players))
 	for _, player := range model.Players {

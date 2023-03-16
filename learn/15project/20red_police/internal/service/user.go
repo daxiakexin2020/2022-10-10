@@ -5,6 +5,7 @@ import (
 	"20red_police/internal/data"
 	"20red_police/internal/model"
 	"20red_police/tools"
+	"errors"
 )
 
 type UserService struct {
@@ -15,7 +16,10 @@ func NewUserService(data data.User) *UserService {
 	return &UserService{data: data}
 }
 
-func (us *UserService) Register(name, pwd, phone string) error {
+func (us *UserService) Register(name, pwd, repwd, phone string) error {
+	if pwd != repwd {
+		return errors.New("Two passwords are different")
+	}
 	userModel := model.NewUserModel(name, pwd, phone)
 	return us.data.Register(userModel)
 }

@@ -7,8 +7,7 @@ import (
 	"sync"
 )
 
-type Room struct {
-}
+type Room struct{}
 
 type rooms struct {
 	list map[string]*model.Room
@@ -41,7 +40,7 @@ func (r *Room) Create(room *model.Room) (model.Room, error) {
 	grooms.mu.Lock()
 	defer grooms.mu.Unlock()
 	if !room.IsCanCreate() {
-		return *room, errors.New("创建房间失败")
+		return *room, errors.New("create room faield")
 	}
 	grooms.list[room.Id] = room
 	return *room, nil
@@ -68,7 +67,7 @@ func (r *Room) JoinRoom(player *model.Player, roomID string) (model.Room, error)
 	defer grooms.mu.Unlock()
 	room, ok := grooms.list[roomID]
 	if !ok {
-		return emptyRoom, errors.New("房间不存在")
+		return emptyRoom, errors.New("no this room:" + roomID)
 	}
 	if err := room.JoinRoom(player); err != nil {
 		return emptyRoom, err
@@ -82,7 +81,7 @@ func (r *Room) FetchRoom(roomID string) (model.Room, error) {
 	if room, ok := grooms.list[roomID]; ok {
 		return *room, nil
 	}
-	return emptyRoom, errors.New("房间不存在")
+	return emptyRoom, errors.New("no this room:" + roomID)
 }
 
 func (r *Room) OutRoom(playerName string, roomID string) error {
@@ -90,7 +89,7 @@ func (r *Room) OutRoom(playerName string, roomID string) error {
 	defer grooms.mu.Unlock()
 	room, ok := grooms.list[roomID]
 	if !ok {
-		return errors.New("房间不存在")
+		return errors.New("no this room:" + roomID)
 	}
 	if err := room.OutRoom(playerName); err != nil {
 		return err
@@ -103,13 +102,36 @@ func (r *Room) DeleteRoom(playerName string, roomID string) error {
 	defer grooms.mu.Unlock()
 	room, ok := grooms.list[roomID]
 	if !ok {
-		return errors.New("房间不存在")
+		return errors.New("no this room:" + roomID)
 	}
 	if err := room.DeleteRoom(playerName); err != nil {
 		return err
 	}
 	delete(grooms.list, roomID)
 	return nil
+}
+
+func (r *Room) GameStart(username, roomID string) error {
+	grooms.mu.Lock()
+	defer grooms.mu.Unlock()
+	room, ok := grooms.list[roomID]
+	if !ok {
+		return errors.New("no this room:" + roomID)
+	}
+	if err := room.GameStart(username); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (r *Room) UpdateRoomPlayer(roomID string, username string, status bool) error {
+	grooms.mu.Lock()
+	defer grooms.mu.Unlock()
+	room, ok := grooms.list[roomID]
+	if !ok {
+		return errors.New("no this room:" + roomID)
+	}
+	return room.UpdateRoomPlayer(username, status)
 }
 
 func (r *Room) Broadcast(rootID string) error {

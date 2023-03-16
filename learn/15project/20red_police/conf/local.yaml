@@ -30,3 +30,6 @@ jwt:
   token_issuer: REDPOLICE
   token_secret: ab12@!.KX2012?.Zz.
   token_timeout: 20
+
+room:
+  auto_dissolve: 3

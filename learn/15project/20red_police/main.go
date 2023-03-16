@@ -19,6 +19,6 @@ func run() {
 	if err := network.Register(s); err != nil {
 		panic(err)
 	}
-	network.RegisterMiddleware(middleware.LogMiddleware, middleware.LoginGuardMiddleware)
+	network.RegisterMiddleware(middleware.LogMiddleware, middleware.LoginGuardMiddleware, middleware.ValidatorMiddleWare)
 	network.Run()
 }

@@ -124,8 +124,8 @@ func (s *Server) handleRequest(req *Request, writer io.WriteCloser) {
 		s.sendResponse(req, err, writer)
 		return
 	}
+	req.MethodReflectData = farg
 
-	//call middle
 	if err := s.m.call(req); err != nil {
 		s.sendResponse(nil, err, writer)
 		return

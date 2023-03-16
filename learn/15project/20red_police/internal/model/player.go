@@ -17,3 +17,14 @@ func NewPlayer(name string) *Player {
 		Name: name,
 	}
 }
+
+func (p *Player) IsReady() bool {
+	return p.Status
+}
+func (p *Player) SetReady() {
+	p.Status = true
+}
+
+func (p *Player) SetUnReady() {
+	p.Status = false
+}

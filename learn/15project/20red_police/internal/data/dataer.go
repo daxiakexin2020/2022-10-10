@@ -26,6 +26,8 @@ type Room interface {
 	RoomList() []model.Room
 	FetchRoom(roomID string) (model.Room, error)
 	DeleteRoom(playerName string, roomID string) error
+	GameStart(username, roomID string) error
+	UpdateRoomPlayer(roomID string, username string, status bool) error
 	Broadcast(rootID string) error
 }
 

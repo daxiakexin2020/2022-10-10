@@ -6,9 +6,10 @@ import (
 )
 
 type Request struct {
-	ServiceMethod string      `json:"service_method"`
-	MetaData      interface{} `json:"meta_data"`
-	Header        *Header     `json:"header"`
+	ServiceMethod     string      `json:"service_method"`
+	MetaData          interface{} `json:"meta_data"`
+	Header            *Header     `json:"header"`
+	MethodReflectData interface{} `json:"method_reflect_data"`
 }
 
 type Header struct {
