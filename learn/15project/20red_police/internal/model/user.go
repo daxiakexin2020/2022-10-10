@@ -14,7 +14,7 @@ type User struct {
 	Level         ulevel
 	Status        ustatus
 	Scorce        int64
-	GamesNumber   int
+	GameNumber    int
 	CreateTime    string
 	LastLoginTime string
 	Mu            sync.RWMutex `json:"-"`

@@ -25,7 +25,11 @@ type Info struct {
 }
 
 func main() {
+	no := 2
+	num := fmt.Sprintf("%02d", no)
+	fmt.Println("res:", num)
 
+	return
 	info := &Info{}
 	var s interface{}
 	s = "{\"name\":\"zz\", \"msg\":18}"

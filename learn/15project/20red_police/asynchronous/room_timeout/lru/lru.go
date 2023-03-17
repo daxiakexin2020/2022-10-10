@@ -8,13 +8,11 @@ import (
 )
 
 type ListNode struct {
-	head      *node
-	tail      *node
-	capacity  int64
-	len       int64
-	mu        sync.RWMutex
-	OnEvicted chan string
-	Boot      bool
+	head     *node
+	tail     *node
+	capacity int64
+	len      int64
+	mu       sync.RWMutex
 }
 
 type node struct {
@@ -25,18 +23,17 @@ type node struct {
 
 const DefaultListNodeCapacity = 2 << 10
 
-var defaultListNode = NewListNode(DefaultListNodeCapacity, nil)
+var defaultListNode = NewListNode(DefaultListNodeCapacity)
 
 func DefaultListNode() *ListNode {
 	return defaultListNode
 }
 
-func NewListNode(capacity int64, OnEvicted chan string) *ListNode {
+func NewListNode(capacity int64) *ListNode {
 	l := &ListNode{
-		head:      newNode("0"),
-		tail:      newNode("1"),
-		capacity:  capacity,
-		OnEvicted: OnEvicted,
+		head:     newNode("0"),
+		tail:     newNode("1"),
+		capacity: capacity,
 	}
 	l.head.next = l.tail
 	return l
@@ -70,15 +67,18 @@ func (ln *ListNode) Add(value string) {
 	ln.AddNodeToTail(newNode(value))
 }
 
-func (ln *ListNode) GetHeadValue(isNeedMove bool) string {
+func (ln *ListNode) GetHeadValue(remove func(value string, addtime int64) bool) string {
 	head := ln.head
 	if head == nil {
 		return ""
 	}
-	if isNeedMove {
+	value := head.value
+	ctime := head.createTime
+	if remove(value, ctime) {
 		ln.RemoveHeadNode()
+		return value
 	}
-	return head.value
+	return ""
 }
 
 func (l *ListNode) Show() {

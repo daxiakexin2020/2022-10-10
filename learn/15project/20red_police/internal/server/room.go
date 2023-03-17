@@ -5,7 +5,7 @@ import (
 )
 
 /*
-{"service_method":"Server.CreateRoom","meta_data":{"room_name":"room01","username":"zz", "pmap_id":"5964770c-c3a2-11ed-3bbe-8fbe2ae760fe"}}
+{"service_method":"Server.CreateRoom","meta_data":{"room_name":"room01","username":"zz", "pmap_id":"5632f972-c4a2-11ed-25f0-dbf3c9c73d0c"}}
 */
 func (s *Server) CreateRoom(req *protocol.CreateRoomRequest, res *protocol.CreateRoomResponse) error {
 	pMap, err := s.PMapSrc.FetchPMap(req.PMapID)
@@ -22,7 +22,7 @@ func (s *Server) CreateRoom(req *protocol.CreateRoomRequest, res *protocol.Creat
 }
 
 /*
-{"service_method":"Server.JoinRoom","meta_data":{"username":"zz01","room_id":"32da7c5c-c3a3-11ed-3bc2-8fbe2ae760fe"}}
+{"service_method":"Server.JoinRoom","meta_data":{"username":"zz","room_id":"bf56f3ae-c49d-11ed-2b99-3bc084b0fb1c"}}
 */
 func (s *Server) JoinRoom(req *protocol.JoinRoomRequest, res *protocol.JoinRoomResponse) error {
 	room, err := s.RoomSrc.JoinRoom(req.Username, req.RoomID)
@@ -59,7 +59,7 @@ func (s *Server) GameStart(req *protocol.GameStartRequest, res *protocol.GameSta
 }
 
 /*
-{"service_method":"Server.OutRoom","header":{"token":"1","bname":"zz"},"meta_data":{"username":"zz","room_id":"921b724c-c31d-11ed-3a67-b7d0893da24d"}}
+{"service_method":"Server.OutRoom","header":{"token":"1","bname":"zz"},"meta_data":{"username":"zz","room_id":"32da7c5c-c3a3-11ed-3bc2-8fbe2ae760fe"}}
 */
 func (s *Server) OutRoom(req *protocol.OutRoomRequest, res *protocol.OutRoomResponse) error {
 	room, err := s.RoomSrc.OutRoom(req.Username, req.RoomID)

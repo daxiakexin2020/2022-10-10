@@ -32,4 +32,4 @@ jwt:
   token_timeout: 20
 
 room:
-  auto_dissolve: 3
+  room_live_time: 60 #秒

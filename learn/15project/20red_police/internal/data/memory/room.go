@@ -1,6 +1,7 @@
 package memory
 
 import (
+	"20red_police/common"
 	"20red_police/internal/data"
 	"20red_police/internal/model"
 	"errors"
@@ -33,7 +34,13 @@ func init() {
 }
 
 func NewRoom() data.Room {
-	return &Room{}
+	r := &Room{}
+	data.GclassTree().Register(r)
+	return r
+}
+
+func (s *Room) Name() string {
+	return common.REGISTER_DATA_ROOM
 }
 
 func (r *Room) Create(room *model.Room) (model.Room, error) {

@@ -1,6 +1,7 @@
 package service
 
 import (
+	"20red_police/asynchronous/room_timeout"
 	"20red_police/internal/data"
 	"20red_police/internal/model"
 	"fmt"
@@ -38,6 +39,7 @@ func (rs *RoomService) CreateRoom(roomName, username, pmapID string, count int) 
 	}
 
 	fmt.Println("user:update->", user)
+	room_timeout.GTimeout().AddRoom(nRoom.Id)
 	return &nRoom, err
 }
 
@@ -115,10 +117,11 @@ func (rs *RoomService) GameStart(username, roomID string) error {
 	if err = rs.roomRepo.GameStart(username, roomID); err != nil {
 		return err
 	}
+
 	for playerName, _ := range room.Players {
 		user, err := rs.userRepo.FetchUser(playerName)
 		if err != nil {
-			fmt.Println("delete room , fetchuser err:", err)
+			fmt.Println("game start  , fetchuser err:", err)
 			continue
 		}
 		user.SetPlaying()

@@ -18,6 +18,7 @@ type User interface {
 }
 
 type Room interface {
+	Class
 	Create(room *model.Room) (model.Room, error)
 	Dissolve(roomID string, username string) error
 	Update(room *model.Room) (model.Room, error)

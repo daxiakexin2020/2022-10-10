@@ -2,7 +2,7 @@ package asynchronous
 
 import (
 	"errors"
-	"fmt"
+	"log"
 	"sync"
 )
 
@@ -13,56 +13,68 @@ type Tasker interface {
 	ExitSignal() chan struct{}
 }
 
-type Manager struct {
+type manager struct {
 	list map[string]Tasker
 	mu   sync.Mutex
+	exit chan struct{}
+	boot bool
 }
 
-func NewManager() *Manager {
-	return &Manager{list: map[string]Tasker{}}
+var (
+	gmanager *manager
+	monce    sync.Once
+)
+
+func newmanager() *manager {
+	return &manager{list: map[string]Tasker{}}
 }
 
-func (m *Manager) Register(tasks ...Tasker) {
+func Manager() *manager {
+	monce.Do(func() {
+		gmanager = newmanager()
+	})
+	return gmanager
+}
+
+func (m *manager) Register(tasks ...Tasker) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
+	if m.boot {
+		return errors.New("asynchronous already is runing,can not register task")
+	}
 	for _, task := range tasks {
 		m.list[task.TaskName()] = task
 	}
+	return nil
 }
 
-func (m *Manager) Stop(taskName string) error {
+func (m *manager) StopTask(taskName string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
+	if !m.boot {
+		return errors.New("asynchronous is stoped")
+	}
 	if task, ok := m.list[taskName]; ok {
+		delete(m.list, taskName)
 		return task.Stop()
 	}
 	return errors.New("this task is not registered:" + taskName)
 }
 
-func (m *Manager) Run() {
-
-	mexit := make(chan struct{}, len(m.list))
+func (m *manager) Run() {
+	if m.boot {
+		return
+	}
+	m.exit = make(chan struct{}, len(m.list))
 	for _, task := range m.list {
 		go task.Run()
 	}
-	for _, task := range m.list {
-		go func() {
-			for {
-				select {
-				case <-task.ExitSignal():
-					fmt.Println("task stop:" + task.TaskName())
-					task.Stop()
-					mexit <- struct{}{}
-				default:
-				}
-			}
-		}()
-	}
+	m.boot = true
 	for {
-		if len(mexit) == len(m.list) {
-			fmt.Println("all task is stop")
+		if len(m.list) == 0 {
+			log.Println("all task is stoped,asynchronous stoping..........")
+			m.boot = false
 			return
 		}
-		fmt.Println("（（（（（（（（（（（（（")
 	}
 }

@@ -5,14 +5,14 @@ import (
 )
 
 /*
-{"service_method":"Server.Register","meta_data":{"name1":"zz011","pwd":"123","repwd":"123","phone":"45"}}
+{"service_method":"Server.Register","meta_data":{"name":"zz","pwd":"123","repwd":"123","phone":"45"}}
 */
 func (s *Server) Register(req *protocol.RegisterRequest, res *protocol.RegisterResponse) error {
 	return s.UserSrc.Register(req.Name, req.Pwd, req.RePwd, req.Phone)
 }
 
 /*
-{"service_method":"Server.Login","meta_data":{"name":"zz01","pwd":"123"}}
+{"service_method":"Server.Login","meta_data":{"name":"zz","pwd":"123"}}
 */
 func (s *Server) Login(req *protocol.LoginRequest, res *protocol.LoginResponse) error {
 	user, token, err := s.UserSrc.Login(req.Name, req.Pwd)

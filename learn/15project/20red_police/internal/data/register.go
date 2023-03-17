@@ -27,7 +27,7 @@ func (cr *classTree) Register(c Class) error {
 }
 
 func (cr *classTree) Pick(cname string) (Class, error) {
-	cr.mu.RUnlock()
+	cr.mu.RLock()
 	defer cr.mu.RUnlock()
 	if class, ok := cr.list[cname]; ok {
 		return class, nil
