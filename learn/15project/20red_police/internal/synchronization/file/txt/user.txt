@@ -1,0 +1,2 @@
+{"Id":"b9816e28-c70e-11ed-3f23-ebd14c6d9eb7","Name":"zz","Pwd":"123","Phone":"45","Level":1,"Status":3,"Scorce":0,"GameNumber":0,"CreateTime":"2023-03-20 19:02:37","LastLoginTime":""}
+{"Id":"c37311ca-c70e-11ed-3f25-ebd14c6d9eb7","Name":"zz1","Pwd":"123","Phone":"45","Level":1,"Status":3,"Scorce":0,"GameNumber":0,"CreateTime":"2023-03-20 19:02:54","LastLoginTime":""}

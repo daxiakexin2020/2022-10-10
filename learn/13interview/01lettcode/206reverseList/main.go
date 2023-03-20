@@ -6,15 +6,14 @@ import (
 
 func main() {
 	head := helper.MakeList(3, helper.ASC)
-	reverseListRes := reverseList(head)
 	helper.ShowList(head)
+	reverseListRes := reverseList(head)
 	helper.ShowList(reverseListRes)
 }
 
 func reverseList(head *helper.ListNode) *helper.ListNode {
 	/**
 	给你单链表的头节点 head ，请你反转链表，并返回反转后的链表。
-
 	*/
 	//nil
 	var prev *helper.ListNode

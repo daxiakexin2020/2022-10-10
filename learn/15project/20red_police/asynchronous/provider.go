@@ -13,3 +13,7 @@ func GoAsynchronous(task ...Tasker) error {
 	log.Println("Asynchronous Run ok")
 	return nil
 }
+
+func STOP() error {
+	return Manager().Stop()
+}

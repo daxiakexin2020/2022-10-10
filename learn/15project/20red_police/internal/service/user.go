@@ -4,6 +4,7 @@ import (
 	"20red_police/config"
 	"20red_police/internal/data"
 	"20red_police/internal/model"
+	"20red_police/internal/synchronization/file/stores"
 	"20red_police/tools"
 	"errors"
 )
@@ -21,7 +22,11 @@ func (us *UserService) Register(name, pwd, repwd, phone string) error {
 		return errors.New("Two passwords are different")
 	}
 	userModel := model.NewUserModel(name, pwd, phone)
-	return us.data.Register(userModel)
+	err := us.data.Register(userModel)
+	if err == nil {
+		stores.MemorySyncFile(userModel)
+	}
+	return err
 }
 
 func (us *UserService) Login(name, pwd string) (model.User, string, error) {

@@ -54,7 +54,7 @@ func FormatUserByDBToPro(model model.User) User {
 		Phone:         model.Phone,
 		Level:         int(model.Level),
 		Status:        int(model.Status),
-		GamesNumber:   model.GamesNumber,
+		GamesNumber:   model.GameNumber,
 		CreateTime:    model.CreateTime,
 		LastLoginTime: model.LastLoginTime,
 	}

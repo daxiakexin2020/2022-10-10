@@ -5,7 +5,7 @@ import (
 )
 
 /*
-{"service_method":"Server.Register","meta_data":{"name":"zz","pwd":"123","repwd":"123","phone":"45"}}
+{"service_method":"Server.Register","meta_data":{"name":"zz1","pwd":"123","repwd":"123","phone":"45"}}
 */
 func (s *Server) Register(req *protocol.RegisterRequest, res *protocol.RegisterResponse) error {
 	return s.UserSrc.Register(req.Name, req.Pwd, req.RePwd, req.Phone)

@@ -6,7 +6,11 @@ import (
 	"20red_police/config"
 	iasynchronous "20red_police/internal/asynchronous"
 	"20red_police/internal/middleware"
+	"20red_police/internal/synchronization/file/stores"
 	"20red_police/network"
+	"fmt"
+	"log"
+	"os"
 	"time"
 )
 
@@ -23,11 +27,33 @@ func run() {
 	if err := config.InitializeProxyViper(); err != nil {
 		panic(err)
 	}
+
+	go handleExit()
+
 	roomTimeout := room_timeout.Timeout(10000, time.Second*time.Duration(config.GetRoomConfig().RoomLiveTime), iasynchronous.Handle)
 	if err := asynchronous.GoAsynchronous(roomTimeout); err != nil {
 		panic(err)
 	}
 
+	if err := stores.GoSynchronization(); err != nil {
+		panic(err)
+	}
+
 	network.RegisterMiddleware(middleware.LogMiddleware, middleware.LoginGuardMiddleware, middleware.ValidatorMiddleWare)
 	network.Run()
+}
+
+func handleExit() {
+
+	<-network.GOEXIT
+	if err := asynchronous.STOP(); err != nil {
+		log.Println("stop asynchronous err, please handle:", err)
+	}
+
+	if err := stores.MemoryBatchSyncFile(); err != nil {
+		fmt.Println("MemorySyncFile err:", err)
+	}
+	os.Exit(0)
+
+	//full online user
 }

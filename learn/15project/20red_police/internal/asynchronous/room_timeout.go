@@ -1,7 +1,6 @@
 package asynchronous
 
 import (
-	"20red_police/common"
 	"20red_police/internal/data"
 	"20red_police/internal/data/memory"
 	"20red_police/internal/model"
@@ -23,15 +22,13 @@ func Handle(roomID string) error {
 
 func deleteRoom(roomID string) (*model.Room, error) {
 	fmt.Println("roomID:", roomID)
-	pick, err := data.GclassTree().Pick(common.REGISTER_DATA_ROOM)
+	pick, err := data.MemoryRoom()
 	if err != nil {
-		log.Println("room_time handle err:", err)
 		return nil, err
 	}
 	room, ok := pick.(*memory.Room)
 	if !ok {
-		log.Println("room class is err")
-		return nil, errors.New("room class is err")
+		return nil, errors.New("memory class is err")
 	}
 	fetchRoom, err := room.FetchRoom(roomID)
 	if err != nil {
@@ -47,17 +44,14 @@ func deleteRoom(roomID string) (*model.Room, error) {
 }
 
 func updateUserStatus(room *model.Room) error {
-	pick, err := data.GclassTree().Pick(common.REGISTER_DATA_USER)
+	pick, err := data.MemoryUser()
 	if err != nil {
-		log.Println("room_time handle err:", err)
 		return err
 	}
 	user, ok := pick.(*memory.User)
 	if !ok {
-		log.Println("user class is err")
-		return errors.New("room class is err")
+		return errors.New("memory class is err")
 	}
-
 	for playerName, _ := range room.Players {
 		muser, err := user.FetchUser(playerName)
 		if err != nil {

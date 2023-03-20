@@ -61,6 +61,21 @@ func (m *manager) StopTask(taskName string) error {
 	return errors.New("this task is not registered:" + taskName)
 }
 
+func (m *manager) Stop() error {
+	m.mu.Lock()
+	m.mu.Unlock()
+	if !m.boot {
+		return nil
+	}
+	for _, task := range m.list {
+		if err := task.Stop(); err != nil {
+			return err
+		}
+		delete(m.list, task.TaskName())
+	}
+	return nil
+}
+
 func (m *manager) Run() {
 	if m.boot {
 		return

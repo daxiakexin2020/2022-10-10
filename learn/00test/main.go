@@ -12,6 +12,7 @@ import (
 	"sort"
 	"strconv"
 	"strings"
+	"sync"
 	"text/template"
 	"time"
 )
@@ -22,9 +23,16 @@ type Msg string
 
 type Info struct {
 	Name string `json:"name"`
+	sync.Mutex
 }
 
 func main() {
+
+	i := Info{Name: "zz"}
+	fmt.Println(i)
+	i.Lock()
+	defer i.Unlock()
+	return
 	no := 2
 	num := fmt.Sprintf("%02d", no)
 	fmt.Println("res:", num)

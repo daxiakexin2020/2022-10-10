@@ -10,9 +10,12 @@ import (
 	"io"
 	"log"
 	"net"
+	"os"
+	"os/signal"
 	"reflect"
 	"strings"
 	"sync"
+	"syscall"
 	"time"
 )
 
@@ -27,6 +30,10 @@ type Server struct {
 var (
 	DefaultServer  = NewServer(DefaultAddress)
 	DefaultAddress = ":9115"
+)
+var (
+	procSignalChan = make(chan os.Signal)
+	GOEXIT         = make(chan struct{}, 1)
 )
 
 func NewServer(address string) *Server {
@@ -66,6 +73,7 @@ func (s *Server) Run() {
 	if err != nil {
 		panic(err)
 	}
+	go handleProcessSignal()
 	fmt.Printf("run at in address: %s.........................\n", s.address)
 	for {
 		conn, err := listen.Accept()
@@ -73,6 +81,31 @@ func (s *Server) Run() {
 			continue
 		}
 		go s.handleConn(conn)
+	}
+}
+
+func handleProcessSignal() {
+	var sig os.Signal
+	signal.Notify(
+		procSignalChan,
+		syscall.SIGINT,
+		syscall.SIGQUIT,
+		syscall.SIGKILL,
+		syscall.SIGTERM,
+		syscall.SIGABRT,
+		syscall.SIGUSR1,
+		syscall.SIGUSR2,
+	)
+	for {
+		sig = <-procSignalChan
+		log.Printf(`signal received: %s`, sig.String())
+		switch sig {
+		case syscall.SIGINT, syscall.SIGQUIT, syscall.SIGKILL, syscall.SIGABRT, syscall.SIGTERM, syscall.SIGUSR1:
+			fmt.Println("*************need out *************")
+			GOEXIT <- struct{}{}
+			return
+		default:
+		}
 	}
 }
 
