@@ -12,7 +12,7 @@ var (
 )
 
 func init() {
-	once = sync.Once{}
+	makeJwtConfig()
 }
 
 type JwtConfig struct {

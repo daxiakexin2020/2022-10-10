@@ -8,7 +8,6 @@ import (
 	"20red_police/internal/middleware"
 	"20red_police/internal/synchronization/file/stores"
 	"20red_police/network"
-	"fmt"
 	"log"
 	"os"
 	"time"
@@ -35,7 +34,7 @@ func run() {
 		panic(err)
 	}
 
-	if err := stores.GoSynchronization(); err != nil {
+	if err := stores.GoSynchronizationRunBuilder(); err != nil {
 		panic(err)
 	}
 
@@ -45,15 +44,17 @@ func run() {
 
 func handleExit() {
 
+	defer func() {
+		os.Exit(0)
+	}()
+
 	<-network.GOEXIT
+
 	if err := asynchronous.STOP(); err != nil {
 		log.Println("stop asynchronous err, please handle:", err)
 	}
 
-	if err := stores.MemoryBatchSyncFile(); err != nil {
-		fmt.Println("MemorySyncFile err:", err)
+	if err := stores.GoSynchronizationStopBuilder(); err != nil {
+		log.Println("GoSynchronizationStopBuilder err:", err)
 	}
-	os.Exit(0)
-
-	//full online user
 }

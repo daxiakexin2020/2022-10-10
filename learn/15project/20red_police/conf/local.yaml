@@ -4,6 +4,7 @@ web_server:
 grpc_server:
   addr: 127.0.0.1
   port: 9115
+  read_dead_line: 1800
 etcd:
   endpoints: [ "127.0.0.1:2379" ]
   username:

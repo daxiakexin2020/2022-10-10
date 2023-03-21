@@ -37,6 +37,7 @@ type Player interface {
 }
 
 type PMap interface {
+	Class
 	Create(pmap *model.PMap) (model.PMap, error)
 	List() []model.PMap
 	FetchPMap(id string) (model.PMap, error)

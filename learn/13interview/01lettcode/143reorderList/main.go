@@ -6,9 +6,9 @@ import (
 
 func main() {
 	list := helper.MakeList(5, helper.ASC)
-	//helper.ShowList(list)
+	helper.ShowList(list)
 	reorderList(list)
-	//helper.ShowList(list)
+	helper.ShowList(list)
 }
 
 func reorderList(head *helper.ListNode) {

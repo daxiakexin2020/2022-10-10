@@ -40,7 +40,7 @@ func NewRoom() data.Room {
 }
 
 func (s *Room) Name() string {
-	return common.REGISTER_DATA_ROOM
+	return common.REGISTER_MEMORY_ROOM
 }
 
 func (r *Room) Create(room *model.Room) (model.Room, error) {

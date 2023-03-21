@@ -2,7 +2,6 @@ package network
 
 import (
 	"20red_police/config"
-	"20red_police/tools"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -17,12 +16,12 @@ import (
 	"sync"
 	"syscall"
 	"time"
+	"unsafe"
 )
 
 type Server struct {
 	address  string
 	services sync.Map
-	conns    map[string]*net.Conn
 	mu       sync.Mutex
 	m        *middle
 }
@@ -40,7 +39,7 @@ func NewServer(address string) *Server {
 	if address == "" {
 		address = fmt.Sprintf("%s:%d", config.GetGrpcServerConfig().Addr, config.GetGrpcServerConfig().Port)
 	}
-	return &Server{address: address, conns: map[string]*net.Conn{}, m: newMiddle()}
+	return &Server{address: address, m: newMiddle()}
 }
 
 func Run() {
@@ -73,13 +72,16 @@ func (s *Server) Run() {
 	if err != nil {
 		panic(err)
 	}
-	go handleProcessSignal()
 	fmt.Printf("run at in address: %s.........................\n", s.address)
+
+	go handleProcessSignal()
+
 	for {
 		conn, err := listen.Accept()
 		if err != nil {
 			continue
 		}
+		go s.sendResponse("hello,welcome into red police", nil, conn)
 		go s.handleConn(conn)
 	}
 }
@@ -98,10 +100,8 @@ func handleProcessSignal() {
 	)
 	for {
 		sig = <-procSignalChan
-		log.Printf(`signal received: %s`, sig.String())
 		switch sig {
 		case syscall.SIGINT, syscall.SIGQUIT, syscall.SIGKILL, syscall.SIGABRT, syscall.SIGTERM, syscall.SIGUSR1:
-			fmt.Println("*************need out *************")
 			GOEXIT <- struct{}{}
 			return
 		default:
@@ -110,21 +110,26 @@ func handleProcessSignal() {
 }
 
 func (s *Server) handleConn(conn net.Conn) {
-	defer conn.Close()
-	threadID := tools.UUID()
-	s.mu.Lock()
-	s.conns[threadID] = &conn
-	s.mu.Unlock()
+	defer func() {
+		conn.Close()
+	}()
+
 	decoder := json.NewDecoder(conn)
+
 L:
 	for {
 		var req Request
+		begin := time.Now()
+		s.setReadDeadline(begin, conn)
 		if err := decoder.Decode(&req); err != nil {
-			s.mu.Lock()
-			delete(s.conns, threadID)
-			s.mu.Unlock()
 			if err == io.EOF {
 				break L
+			}
+			if err != syscall.EINVAL {
+				opErr := (*net.OpError)(unsafe.Pointer(reflect.ValueOf(err).Pointer()))
+				if opErr.Err.Error() == "i/o timeout" {
+					log.Printf("Write timeout! no data: %s", time.Now().Sub(begin).String())
+				}
 			}
 			s.sendResponse(nil, err, conn)
 			break L
@@ -132,6 +137,10 @@ L:
 			go s.handleRequest(&req, conn)
 		}
 	}
+}
+
+func (s *Server) setReadDeadline(startTime time.Time, conn net.Conn) {
+	conn.SetReadDeadline(startTime.Add(time.Second * time.Duration(config.GetGrpcServerConfig().ReadDeadLine)))
 }
 
 func (s *Server) handleRequest(req *Request, writer io.WriteCloser) {
@@ -204,24 +213,4 @@ func (s *Server) sendResponse(data interface{}, err error, writer io.WriteCloser
 	if err = json.NewEncoder(writer).Encode(res); err != nil {
 		log.Println("send response err:", err)
 	}
-}
-
-func (s *Server) ping() {
-	timer := time.NewTicker(time.Second * 2)
-	go func() {
-		for {
-			select {
-			case <-timer.C:
-				for threadID, conn := range s.conns {
-					_, err2 := (*conn).Write([]byte("abc\n"))
-					if err2 == io.EOF {
-						delete(s.conns, threadID)
-						return
-					}
-				}
-			default:
-
-			}
-		}
-	}()
 }

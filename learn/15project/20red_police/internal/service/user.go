@@ -4,7 +4,6 @@ import (
 	"20red_police/config"
 	"20red_police/internal/data"
 	"20red_police/internal/model"
-	"20red_police/internal/synchronization/file/stores"
 	"20red_police/tools"
 	"errors"
 )
@@ -24,7 +23,7 @@ func (us *UserService) Register(name, pwd, repwd, phone string) error {
 	userModel := model.NewUserModel(name, pwd, phone)
 	err := us.data.Register(userModel)
 	if err == nil {
-		stores.MemorySyncFile(userModel)
+		//stores.UserMemorySyncFile(userModel)
 	}
 	return err
 }

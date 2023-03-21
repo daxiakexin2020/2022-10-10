@@ -5,7 +5,7 @@ import (
 )
 
 func FileUser() (Class, error) {
-	pick, err := GclassTree().Pick(common.REGISTER_FILE_DATA_USER)
+	pick, err := GclassTree().Pick(common.REGISTER_FILE_USER)
 	if err != nil {
 		return nil, err
 	}
@@ -13,7 +13,7 @@ func FileUser() (Class, error) {
 }
 
 func MemoryUser() (Class, error) {
-	pick, err := GclassTree().Pick(common.REGISTER_DATA_USER)
+	pick, err := GclassTree().Pick(common.REGISTER_MEMORY_USER)
 	if err != nil {
 		return nil, err
 	}
@@ -21,7 +21,23 @@ func MemoryUser() (Class, error) {
 }
 
 func MemoryRoom() (Class, error) {
-	pick, err := GclassTree().Pick(common.REGISTER_DATA_ROOM)
+	pick, err := GclassTree().Pick(common.REGISTER_MEMORY_ROOM)
+	if err != nil {
+		return nil, err
+	}
+	return pick, nil
+}
+
+func MemoryPmap() (Class, error) {
+	pick, err := GclassTree().Pick(common.REGISTER_MEMORY_PMAP)
+	if err != nil {
+		return nil, err
+	}
+	return pick, nil
+}
+
+func FilePMap() (Class, error) {
+	pick, err := GclassTree().Pick(common.REGISTER_FILE_PMAP)
 	if err != nil {
 		return nil, err
 	}

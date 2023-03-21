@@ -46,18 +46,18 @@ func init() {
 func NewUser() data.User {
 	u := &User{}
 	data.GclassTree().Register(u)
-	return &User{}
+	return u
 }
 
 func (s *User) Name() string {
-	return common.REGISTER_DATA_USER
+	return common.REGISTER_MEMORY_USER
 }
 
 func (u *User) Register(user *model.User) error {
 	gusers.mu.Lock()
 	defer gusers.mu.Unlock()
 	if _, ok := gusers.list[user.Name]; ok {
-		return fmt.Errorf("此用户名:%s,已经存在", user.Name)
+		return fmt.Errorf("this user is already exists:%s,", user.Name)
 	}
 	gusers.list[user.Name] = user
 	return nil
@@ -66,10 +66,10 @@ func (u *User) Register(user *model.User) error {
 func (u *User) Login(name string, pwd string) (model.User, error) {
 	muser, ok := gusers.list[name]
 	if !ok {
-		return emptyUser, fmt.Errorf("此用户:%s没有注册，请先注册", name)
+		return emptyUser, fmt.Errorf("this user is not registered:%s，please register", name)
 	}
 	if muser.Pwd != pwd {
-		return emptyUser, errors.New("用户名或密码错误")
+		return emptyUser, errors.New("username or pwd is err")
 	}
 	gonLineUsers.mu.Lock()
 	defer gonLineUsers.mu.Unlock()

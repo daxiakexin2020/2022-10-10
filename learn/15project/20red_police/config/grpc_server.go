@@ -11,12 +11,17 @@ var (
 )
 
 type GrpcServerConfig struct {
-	Addr string `json:"addr"`
-	Port int    `json:"port"`
+	Addr         string `json:"addr"`
+	Port         int    `json:"port"`
+	ReadDeadLine int    `json:"read_dead_line"`
 }
 
 func (gs *GrpcServerConfig) CName() string {
 	return "grpc_server"
+}
+
+func init() {
+	makeGrpcServerConfig()
 }
 
 func makeGrpcServerConfig() GrpcServerConfig {

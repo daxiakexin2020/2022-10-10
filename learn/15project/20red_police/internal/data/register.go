@@ -40,39 +40,3 @@ func (cr *classTree) Pick(cname string) (Class, error) {
 func GclassTree() *classTree {
 	return gclassTree
 }
-
-//func FileUser() (*stores.User, error) {
-//	pick, err := GclassTree().Pick(common.REGISTER_FILE_DATA_USER)
-//	if err != nil {
-//		return nil, err
-//	}
-//	user, ok := pick.(*stores.User)
-//	if !ok {
-//		return nil, errors.New("file user class is err")
-//	}
-//	return user, nil
-//}
-
-//func MemoryUser() (*memory.User, error) {
-//	pick, err := GclassTree().Pick(common.REGISTER_DATA_USER)
-//	if err != nil {
-//		return nil, err
-//	}
-//	user, ok := pick.(*memory.User)
-//	if !ok {
-//		return nil, errors.New("file user class is err")
-//	}
-//	return user, nil
-//}
-
-//func MemoryRoom() (*memory.Room, error) {
-//	pick, err := GclassTree().Pick(common.REGISTER_DATA_ROOM)
-//	if err != nil {
-//		return nil, err
-//	}
-//	room, ok := pick.(*memory.Room)
-//	if !ok {
-//		return nil, errors.New("memory room class is err")
-//	}
-//	return room, nil
-//}

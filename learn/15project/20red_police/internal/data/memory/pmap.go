@@ -1,6 +1,7 @@
 package memory
 
 import (
+	"20red_police/common"
 	"20red_police/internal/data"
 	"20red_police/internal/model"
 	"errors"
@@ -27,7 +28,13 @@ func init() {
 }
 
 func NewPMap() data.PMap {
-	return &PMap{}
+	pm := &PMap{}
+	data.GclassTree().Register(pm)
+	return pm
+}
+
+func (pm *PMap) Name() string {
+	return common.REGISTER_MEMORY_PMAP
 }
 
 func (pm *PMap) Create(pmap *model.PMap) (model.PMap, error) {

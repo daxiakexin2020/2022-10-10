@@ -2,7 +2,6 @@ package middleware
 
 import (
 	"20red_police/auth"
-	"20red_police/common"
 	"20red_police/internal/data"
 	"20red_police/network"
 	"20red_police/tools"
@@ -27,7 +26,7 @@ func LoginGuardMiddleware(req *network.Request) error {
 		return err
 	}
 
-	guard, err := data.GclassTree().Pick(common.REGISTER_DATA_USER)
+	guard, err := data.MemoryUser()
 	if err != nil {
 		return err
 	}

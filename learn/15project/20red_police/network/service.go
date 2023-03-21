@@ -1,7 +1,6 @@
 package network
 
 import (
-	"fmt"
 	"go/ast"
 	"log"
 	"reflect"
@@ -55,7 +54,7 @@ func (s *service) registerMethods() {
 		method := s.typ.Method(i)
 		mType := method.Type
 
-		fmt.Println("method:", method.Name, mType.NumIn(), mType.NumOut())
+		//fmt.Println("method:", method.Name, mType.NumIn(), mType.NumOut())
 
 		if mType.NumIn() != 3 || mType.NumOut() != 1 {
 			continue

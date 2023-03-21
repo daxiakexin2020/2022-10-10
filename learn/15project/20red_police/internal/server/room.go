@@ -5,7 +5,7 @@ import (
 )
 
 /*
-{"service_method":"Server.CreateRoom","meta_data":{"room_name":"room01","username":"zz", "pmap_id":"5632f972-c4a2-11ed-25f0-dbf3c9c73d0c"}}
+{"service_method":"Server.CreateRoom","meta_data":{"room_name":"room01","username":"zz01", "pmap_id":"0a2a4930-c7b9-11ed-2c5d-3fb9f5fcbacd"}}
 */
 func (s *Server) CreateRoom(req *protocol.CreateRoomRequest, res *protocol.CreateRoomResponse) error {
 	pMap, err := s.PMapSrc.FetchPMap(req.PMapID)

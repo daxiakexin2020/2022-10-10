@@ -1,9 +1,15 @@
 package user_offline
 
-import "20red_police/asynchronous"
+import (
+	"20red_police/asynchronous"
+	"io"
+	"sync"
+)
 
 type UserOffline struct {
-	boot bool
+	conns map[string]io.WriteCloser
+	boot  bool
+	mu    sync.Mutex
 }
 
 var (
