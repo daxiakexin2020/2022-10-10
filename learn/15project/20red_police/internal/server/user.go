@@ -1,6 +1,7 @@
 package server
 
 import (
+	"20red_police/asynchronous/score_level"
 	"20red_police/protocol"
 )
 
@@ -8,6 +9,9 @@ import (
 {"service_method":"Server.Register","meta_data":{"name":"zz01","pwd":"123","repwd":"123","phone":"45"}}
 */
 func (s *Server) Register(req *protocol.RegisterRequest, res *protocol.RegisterResponse) error {
+	for i := 0; i < 50; i++ {
+		score_level.GScoreLevel().Add(req.Name, int64(i))
+	}
 	return s.UserSrc.Register(req.Name, req.Pwd, req.RePwd, req.Phone)
 }
 

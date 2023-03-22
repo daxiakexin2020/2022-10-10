@@ -2,6 +2,8 @@ package network
 
 import (
 	"20red_police/config"
+	"20red_police/tools"
+	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -16,7 +18,6 @@ import (
 	"sync"
 	"syscall"
 	"time"
-	"unsafe"
 )
 
 type Server struct {
@@ -24,12 +25,15 @@ type Server struct {
 	services sync.Map
 	mu       sync.Mutex
 	m        *middle
+	lis      net.Listener
+	cancle   context.CancelFunc
 }
 
 var (
 	DefaultServer  = NewServer(DefaultAddress)
 	DefaultAddress = ":9115"
 )
+
 var (
 	procSignalChan = make(chan os.Signal)
 	GOEXIT         = make(chan struct{}, 1)
@@ -44,6 +48,16 @@ func NewServer(address string) *Server {
 
 func Run() {
 	DefaultServer.Run()
+}
+
+func Close() error {
+	return DefaultServer.Close()
+}
+
+func (s *Server) Close() error {
+	s.cancle()
+	fmt.Println("fff")
+	return s.lis.Close()
 }
 
 func Register(rcvr interface{}) error {
@@ -72,71 +86,71 @@ func (s *Server) Run() {
 	if err != nil {
 		panic(err)
 	}
-	fmt.Printf("run at in address: %s.........................\n", s.address)
+	s.lis = listen
+	log.Printf("run at in address: %s.........................\n", s.address)
 
 	go handleProcessSignal()
+
+	ctx, cancelFunc := context.WithCancel(context.Background())
+	s.cancle = cancelFunc
 
 	for {
 		conn, err := listen.Accept()
 		if err != nil {
 			continue
 		}
-		go s.sendResponse("hello,welcome into red police", nil, conn)
-		go s.handleConn(conn)
+		Gresources().add(tools.UUID(), conn)
+		go sendResponse("Welcome to the world of Red police", nil, conn)
+		go s.handleConn(ctx, conn)
 	}
 }
 
-func handleProcessSignal() {
-	var sig os.Signal
-	signal.Notify(
-		procSignalChan,
-		syscall.SIGINT,
-		syscall.SIGQUIT,
-		syscall.SIGKILL,
-		syscall.SIGTERM,
-		syscall.SIGABRT,
-		syscall.SIGUSR1,
-		syscall.SIGUSR2,
-	)
-	for {
-		sig = <-procSignalChan
-		switch sig {
-		case syscall.SIGINT, syscall.SIGQUIT, syscall.SIGKILL, syscall.SIGABRT, syscall.SIGTERM, syscall.SIGUSR1:
-			GOEXIT <- struct{}{}
-			return
-		default:
-		}
-	}
-}
+func (s *Server) handleConn(ctx context.Context, conn net.Conn) {
 
-func (s *Server) handleConn(conn net.Conn) {
 	defer func() {
 		conn.Close()
+		if err := recover(); err != nil {
+		}
 	}()
 
 	decoder := json.NewDecoder(conn)
 
-L:
 	for {
-		var req Request
-		begin := time.Now()
-		s.setReadDeadline(begin, conn)
-		if err := decoder.Decode(&req); err != nil {
-			if err == io.EOF {
-				break L
-			}
-			if err != syscall.EINVAL {
-				opErr := (*net.OpError)(unsafe.Pointer(reflect.ValueOf(err).Pointer()))
-				if opErr.Err.Error() == "i/o timeout" {
-					log.Printf("Write timeout! no data: %s", time.Now().Sub(begin).String())
+		select {
+		case <-ctx.Done():
+			fmt.Println("aaaaaa")
+			return
+		default:
+			var req Request
+			begin := time.Now()
+			s.setReadDeadline(begin, conn)
+			if err := decoder.Decode(&req); err != nil {
+				if err == io.EOF {
+					return
 				}
+				sendResponse(nil, err, conn)
+				return
+			} else {
+				go s.handleRequest(&req, conn)
 			}
-			s.sendResponse(nil, err, conn)
-			break L
-		} else {
-			go s.handleRequest(&req, conn)
 		}
 	}
+
+	//L:
+	//	for {
+	//		var req Request
+	//		begin := time.Now()
+	//		s.setReadDeadline(begin, conn)
+	//		if err := decoder.Decode(&req); err != nil {
+	//			if err == io.EOF {
+	//				break L
+	//			}
+	//			sendResponse(nil, err, conn)
+	//			break L
+	//		} else {
+	//			go s.handleRequest(&req, conn)
+	//		}
+	//	}
 }
 
 func (s *Server) setReadDeadline(startTime time.Time, conn net.Conn) {
@@ -147,7 +161,7 @@ func (s *Server) handleRequest(req *Request, writer io.WriteCloser) {
 
 	svc, mtype, serr := s.findService(req.ServiceMethod)
 	if serr != nil {
-		s.sendResponse(req, serr, writer)
+		sendResponse(req, serr, writer)
 		return
 	}
 
@@ -163,22 +177,22 @@ func (s *Server) handleRequest(req *Request, writer io.WriteCloser) {
 	argvi = req.MetaData
 	farg := iReq.mtype.newArgv().Interface()
 	if err := mapstructure.Decode(argvi, &farg); err != nil {
-		s.sendResponse(req, err, writer)
+		sendResponse(req, err, writer)
 		return
 	}
 	req.MethodReflectData = farg
 
 	if err := s.m.call(req); err != nil {
-		s.sendResponse(nil, err, writer)
+		sendResponse(nil, err, writer)
 		return
 	}
 
 	if err := iReq.svc.call(iReq.mtype, reflect.ValueOf(farg), iReq.replyv); err != nil {
-		s.sendResponse(nil, err, writer)
+		sendResponse(nil, err, writer)
 		return
 	}
 
-	s.sendResponse(iReq.replyv.Elem().Interface(), nil, writer)
+	sendResponse(iReq.replyv.Elem().Interface(), nil, writer)
 }
 
 func (s *Server) findService(serviceMethod string) (svc *service, mtype *methodType, err error) {
@@ -204,13 +218,25 @@ func (s *Server) findService(serviceMethod string) (svc *service, mtype *methodT
 	return
 }
 
-func (s *Server) sendResponse(data interface{}, err error, writer io.WriteCloser) {
-	var errMsg string
-	if err != nil {
-		errMsg = err.Error()
-	}
-	res := &Response{Data: data, Err: errMsg}
-	if err = json.NewEncoder(writer).Encode(res); err != nil {
-		log.Println("send response err:", err)
+func handleProcessSignal() {
+	var sig os.Signal
+	signal.Notify(
+		procSignalChan,
+		syscall.SIGINT,
+		syscall.SIGQUIT,
+		syscall.SIGKILL,
+		syscall.SIGTERM,
+		syscall.SIGABRT,
+		syscall.SIGUSR1,
+		syscall.SIGUSR2,
+	)
+	for {
+		sig = <-procSignalChan
+		switch sig {
+		case syscall.SIGINT, syscall.SIGQUIT, syscall.SIGKILL, syscall.SIGABRT, syscall.SIGTERM, syscall.SIGUSR1:
+			GOEXIT <- struct{}{}
+			return
+		default:
+		}
 	}
 }

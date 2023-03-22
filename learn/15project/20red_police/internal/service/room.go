@@ -139,3 +139,7 @@ func (rs *RoomService) UpdateRoomPlayer(roomID string, username string, status b
 func (rs *RoomService) RoomList() ([]model.Room, error) {
 	return rs.roomRepo.RoomList(), nil
 }
+
+func (rs *RoomService) FetchRoom(roomID string) (model.Room, error) {
+	return rs.roomRepo.FetchRoom(roomID)
+}

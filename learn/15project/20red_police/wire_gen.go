@@ -10,6 +10,7 @@ import (
 	"20red_police/internal/data/memory"
 	"20red_police/internal/server"
 	"20red_police/internal/service"
+	"20red_police/network"
 )
 
 // Injectors from wire.go:
@@ -24,6 +25,7 @@ func initApp() *server.Server {
 	playerService := service.NewPlayerService(player)
 	pMap := memory.NewPMap()
 	pMapService := service.NewPMapService(pMap)
-	serverServer := server.NewServer(userService, roomService, playerService, pMapService)
+	resources := network.Gresources()
+	serverServer := server.NewServer(userService, roomService, playerService, pMapService, resources)
 	return serverServer
 }

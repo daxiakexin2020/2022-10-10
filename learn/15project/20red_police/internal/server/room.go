@@ -2,10 +2,12 @@ package server
 
 import (
 	"20red_police/protocol"
+	"errors"
+	"fmt"
 )
 
 /*
-{"service_method":"Server.CreateRoom","meta_data":{"room_name":"room01","username":"zz01", "pmap_id":"0a2a4930-c7b9-11ed-2c5d-3fb9f5fcbacd"}}
+{"service_method":"Server.CreateRoom","meta_data":{"room_name":"room01","username":"zz01", "pmap_id":"ee4fa510-c881-11ed-2069-d3f740bb0626"}}
 */
 func (s *Server) CreateRoom(req *protocol.CreateRoomRequest, res *protocol.CreateRoomResponse) error {
 	pMap, err := s.PMapSrc.FetchPMap(req.PMapID)
@@ -89,5 +91,25 @@ func (s *Server) UpdateRoomPlayer(req *protocol.UpdateRoomPlayerRequest, res *pr
 }
 
 func (s *Server) Kick(req *protocol.KickRequest, res *protocol.KickResponse) error {
+	return nil
+}
+
+/*
+{"service_method":"Server.Broadcast","header":{"token":"1","bname":"zz"},"meta_data":{"username":"zz01","room_id":"cf25eb94-c882-11ed-2ada-9f2dd5d7862e"}}
+*/
+func (s *Server) Broadcast(req *protocol.BroadcastRequest, res *protocol.BroadcastResponse) error {
+	user, err := s.UserSrc.FetchUser(req.Username)
+	if err != nil {
+		return err
+	}
+	room, err := s.RoomSrc.FetchRoom(req.RoomID)
+	if err != nil {
+		return err
+	}
+	if user.Name != room.Owner {
+		return errors.New("room owner can Broadcast only")
+	}
+	data := fmt.Sprintf("room:[%s]，room ID:[%s]，Invite you to play.... ", room.Name, room.Id)
+	s.NetworkSrc.Broadcast(data)
 	return nil
 }

@@ -75,6 +75,13 @@ type KickRequest struct {
 
 type KickResponse struct{ Empry }
 
+type BroadcastRequest struct {
+	Username string `json:"username" mapstructure:"username" validate:"required"`
+	RoomID   string `json:"room_id" mapstructure:"room_id" validate:"required"`
+}
+
+type BroadcastResponse struct{ Empry }
+
 func FormatRoomByDBToPro(model *model.Room) Room {
 	players := make(map[string]*Player, len(model.Players))
 	for _, player := range model.Players {

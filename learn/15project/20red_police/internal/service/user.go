@@ -54,3 +54,7 @@ func (us *UserService) LoginOut(user model.User) error {
 func (us *UserService) UserList() ([]model.User, error) {
 	return us.data.UserList(), nil
 }
+
+func (us *UserService) FetchUser(name string) (model.User, error) {
+	return us.data.FetchUser(name)
+}
