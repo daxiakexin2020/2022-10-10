@@ -28,6 +28,15 @@ type Info struct {
 
 func main() {
 
+	var t int
+
+	//4311 7995   4298 6411
+	for i := 0; i < 30000; i++ {
+		t += i
+	}
+	fmt.Println("t:", t) // 449985000   4288 9532
+	return
+
 	i := Info{Name: "zz"}
 	fmt.Println(i)
 	i.Lock()

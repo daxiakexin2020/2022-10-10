@@ -10,7 +10,7 @@ func GoAsynchronous(task ...Tasker) error {
 		return err
 	}
 	go m.Run()
-	log.Println("Asynchronous Run ok")
+	log.Println("Asynchronous is runing...........................")
 	return nil
 }
 

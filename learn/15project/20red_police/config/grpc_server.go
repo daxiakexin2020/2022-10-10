@@ -21,7 +21,7 @@ func (gs *GrpcServerConfig) CName() string {
 }
 
 func init() {
-	makeGrpcServerConfig()
+	//makeGrpcServerConfig()
 }
 
 func makeGrpcServerConfig() GrpcServerConfig {

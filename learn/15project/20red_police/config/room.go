@@ -29,7 +29,7 @@ func makeRoomConfig() RoomConfig {
 	return roomConfig
 }
 func init() {
-	makeRoomConfig()
+	//makeRoomConfig()
 }
 
 func GetRoomConfig() RoomConfig {

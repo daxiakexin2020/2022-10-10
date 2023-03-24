@@ -3,6 +3,7 @@ package room_timeout
 import (
 	"20red_police/asynchronous"
 	"20red_police/asynchronous/room_timeout/lru"
+	"log"
 	"sync"
 	"time"
 )
@@ -62,6 +63,7 @@ func (rto *roomTimeout) Run() error {
 		return nil
 	}
 	rto.boot = true
+	log.Println("Room Timeout  is runing.........................")
 	for {
 		if !rto.boot {
 			return nil

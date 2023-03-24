@@ -10,8 +10,8 @@ type User struct {
 	Phone         string `json:"phone"`
 	Level         int    `json:"level"`
 	Status        int    `json:"status"`
-	Scorce        int64  `json:"scorce"`
-	GamesNumber   int    `json:"games_number"`
+	Score         int64  `json:"score"`
+	GameNumber    int    `json:"game_number"`
 	CreateTime    string `json:"create_time"`
 	LastLoginTime string `json:"last_login_time"`
 }
@@ -44,7 +44,8 @@ type LoginOutResponse struct{ Empry }
 type UserListRequest struct{ Empry }
 
 type UserListResponse struct {
-	List []User `json:"list"`
+	List  []User `json:"list"`
+	Count int64  `json:"count"`
 }
 
 func FormatUserByDBToPro(model model.User) User {
@@ -54,7 +55,8 @@ func FormatUserByDBToPro(model model.User) User {
 		Phone:         model.Phone,
 		Level:         int(model.Level),
 		Status:        int(model.Status),
-		GamesNumber:   model.GameNumber,
+		Score:         int64(model.Score),
+		GameNumber:    model.GameNumber,
 		CreateTime:    model.CreateTime,
 		LastLoginTime: model.LastLoginTime,
 	}

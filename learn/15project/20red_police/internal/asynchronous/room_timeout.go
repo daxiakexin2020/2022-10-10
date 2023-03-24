@@ -9,7 +9,7 @@ import (
 	"log"
 )
 
-func Handle(roomID string) error {
+func HandleRoomTimeout(roomID string) error {
 	room, err := deleteRoom(roomID)
 	if err != nil {
 		return err

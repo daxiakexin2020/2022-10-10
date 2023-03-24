@@ -1,17 +1,29 @@
 package server
 
 import (
-	"20red_police/asynchronous/score_level"
 	"20red_police/protocol"
 )
 
 /*
-{"service_method":"Server.Register","meta_data":{"name":"zz01","pwd":"123","repwd":"123","phone":"45"}}
+{"service_method":"Server.Register","meta_data":{"name":"zz02","pwd":"123","repwd":"123","phone":"45"}}
 */
 func (s *Server) Register(req *protocol.RegisterRequest, res *protocol.RegisterResponse) error {
-	for i := 0; i < 50; i++ {
-		score_level.GScoreLevel().Add(req.Name, int64(i))
-	}
+	//
+	//for i := 0; i < 3000000; i++ {
+	//	name := "zz_" + strconv.Itoa(i)
+	//	pwd := "123"
+	//	repwd := "123"
+	//	phone := strconv.Itoa(i)
+	//	go s.UserSrc.Register(name, pwd, repwd, phone)
+	//}
+	//
+	//for i := 0; i < 3000000; i++ {
+	//	name := "zz_" + strconv.Itoa(i)
+	//	err := score_level.GScoreLevel().Add(name, int64(i))
+	//	if err != nil {
+	//		log.Println("errrr:::::::::", err)
+	//	}
+	//}
 	return s.UserSrc.Register(req.Name, req.Pwd, req.RePwd, req.Phone)
 }
 
@@ -45,7 +57,7 @@ func (s *Server) LoginOut(req *protocol.LoginOutRequest, res *protocol.LoginOutR
 */
 func (s *Server) UserList(req *protocol.UserListRequest, res *protocol.UserListResponse) error {
 	list, err := s.UserSrc.UserList()
-	*res = protocol.UserListResponse{List: make([]protocol.User, 0, len(list))}
+	*res = protocol.UserListResponse{List: make([]protocol.User, 0, len(list)), Count: int64(len(list))}
 	if err != nil {
 		return err
 	}

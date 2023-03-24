@@ -13,18 +13,18 @@ type User struct {
 	Phone         string
 	Level         ulevel
 	Status        ustatus
-	Scorce        int64
+	Score         uscore
 	GameNumber    int
 	CreateTime    string
 	LastLoginTime string
-	Mu            sync.RWMutex `json:"-"`
+	mu            sync.RWMutex `json:"-"`
 }
 
 type ulevel int
 
 type ustatus int
 
-type usocre int64
+type uscore int64
 
 const (
 	status_playing ustatus = iota + 1
@@ -32,8 +32,10 @@ const (
 	status_prepare
 )
 
+const level_step = 1
+
 const (
-	level_00 ulevel = iota
+	level_00 ulevel = iota + level_step - 1
 	level_01
 	level_02
 	level_03
@@ -44,37 +46,34 @@ const (
 	level_08
 	level_09
 	level_10
+	level_top = iota + 20*level_step
 )
 
 const (
-	score_00 usocre = 0
+	score_00 uscore = 0
 	score_01        = 10000
 	score_02        = 20000
 	score_03        = 40000
 	score_04        = 60000
+	score_20        = 2<<62 - 1
 )
 
-var socre_level map[usocre]ulevel = map[usocre]ulevel{
+var socre_level map[uscore]ulevel = map[uscore]ulevel{
 	score_00: level_00,
 	score_01: level_01,
 	score_02: level_02,
 	score_03: level_03,
 	score_04: level_04,
+	score_20: level_top,
 }
 
-var level_score map[ulevel]usocre = map[ulevel]usocre{
-	level_00: score_00,
-	level_01: score_01,
-	level_02: score_02,
-	level_03: score_03,
-	level_04: score_04,
-}
-
-//chan username score
-
-type Result struct {
-	Username string
-	Score    int64
+var level_score map[ulevel]uscore = map[ulevel]uscore{
+	level_00:  score_00,
+	level_01:  score_01,
+	level_02:  score_02,
+	level_03:  score_03,
+	level_04:  score_04,
+	level_top: score_20,
 }
 
 func NewUserModel(name, pwd, phone string) *User {
@@ -89,40 +88,63 @@ func NewUserModel(name, pwd, phone string) *User {
 	}
 }
 
+func (u *User) nextLevel() ulevel {
+	return u.Level + level_step
+}
+
+func (u *User) nextUpgradeScore() uscore {
+	return level_score[u.nextLevel()]
+}
+
+func (u *User) Upgrade(addScore int64) error {
+	u.mu.Lock()
+	defer u.mu.Unlock()
+	currentScore := u.Score + uscore(addScore)
+	nextNeedScore := u.nextUpgradeScore()
+	if currentScore < nextNeedScore {
+		u.Score = currentScore
+		return errors.New("user score is Insufficient upgrade")
+	}
+	leftoverScore := currentScore - nextNeedScore
+	u.Score = leftoverScore
+	u.Level = u.nextLevel()
+	return nil
+}
+
 func (u *User) SetForbidden() error {
-	u.Mu.RLock()
-	defer u.Mu.RUnlock()
+	u.mu.RLock()
+	defer u.mu.RUnlock()
 	u.Status = status_forbidden
 	return nil
 }
 func (u *User) SetPlaying() error {
-	u.Mu.RLock()
-	defer u.Mu.RUnlock()
+	u.mu.RLock()
+	defer u.mu.RUnlock()
 	u.Status = status_playing
 	return nil
 }
 func (u *User) SetPrepare() error {
-	u.Mu.RLock()
-	defer u.Mu.RUnlock()
+	u.mu.RLock()
+	defer u.mu.RUnlock()
 	u.Status = status_prepare
 	return nil
 }
 
 func (u *User) IsForbidden() bool {
-	u.Mu.RLock()
-	defer u.Mu.RUnlock()
+	u.mu.RLock()
+	defer u.mu.RUnlock()
 	return u.Status == status_forbidden
 }
 
 func (u *User) IsPrepare() bool {
-	u.Mu.RLock()
-	defer u.Mu.RUnlock()
+	u.mu.RLock()
+	defer u.mu.RUnlock()
 	return u.Status == status_prepare
 }
 
 func (u *User) IsPlaying() bool {
-	u.Mu.RLock()
-	defer u.Mu.RUnlock()
+	u.mu.RLock()
+	defer u.mu.RUnlock()
 	return u.Status == status_playing
 }
 

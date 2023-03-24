@@ -3,6 +3,7 @@ package config
 import (
 	"encoding/json"
 	"github.com/spf13/viper"
+	"log"
 	"os"
 	"sync"
 )
@@ -42,6 +43,7 @@ func InitializeProxyViper() error {
 			return
 		}
 		pv.v = newViper
+		log.Println("config init ok..............................")
 	})
 	return pv.err
 }

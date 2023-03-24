@@ -2,6 +2,7 @@ package stores
 
 import (
 	"20red_police/internal/synchronization/file"
+	"log"
 )
 
 func SynchronizationRegister() error {
@@ -26,6 +27,7 @@ func GoSynchronizationRunBuilder() error {
 	if err := PmapFileSyncMemory(); err != nil {
 		return err
 	}
+	log.Println("GoSynchronizationRunBuilder ok..........................................................")
 	return nil
 }
 

@@ -14,15 +14,12 @@ type scoreLevel struct {
 	capacity  int
 	workerNum int
 	boot      bool
+	callback  func(string, int64) error
 }
 
 type bus struct {
 	username string
 	score    int64
-}
-
-func newBus(username string, score int64) *bus {
-	return &bus{username: username, score: score}
 }
 
 var (
@@ -35,9 +32,18 @@ var (
 	slonce      sync.Once
 )
 
-func ScoreLevel(capacity int, workerNum int) *scoreLevel {
+const (
+	limit          = 0.9
+	max_worker_num = 1000
+)
+
+func newBus(username string, score int64) *bus {
+	return &bus{username: username, score: score}
+}
+
+func ScoreLevel(capacity int, workerNum int, callback func(username string, score int64) error) *scoreLevel {
 	slonce.Do(func() {
-		gscoreLevel = newScoreLevel(capacity, workerNum)
+		gscoreLevel = newScoreLevel(capacity, workerNum, callback)
 	})
 	return gscoreLevel
 }
@@ -46,11 +52,15 @@ func GScoreLevel() *scoreLevel {
 	return gscoreLevel
 }
 
-func newScoreLevel(capacity int, workerNum int) *scoreLevel {
+func newScoreLevel(capacity int, workerNum int, callback func(username string, score int64) error) *scoreLevel {
+	if workerNum > max_worker_num {
+		workerNum = max_worker_num
+	}
 	return &scoreLevel{
 		capacity:  capacity,
 		workerNum: workerNum,
 		itask:     make(chan *bus, capacity),
+		callback:  callback,
 	}
 }
 
@@ -65,9 +75,9 @@ func (sl *scoreLevel) Run() error {
 	sl.boot = true
 	ctx, cancelFunc := context.WithCancel(context.Background())
 	for i := 0; i < sl.workerNum; i++ {
-		go sl.worker(i, ctx)
+		go sl.worker(ctx)
 	}
-	log.Println("score level is runing")
+	log.Println("Score Level is runing.........................")
 	for {
 		if !sl.boot && len(sl.itask) == 0 {
 			log.Println("all goroutine need stop,send signal:::::::::::::::::", sl.boot, len(sl.itask))
@@ -78,17 +88,17 @@ func (sl *scoreLevel) Run() error {
 	return nil
 }
 
-func (sl *scoreLevel) worker(index int, ctx context.Context) {
+func (sl *scoreLevel) worker(ctx context.Context) {
 	for {
 		select {
 		case <-ctx.Done():
-			fmt.Println("receive close signal...")
+			fmt.Println("receive close signal, stoping......")
 			return
 		case task := <-sl.itask:
-			//handle bus
-			log.Printf("index:%d handle task:%s,%d\n", index, task.username, task.score)
+			if sl.callback != nil {
+				sl.callback(task.username, task.score)
+			}
 		default:
-
 		}
 	}
 }
@@ -108,6 +118,9 @@ func (sl *scoreLevel) ExitSignal() chan struct{} {
 func (sl *scoreLevel) Add(username string, score int64) error {
 	if !sl.boot {
 		return errors.New("ScoreLevel is stoped")
+	}
+	if float32(len(sl.itask)) >= float32(sl.capacity)*limit {
+		return errors.New("ScoreLevel is Beyond the limit")
 	}
 	b := newBus(username, score)
 	sl.itask <- b

@@ -1,5 +1,5 @@
 red_police
-
+https://baike.baidu.com/item/%E7%BA%A2%E8%89%B2%E8%AD%A6%E6%88%92%E5%85%B5%E7%A7%8D/1749493?fr=aladdin
 功能
 	用户模块
 		登陆  
@@ -14,7 +14,7 @@ red_police
 			用户名
 			手机号
 		退出登陆
-		等级升级(在线时长，自动升级)
+		等级升级(在线时长，自动升级) ok
 	
 		结构设计
 			 User
@@ -97,29 +97,67 @@ red_police
 				list map[string]*PMap
 				mu sync.RWMutx
 	国家模块
+		苏联  伊拉克  古巴  叙利亚  利比亚   美国  法国   英国   德国  韩国  
 		国家列表
 		创建国家
+			国家id
 			国家名称
 			国家属性  （盟军  苏军）
+			建筑列表
 		结构设计
 			country
+				id		string
 				name 	string
 				type	int 1:盟军 2:苏军
+				architecture_names map[name]string
 			countrys
 				list map[string]*country
-	兵种模块
-		创建兵种
-			兵种名称
-			伤害值
-		结构设计
-			Arm
-				name	string 
-				damage_value int
-					
+
 	建筑模块
 		创建建筑
+			id	 string
 			name string
-			type int 1：盟军  2苏军 
+			arm_list []
+				demo    应该一个继承或者组合关系
+					兵营  所有兵营的基础（盟军  苏军）  血量   价格 
+						工程师  
+					盟军基础兵营
+						盟军大兵 盟军的狗  飞行兵  间谍  超时空兵
+					苏军基础兵营
+						苏军大兵	苏军的狗  间谍  
+					辐射工兵兵营
+						辐射工兵
+					狙击手兵营
+						狙击手
+					尤里兵营
+						尤里
+					盟军坦克房
+						灰熊坦克 盟军防空车
+					苏军坦克房
+						犀牛坦克	天启坦克
+					恐怖份子兵营
+						恐怖份子
+
+					组合demo
+						盟军兵营
+							兵营
+							盟军基础兵营
+						苏军兵营
+							兵营
+							苏军基础兵营
+		英国挂载-》	   英国兵营
+							盟军兵营
+							狙击手兵营
+		古巴挂载-》	   苏军兵营
+							兵营
+							苏军基础兵营
+		叙利亚挂载-》	叙利亚兵营
+							苏军兵营
+							恐怖份子兵营
+
+
+		
+
 		建筑列表
 
 		结构设计		
@@ -127,6 +165,22 @@ red_police
 				name 	string
 				type	int 
 
+	兵种模块
+		创建兵种
+			兵种id   1
+			兵种名称  辐射工兵
+			伤害值   1000
+			血量     1000
+				demo
+					苏军的狗 盟军的狗 工程师   辐射工兵   狙击手   尤里   灰熊坦克  犀牛坦克  坦克杀手  天启坦克
+					苏军防空车  盟军防空车  蜘蛛  飞行兵  苏军大兵 盟军大兵 恐怖份子 苏军矿车  盟军矿车
+		结构设计
+			Arm
+				id		string
+				name	string 
+				damage_value int
+				blood_volume int
+				
 	实现
 		tcp http连接实现
 		protocol {method:"","data":{}}	   
@@ -137,7 +191,9 @@ red_police
 	
 
 	异步任务
-		1 超过3分钟未开始的房间，自动解散
+		1 超过3分钟未开始的房间，自动解散  ok
 			设计
 				创建房间时，将房间id+创建时间，加入数据结构中，异步任务扫描，走解散流程
-		2 超过30分钟，客户端未有数据传输，断开连接
+		2 超过30分钟，客户端未有数据传输，断开连接  ok
+
+		3 游戏结束，用户积分计算，进行升级 ok

@@ -31,8 +31,8 @@ func run() {
 
 	go handleExit()
 
-	roomTimeout := room_timeout.Timeout(10000, time.Second*time.Duration(config.GetRoomConfig().RoomLiveTime), iasynchronous.Handle)
-	scoreLevel := score_level.ScoreLevel(1000, 3)
+	roomTimeout := room_timeout.Timeout(10000, time.Second*time.Duration(config.GetRoomConfig().RoomLiveTime), iasynchronous.HandleRoomTimeout)
+	scoreLevel := score_level.ScoreLevel(100000, 50, iasynchronous.HandleScoreLevel)
 	if err := asynchronous.GoAsynchronous(roomTimeout, scoreLevel); err != nil {
 		panic(err)
 	}
@@ -48,7 +48,8 @@ func run() {
 func handleExit() {
 
 	defer func() {
-		log.Println("num:", runtime.NumGoroutine())
+		time.Sleep(time.Second * 1)
+		log.Println("NumGoroutine:", runtime.NumGoroutine())
 		os.Exit(0)
 	}()
 	<-network.GOEXIT

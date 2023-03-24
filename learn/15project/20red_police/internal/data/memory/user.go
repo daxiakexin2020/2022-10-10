@@ -10,13 +10,15 @@ import (
 	"sync"
 )
 
-type User struct{}
+type User struct {
+}
 
 var _ data.User = (*User)(nil)
 
 type users struct {
-	list map[string]*model.User
-	mu   sync.RWMutex
+	list  map[string]*model.User
+	mu    sync.RWMutex
+	locks map[string]*sync.Mutex
 }
 
 type onLineUsers struct {
@@ -35,7 +37,8 @@ func init() {
 	gonce = sync.Once{}
 	gonce.Do(func() {
 		gusers = &users{
-			list: make(map[string]*model.User),
+			list:  make(map[string]*model.User),
+			locks: map[string]*sync.Mutex{},
 		}
 		gonLineUsers = &onLineUsers{
 			list: make(map[string]*model.User),
@@ -60,6 +63,7 @@ func (u *User) Register(user *model.User) error {
 		return fmt.Errorf("this user is already exists:%s,", user.Name)
 	}
 	gusers.list[user.Name] = user
+	gusers.locks[user.Name] = &sync.Mutex{}
 	return nil
 }
 
@@ -150,6 +154,8 @@ func (u *User) UserList() []model.User {
 }
 
 func (u *User) FetchUser(name string) (model.User, error) {
+	gusers.mu.RLock()
+	defer gusers.mu.RUnlock()
 	if user, ok := gusers.list[name]; ok {
 		return *user, nil
 	}
@@ -167,4 +173,8 @@ func (u *User) UserCanTransformPlayer(name string) (model.User, error) {
 		return emptyUser, errors.New("this user status  is not prepare")
 	}
 	return *user, nil
+}
+
+func (u *User) Lock(username string) *sync.Mutex {
+	return gusers.locks[username]
 }

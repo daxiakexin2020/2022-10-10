@@ -30,7 +30,7 @@ func NewUser() (*User, error) {
 		return nil, err
 	}
 	path := pwd + "/internal/synchronization/file/txt/" + user_file_path
-	file, err := os.OpenFile(path, os.O_RDWR, 0777)
+	file, err := os.OpenFile(path, os.O_RDWR|os.O_CREATE, 0777)
 	if err != nil {
 		return nil, err
 	}
@@ -67,6 +67,7 @@ func (u *User) Read() error {
 			fmt.Println("file into memory register user err:", err)
 		}
 	}
+	log.Println("File user data read into memory ok......................")
 	return nil
 }
 
@@ -104,6 +105,7 @@ func (u *User) bacthWrite() error {
 
 	var lines []byte
 	list := muser.UserList()
+
 	for _, user := range list {
 		line, err := json.Marshal(user)
 		if err != nil {

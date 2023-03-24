@@ -12,7 +12,7 @@ var (
 )
 
 func init() {
-	makeJwtConfig()
+	//makeJwtConfig()
 }
 
 type JwtConfig struct {

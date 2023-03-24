@@ -3,7 +3,6 @@ package network
 import (
 	"20red_police/config"
 	"20red_police/tools"
-	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -26,7 +25,6 @@ type Server struct {
 	mu       sync.Mutex
 	m        *middle
 	lis      net.Listener
-	cancle   context.CancelFunc
 }
 
 var (
@@ -55,8 +53,6 @@ func Close() error {
 }
 
 func (s *Server) Close() error {
-	s.cancle()
-	fmt.Println("fff")
 	return s.lis.Close()
 }
 
@@ -77,6 +73,7 @@ func (s *Server) Register(rcvr interface{}) error {
 	if _, dup := s.services.LoadOrStore(src.name, src); dup {
 		return errors.New("rpc: service already defined: " + src.name)
 	}
+	log.Println("RegisterMiddleware ok...............................")
 	return nil
 }
 
@@ -87,12 +84,9 @@ func (s *Server) Run() {
 		panic(err)
 	}
 	s.lis = listen
+
 	log.Printf("run at in address: %s.........................\n", s.address)
-
 	go handleProcessSignal()
-
-	ctx, cancelFunc := context.WithCancel(context.Background())
-	s.cancle = cancelFunc
 
 	for {
 		conn, err := listen.Accept()
@@ -101,56 +95,36 @@ func (s *Server) Run() {
 		}
 		Gresources().add(tools.UUID(), conn)
 		go sendResponse("Welcome to the world of Red police", nil, conn)
-		go s.handleConn(ctx, conn)
+		go s.handleConn(conn)
 	}
 }
 
-func (s *Server) handleConn(ctx context.Context, conn net.Conn) {
+func (s *Server) handleConn(conn net.Conn) {
 
 	defer func() {
 		conn.Close()
+		log.Println("over")
 		if err := recover(); err != nil {
 		}
 	}()
 
 	decoder := json.NewDecoder(conn)
 
+L:
 	for {
-		select {
-		case <-ctx.Done():
-			fmt.Println("aaaaaa")
-			return
-		default:
-			var req Request
-			begin := time.Now()
-			s.setReadDeadline(begin, conn)
-			if err := decoder.Decode(&req); err != nil {
-				if err == io.EOF {
-					return
-				}
-				sendResponse(nil, err, conn)
-				return
-			} else {
-				go s.handleRequest(&req, conn)
+		var req Request
+		begin := time.Now()
+		s.setReadDeadline(begin, conn)
+		if err := decoder.Decode(&req); err != nil {
+			if err == io.EOF {
+				break L
 			}
+			sendResponse(nil, err, conn)
+			break L
+		} else {
+			go s.handleRequest(&req, conn)
 		}
 	}
-
-	//L:
-	//	for {
-	//		var req Request
-	//		begin := time.Now()
-	//		s.setReadDeadline(begin, conn)
-	//		if err := decoder.Decode(&req); err != nil {
-	//			if err == io.EOF {
-	//				break L
-	//			}
-	//			sendResponse(nil, err, conn)
-	//			break L
-	//		} else {
-	//			go s.handleRequest(&req, conn)
-	//		}
-	//	}
 }
 
 func (s *Server) setReadDeadline(startTime time.Time, conn net.Conn) {
@@ -186,13 +160,13 @@ func (s *Server) handleRequest(req *Request, writer io.WriteCloser) {
 		sendResponse(nil, err, writer)
 		return
 	}
-
 	if err := iReq.svc.call(iReq.mtype, reflect.ValueOf(farg), iReq.replyv); err != nil {
 		sendResponse(nil, err, writer)
 		return
 	}
 
 	sendResponse(iReq.replyv.Elem().Interface(), nil, writer)
+
 }
 
 func (s *Server) findService(serviceMethod string) (svc *service, mtype *methodType, err error) {
