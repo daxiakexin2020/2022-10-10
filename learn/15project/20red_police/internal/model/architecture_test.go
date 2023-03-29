@@ -2,15 +2,15 @@ package model
 
 import (
 	"fmt"
-	"log"
 	"testing"
 )
 
 func TestNew(t *testing.T) {
-	tm := NewMJBarracks()
-	log.Println(tm.barracks.armList, tm.armList)
-
-	productionEngineer := ProductionEngineer()
-	productionEngineer2 := ProductionEngineer()
-	fmt.Println(productionEngineer == productionEngineer2)
+	initArchitecture := InitArchitecture()
+	strings := initArchitecture.List()
+	for _, name := range strings {
+		fmt.Println("name:", name)
+		architectureArm, err := initArchitecture.FetchArchitectureArm(name)
+		fmt.Println("arm list", architectureArm, err)
+	}
 }
