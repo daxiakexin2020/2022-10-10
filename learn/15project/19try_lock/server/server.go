@@ -26,6 +26,7 @@ func (l *TryLock) Lock() bool {
 	default:
 		return false
 	}
+
 }
 
 func (l *TryLock) UnLock() {
