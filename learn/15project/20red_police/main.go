@@ -40,7 +40,6 @@ func run() {
 	if err := stores.GoSynchronizationRunBuilder(); err != nil {
 		panic(err)
 	}
-
 	network.RegisterMiddleware(middleware.LogMiddleware, middleware.LoginGuardMiddleware, middleware.ValidatorMiddleWare)
 	network.Run()
 }

@@ -6,7 +6,7 @@ import (
 )
 
 func main() {
-	list := helper.MakeList(4)
+	list := helper.MakeList(4, helper.ASC)
 	res := hasCycle(list)
 	fmt.Printf("res=%v", res)
 }

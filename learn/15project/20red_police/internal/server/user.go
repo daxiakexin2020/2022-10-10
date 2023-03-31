@@ -8,27 +8,11 @@ import (
 {"service_method":"Server.Register","meta_data":{"name":"zz02","pwd":"123","repwd":"123","phone":"45"}}
 */
 func (s *Server) Register(req *protocol.RegisterRequest, res *protocol.RegisterResponse) error {
-	//
-	//for i := 0; i < 3000000; i++ {
-	//	name := "zz_" + strconv.Itoa(i)
-	//	pwd := "123"
-	//	repwd := "123"
-	//	phone := strconv.Itoa(i)
-	//	go s.UserSrc.Register(name, pwd, repwd, phone)
-	//}
-	//
-	//for i := 0; i < 3000000; i++ {
-	//	name := "zz_" + strconv.Itoa(i)
-	//	err := score_level.GScoreLevel().Add(name, int64(i))
-	//	if err != nil {
-	//		log.Println("errrr:::::::::", err)
-	//	}
-	//}
 	return s.UserSrc.Register(req.Name, req.Pwd, req.RePwd, req.Phone)
 }
 
 /*
-{"service_method":"Server.Login","meta_data":{"name":"zz01","pwd":"123"}}
+{"service_method":"Server.Login","meta_data":{"name":"zz02","pwd":"123"}}
 */
 func (s *Server) Login(req *protocol.LoginRequest, res *protocol.LoginResponse) error {
 	user, token, err := s.UserSrc.Login(req.Name, req.Pwd)

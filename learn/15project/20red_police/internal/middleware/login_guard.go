@@ -16,16 +16,15 @@ func LoginGuardMiddleware(req *network.Request) error {
 	if !ok {
 		return fmt.Errorf("serviceMethod:%s, auth list has no this serviceMethod", serviceMethod)
 	}
-	if !al.IsNeedLogin {
-		return nil
-	}
 	if err := req.CheckHeader(); err != nil {
 		return err
 	}
 	if err := tools.Check(req.Header.Token, req.Header.BName); err != nil {
 		return err
 	}
-
+	if !al.IsNeedLogin {
+		return nil
+	}
 	guard, err := data.MemoryUser()
 	if err != nil {
 		return err

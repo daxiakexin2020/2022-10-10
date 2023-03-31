@@ -37,7 +37,8 @@ type Room struct {
 
 func NewRoom(roomName, username, pmapName string, count int) *Room {
 	return &Room{
-		Id:           tools.UUID(),
+		//Id:           tools.UUID(),
+		Id:           "1",
 		Name:         roomName,
 		MapName:      pmapName,
 		MapUserCount: count,
@@ -153,4 +154,20 @@ func (r *Room) isCanOutRoom() error {
 
 func (r *Room) IsCanCreate() bool {
 	return r.Id != "" && r.Name != ""
+}
+
+func (r *Room) UserIsInRoom(username string) bool {
+	r.mu.RLock()
+	defer r.mu.RUnlock()
+	if _, ok := r.Players[username]; ok {
+		return true
+	}
+	return false
+}
+
+func (r *Room) FetchPlayer(username string) (*Player, error) {
+	if p, ok := r.Players[username]; ok {
+		return p, nil
+	}
+	return nil, errors.New("this room has no this user")
 }

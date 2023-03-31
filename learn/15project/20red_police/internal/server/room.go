@@ -7,20 +7,28 @@ import (
 )
 
 /*
-{"service_method":"Server.CreateRoom","meta_data":{"room_name":"room01","username":"zz01", "pmap_id":"ee4fa510-c881-11ed-2069-d3f740bb0626"}}
+{"service_method":"Server.CreateRoom","meta_data":{"room_name":"room01","username":"zz02", "pmap_id":"981e3bfe-cfaf-11ed-3930-1726d5e31d44"}}
 */
 func (s *Server) CreateRoom(req *protocol.CreateRoomRequest, res *protocol.CreateRoomResponse) error {
-	pMap, err := s.PMapSrc.FetchPMap(req.PMapID)
-	if err != nil {
-		return err
-	}
+	//pMap, err := s.PMapSrc.FetchPMap(req.PMapID)
+	//if err != nil {
+	//	return err
+	//}
+	//
+	//room, err := s.RoomSrc.CreateRoom(req.RoomName, req.Username, pMap.Name, pMap.Count)
+	//if err != nil {
+	//	return err
+	//}
+	//*res = protocol.CreateRoomResponse{protocol.FormatRoomByDBToPro(room)}
+	//return nil
 
-	room, err := s.RoomSrc.CreateRoom(req.RoomName, req.Username, pMap.Name, pMap.Count)
+	room, err := s.RoomSrc.CreateRoom(req.RoomName, req.Username, "test", 8)
 	if err != nil {
 		return err
 	}
 	*res = protocol.CreateRoomResponse{protocol.FormatRoomByDBToPro(room)}
 	return nil
+
 }
 
 /*
@@ -112,4 +120,20 @@ func (s *Server) Broadcast(req *protocol.BroadcastRequest, res *protocol.Broadca
 	data := fmt.Sprintf("room:[%s]，room ID:[%s]，Invite you to play.... ", room.Name, room.Id)
 	s.NetworkSrc.Broadcast(data)
 	return nil
+}
+
+/*
+*
+{"service_method":"Server.BuildArchitecture","meta_data":{"username":"zz02","room_id":"1","ar_name":"sjby"}}
+*/
+func (s *Server) BuildArchitecture(req *protocol.BuildArchitectureRequest, res *protocol.BuildArchitectureResponse) error {
+	room, err := s.RoomSrc.FetchRoom(req.RoomID)
+	if err != nil {
+		return err
+	}
+	player, err := room.FetchPlayer(req.Username)
+	if err != nil {
+		return err
+	}
+	return s.PlayerSrc.BuildArchitecture(player, req.RoomID, req.ARName)
 }

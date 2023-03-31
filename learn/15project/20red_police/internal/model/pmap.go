@@ -1,7 +1,5 @@
 package model
 
-import "20red_police/tools"
-
 type PMap struct {
 	Id    string `json:"id"`
 	Name  string `json:"name"`
@@ -21,7 +19,8 @@ func NewPMap(name string, count int) *PMap {
 		count = count_max
 	}
 	return &PMap{
-		Id:    tools.UUID(),
+		//Id:    tools.UUID(),
+		Id:    "1",
 		Name:  name,
 		Count: count,
 	}

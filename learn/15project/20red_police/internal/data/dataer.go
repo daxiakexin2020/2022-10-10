@@ -43,6 +43,17 @@ type PMap interface {
 	FetchPMap(id string) (model.PMap, error)
 }
 
+type Country interface {
+	Class
+	CountryList() []model.Country
+	FetchCountry(name string) (model.Country, error)
+}
+
+type Architecture interface {
+	ArchitectureList() []model.Architecture
+	FetchArchitecture(Name string) (model.Architecture, error)
+}
+
 type Class interface {
 	Name() string
 }

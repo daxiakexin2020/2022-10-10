@@ -22,10 +22,13 @@ func initApp() *server.Server {
 	room := memory.NewRoom()
 	player := memory.NewPlayer()
 	roomService := service.NewRoomService(room, user, player)
-	playerService := service.NewPlayerService(player)
+	architecture := memory.NewArchitecture()
+	playerService := service.NewPlayerService(player, room, architecture)
 	pMap := memory.NewPMap()
 	pMapService := service.NewPMapService(pMap)
 	resources := network.Gresources()
-	serverServer := server.NewServer(userService, roomService, playerService, pMapService, resources)
+	country := memory.NewCountry()
+	countryService := service.NewCountryService(country)
+	serverServer := server.NewServer(userService, roomService, playerService, pMapService, resources, countryService)
 	return serverServer
 }

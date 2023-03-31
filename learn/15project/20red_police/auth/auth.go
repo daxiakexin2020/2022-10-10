@@ -9,19 +9,21 @@ const (
 )
 
 const (
-	REGISTER   = "Register"
-	LOGIN      = "Login"
-	CREATEPMAP = "CreatePMap"
-	USERLIST   = "UserList"
-	LOGINOUT   = "LoginOut"
-	DELETEROOM = "DeleteRoom"
+	REGISTER    = "Register"
+	LOGIN       = "Login"
+	CREATEPMAP  = "CreatePMap"
+	USERLIST    = "UserList"
+	LOGINOUT    = "LoginOut"
+	DELETEROOM  = "DeleteRoom"
+	COUNTRYLIST = "CountryList"
 )
 
 var AuthListMapping map[string]*authList = map[string]*authList{
-	server_01 + REGISTER:   &authList{IsNeedLogin: false},
-	server_01 + LOGIN:      &authList{IsNeedLogin: false},
-	server_01 + LOGINOUT:   &authList{IsNeedLogin: false},
-	server_01 + CREATEPMAP: &authList{IsNeedLogin: true},
-	server_01 + USERLIST:   &authList{IsNeedLogin: true},
-	server_01 + DELETEROOM: &authList{IsNeedLogin: true},
+	server_01 + REGISTER:    &authList{IsNeedLogin: false},
+	server_01 + LOGIN:       &authList{IsNeedLogin: false},
+	server_01 + LOGINOUT:    &authList{IsNeedLogin: false},
+	server_01 + CREATEPMAP:  &authList{IsNeedLogin: true},
+	server_01 + USERLIST:    &authList{IsNeedLogin: true},
+	server_01 + DELETEROOM:  &authList{IsNeedLogin: true},
+	server_01 + COUNTRYLIST: &authList{IsNeedLogin: false},
 }

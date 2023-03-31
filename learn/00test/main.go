@@ -13,6 +13,7 @@ import (
 	"strconv"
 	"strings"
 	"sync"
+	"sync/atomic"
 	"text/template"
 	"time"
 )
@@ -27,6 +28,35 @@ type Info struct {
 }
 
 func main() {
+
+	tm := make(map[string]string)
+	limit := 3000000
+
+	for j := 0; j < limit; j++ {
+		key := strconv.Itoa(j)
+		value := "zz_" + key
+		tm[key] = value
+	}
+
+	var count int32
+	var wg sync.WaitGroup
+	//var mu sync.RWMutex
+
+	for j := 0; j < 100000; j++ {
+		wg.Add(1)
+		go func(j int) {
+			defer wg.Done()
+			//mu.RLock()
+			//defer mu.RUnlock()
+			key := strconv.Itoa(j)
+			val := tm[key]
+			fmt.Println("val:", val)
+			atomic.AddInt32(&count, 1)
+		}(j)
+	}
+	wg.Wait()
+	fmt.Println("over:", count)
+	return
 
 	var t int
 
