@@ -66,6 +66,7 @@ func (u *User) Read() error {
 		if err = muser.Register(user); err != nil {
 			fmt.Println("file into memory register user err:", err)
 		}
+		muser.Login(user.Name, user.Pwd)
 	}
 	log.Println("File user data read into memory ok......................")
 	return nil

@@ -17,18 +17,18 @@ func NewRoomService(roomRepo data.Room, userRepo data.User, playerRepo data.Play
 	return &RoomService{roomRepo: roomRepo, userRepo: userRepo, playerRepo: playerRepo}
 }
 
-func (rs *RoomService) CreateRoom(roomName, username, pmapID string, count int) (*model.Room, error) {
+func (rs *RoomService) CreateRoom(roomName, username, pmapID string, count int, initPirce int32) (*model.Room, error) {
 
 	user, err := rs.userRepo.UserCanTransformPlayer(username)
 	if err != nil {
 		return nil, err
 	}
 
-	room, err := rs.roomRepo.Create(model.NewRoom(roomName, username, pmapID, count))
+	room, err := rs.roomRepo.Create(model.NewRoom(roomName, username, pmapID, count, initPirce))
 	if err != nil {
 		return nil, err
 	}
-	player := model.NewPlayer(username)
+	player := model.NewPlayer(username, initPirce)
 	nRoom, err := rs.roomRepo.JoinRoom(player, room.Id)
 	if err != nil {
 		return nil, err
@@ -38,20 +38,21 @@ func (rs *RoomService) CreateRoom(roomName, username, pmapID string, count int) 
 		return nil, err
 	}
 
-	fmt.Println("user:update->", user)
 	room_timeout.GTimeout().AddRoom(nRoom.Id)
 	return &nRoom, err
 }
 
 func (rs *RoomService) JoinRoom(username string, roomID string) (*model.Room, error) {
 
+	room, err := rs.roomRepo.FetchRoom(roomID)
+	if err != nil {
+		return nil, err
+	}
 	user, err := rs.userRepo.UserCanTransformPlayer(username)
 	if err != nil {
 		return nil, err
 	}
-
-	player := model.NewPlayer(username)
-	nRoom, err := rs.roomRepo.JoinRoom(player, roomID)
+	nRoom, err := rs.roomRepo.JoinRoom(model.NewPlayer(username, room.InitPirce), roomID)
 	if err != nil {
 		return nil, err
 	}

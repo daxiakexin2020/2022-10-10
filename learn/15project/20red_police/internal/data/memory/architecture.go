@@ -99,9 +99,11 @@ var ukb = &ukBarracks{
 
 var sab = &saBarracks{
 	Architecture: &model.Architecture{
-		Id:      "4",
-		Name:    sa_barrack,
-		ArmList: []string{sa_soldier, sa_dog},
+		Id:                "4",
+		Name:              sa_barrack,
+		ArmList:           []string{sa_soldier, sa_dog},
+		BloodVolume:       C_BloodVolume_100,
+		ConstructionPrice: C_ConstructionPrice_500,
 	},
 	barracks: b,
 }
@@ -115,6 +117,11 @@ var iraqb = &iraqBarracks{
 	saBarracks: sab,
 }
 
+var (
+	aronce  sync.Once
+	gaouter *aouter
+)
+
 const (
 	sa_base      = "苏军基地"
 	af_base      = "盟军基地"
@@ -125,9 +132,24 @@ const (
 	iraq_barrack = "伊拉克兵营"
 )
 
-var (
-	ionce   sync.Once
-	gaouter *aouter
+const (
+	C_BloodVolume_100 = 100
+	C_BloodVolume_200 = 200
+	C_BloodVolume_300 = 300
+	C_BloodVolume_400 = 400
+	C_BloodVolume_500 = 500
+	C_BloodVolume_600 = 600
+)
+
+const (
+	C_ConstructionPrice_100 = 100
+	C_ConstructionPrice_200 = 200
+	C_ConstructionPrice_300 = 300
+	C_ConstructionPrice_400 = 400
+	C_ConstructionPrice_500 = 500
+	C_ConstructionPrice_600 = 600
+	C_ConstructionPrice_700 = 700
+	C_ConstructionPrice_800 = 800
 )
 
 func init() {
@@ -136,7 +158,7 @@ func init() {
 	aggregationUKBarracks()
 	aggregationSABarracks()
 	aggregationIRAQBarracks()
-	list()
+	arlist()
 }
 
 func NewArchitecture() data.Architecture {
@@ -162,10 +184,11 @@ func aggregationUKBarracks() *model.Architecture {
 
 func aggregationSABarracks() *model.Architecture {
 	a := &model.Architecture{
-		Id:          sab.Id,
-		Name:        sab.Name,
-		ArmList:     append(sab.ArmList, sab.barracks.ArmList...),
-		BloodVolume: sab.BloodVolume,
+		Id:                sab.Id,
+		Name:              sab.Name,
+		ArmList:           append(sab.ArmList, sab.barracks.ArmList...),
+		BloodVolume:       sab.BloodVolume,
+		ConstructionPrice: sab.ConstructionPrice,
 	}
 	gaouter.as[sab.Name] = a
 	return a
@@ -177,12 +200,14 @@ func aggregationIRAQBarracks() *model.Architecture {
 	return iraqb.Architecture
 }
 
-func list() {
-	var data []model.Architecture
-	for _, a := range gaouter.as {
-		data = append(data, *a)
-	}
-	gaouter.list = data
+func arlist() {
+	aronce.Do(func() {
+		var data []model.Architecture
+		for _, a := range gaouter.as {
+			data = append(data, *a)
+		}
+		gaouter.list = data
+	})
 }
 
 func defaultAouter() *aouter {

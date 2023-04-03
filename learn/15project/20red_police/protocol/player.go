@@ -7,7 +7,7 @@ type Player struct {
 	Name        string `json:"name"`
 	CountryName string `json:"country_name"`
 	Color       string `json:"color"`
-	Money       uint32
+	Money       int32
 	Status      bool `json:"status"`
 	OutCome     bool `json:"out_come"` //结局
 }
@@ -20,6 +20,14 @@ type BuildArchitectureRequest struct {
 
 type BuildArchitectureResponse struct{}
 
+type BuildArmRequest struct {
+	Username string `json:"username" mapstructure:"username" validate:"required"`
+	RoomID   string `json:"room_id" mapstructure:"room_id" validate:"required"`
+	ArmName  string `json:"arm_name" mapstructure:"arm_name" validate:"required"`
+}
+
+type BuildArmResponse struct{}
+
 func FormatPlayerByDBToPro(model *model.Player) *Player {
 	return &Player{
 		Id:          model.Id,
@@ -28,5 +36,6 @@ func FormatPlayerByDBToPro(model *model.Player) *Player {
 		Color:       model.Color,
 		Status:      model.Status,
 		OutCome:     model.OutCome,
+		Money:       model.Money,
 	}
 }

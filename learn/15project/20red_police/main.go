@@ -4,6 +4,7 @@ import (
 	"20red_police/asynchronous"
 	"20red_police/asynchronous/room_timeout"
 	"20red_police/asynchronous/score_level"
+	"20red_police/components/operation"
 	"20red_police/config"
 	iasynchronous "20red_police/internal/asynchronous"
 	"20red_police/internal/middleware"
@@ -53,9 +54,9 @@ func handleExit() {
 	}()
 	<-network.GOEXIT
 
-	if err := asynchronous.STOP(); err != nil {
-		log.Println("stop asynchronous err, please handle:", err)
-	}
+	//if err := asynchronous.STOP(); err != nil {
+	//	log.Println("stop asynchronous err, please handle:", err)
+	//}
 
 	if err := stores.GoSynchronizationStopBuilder(); err != nil {
 		log.Println("GoSynchronizationStopBuilder err:", err)
@@ -63,5 +64,9 @@ func handleExit() {
 
 	if err := network.Close(); err != nil {
 		log.Println("close server  err:", err)
+	}
+
+	if err := operation.Oeration().Each(); err != nil {
+		log.Println("operation each  err:", err)
 	}
 }

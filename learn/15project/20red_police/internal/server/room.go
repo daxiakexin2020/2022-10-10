@@ -7,7 +7,7 @@ import (
 )
 
 /*
-{"service_method":"Server.CreateRoom","meta_data":{"room_name":"room01","username":"zz02", "pmap_id":"981e3bfe-cfaf-11ed-3930-1726d5e31d44"}}
+{"service_method":"Server.CreateRoom","meta_data":{"room_name":"room01","username":"zz01", "pmap_id":"981e3bfe-cfaf-11ed-3930-1726d5e31d44","init_price":1000}}
 */
 func (s *Server) CreateRoom(req *protocol.CreateRoomRequest, res *protocol.CreateRoomResponse) error {
 	//pMap, err := s.PMapSrc.FetchPMap(req.PMapID)
@@ -22,7 +22,7 @@ func (s *Server) CreateRoom(req *protocol.CreateRoomRequest, res *protocol.Creat
 	//*res = protocol.CreateRoomResponse{protocol.FormatRoomByDBToPro(room)}
 	//return nil
 
-	room, err := s.RoomSrc.CreateRoom(req.RoomName, req.Username, "test", 8)
+	room, err := s.RoomSrc.CreateRoom(req.RoomName, req.Username, "test", 8, req.InitPrice)
 	if err != nil {
 		return err
 	}
@@ -32,7 +32,7 @@ func (s *Server) CreateRoom(req *protocol.CreateRoomRequest, res *protocol.Creat
 }
 
 /*
-{"service_method":"Server.JoinRoom","meta_data":{"username":"zz","room_id":"bf56f3ae-c49d-11ed-2b99-3bc084b0fb1c"}}
+{"service_method":"Server.JoinRoom","meta_data":{"username":"zz01","room_id":"1"}}
 */
 func (s *Server) JoinRoom(req *protocol.JoinRoomRequest, res *protocol.JoinRoomResponse) error {
 	room, err := s.RoomSrc.JoinRoom(req.Username, req.RoomID)
@@ -123,8 +123,7 @@ func (s *Server) Broadcast(req *protocol.BroadcastRequest, res *protocol.Broadca
 }
 
 /*
-*
-{"service_method":"Server.BuildArchitecture","meta_data":{"username":"zz02","room_id":"1","ar_name":"sjby"}}
+{"service_method":"Server.BuildArchitecture","meta_data":{"username":"zz01","room_id":"1","ar_name":"sjby"}}
 */
 func (s *Server) BuildArchitecture(req *protocol.BuildArchitectureRequest, res *protocol.BuildArchitectureResponse) error {
 	room, err := s.RoomSrc.FetchRoom(req.RoomID)
@@ -136,4 +135,19 @@ func (s *Server) BuildArchitecture(req *protocol.BuildArchitectureRequest, res *
 		return err
 	}
 	return s.PlayerSrc.BuildArchitecture(player, req.RoomID, req.ARName)
+}
+
+/*
+{"service_method":"Server.BuildArm","meta_data":{"username":"zz01","room_id":"1","arm_name":"mjkc"}}
+*/
+func (s *Server) BuildArm(req *protocol.BuildArmRequest, res *protocol.BuildArmResponse) error {
+	room, err := s.RoomSrc.FetchRoom(req.RoomID)
+	if err != nil {
+		return err
+	}
+	player, err := room.FetchPlayer(req.Username)
+	if err != nil {
+		return err
+	}
+	return s.PlayerSrc.BuildArm(player, req.RoomID, req.ArmName)
 }

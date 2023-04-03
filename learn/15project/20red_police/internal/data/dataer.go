@@ -54,6 +54,12 @@ type Architecture interface {
 	FetchArchitecture(Name string) (model.Architecture, error)
 }
 
+type Arm interface {
+	IsMineCar(name string) bool
+	ArmList() []model.Arm
+	FetchArm(Name string) (model.Arm, error)
+}
+
 type Class interface {
 	Name() string
 }

@@ -32,10 +32,11 @@ type Room struct {
 	CreateTime   string
 	Players      map[string]*Player
 	Owner        string
+	InitPirce    int32
 	mu           sync.RWMutex `json:"-"`
 }
 
-func NewRoom(roomName, username, pmapName string, count int) *Room {
+func NewRoom(roomName, username, pmapName string, count int, initPrice int32) *Room {
 	return &Room{
 		//Id:           tools.UUID(),
 		Id:           "1",
@@ -46,6 +47,7 @@ func NewRoom(roomName, username, pmapName string, count int) *Room {
 		CreateTime:   tools.NowTimeFormatTimeToString(),
 		Players:      map[string]*Player{},
 		Owner:        username,
+		InitPirce:    initPrice,
 	}
 }
 

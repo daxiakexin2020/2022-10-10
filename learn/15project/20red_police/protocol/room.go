@@ -23,9 +23,10 @@ type JoinRoomResponse struct {
 }
 
 type CreateRoomRequest struct {
-	Username string `json:"username" mapstructure:"username" validate:"required"`
-	RoomName string `json:"room_name" mapstructure:"room_name" validate:"required"`
-	PMapID   string `json:"pmap_id" mapstructure:"pmap_id" validate:"required"`
+	Username  string `json:"username" mapstructure:"username" validate:"required"`
+	RoomName  string `json:"room_name" mapstructure:"room_name" validate:"required"`
+	InitPrice int32  `json:"init_price" mapstructure:"init_price" validate:"required"`
+	PMapID    string `json:"pmap_id" mapstructure:"pmap_id" validate:"required"`
 }
 
 type CreateRoomResponse struct {
