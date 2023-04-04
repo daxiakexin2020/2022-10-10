@@ -4,6 +4,7 @@ import (
 	"20red_police/asynchronous/room_timeout"
 	"20red_police/internal/data"
 	"20red_police/internal/model"
+	"errors"
 	"fmt"
 )
 
@@ -65,6 +66,29 @@ func (rs *RoomService) JoinRoom(username string, roomID string) (*model.Room, er
 	return &nRoom, err
 }
 
+func (rs *RoomService) Kick(username string, bekickedUsername string, roomId string) error {
+
+	room, err := rs.roomRepo.FetchRoom(roomId)
+	if err != nil {
+		return err
+	}
+	if owner := room.IsOwner(username); !owner {
+		return errors.New("owner can kick only")
+	}
+	if err = rs.roomRepo.OutRoom(bekickedUsername, roomId); err != nil {
+		return err
+	}
+	user, err := rs.userRepo.FetchUser(bekickedUsername)
+	if err != nil {
+		return err
+	}
+	user.SetPrepare()
+	if _, err = rs.userRepo.Update(user); err != nil {
+		return err
+	}
+	return nil
+}
+
 func (rs *RoomService) OutRoom(username string, roomID string) (model.Room, error) {
 
 	room, err := rs.roomRepo.FetchRoom(roomID)
@@ -115,8 +139,35 @@ func (rs *RoomService) GameStart(username, roomID string) error {
 	if err != nil {
 		return err
 	}
-	if err = rs.roomRepo.GameStart(username, roomID); err != nil {
+	if err = room.GameStart(username); err != nil {
 		return err
+	}
+	for playerName, _ := range room.Players {
+		user, err := rs.userRepo.FetchUser(playerName)
+		if err != nil {
+			fmt.Println("game start  , fetchuser err:", err)
+			continue
+		}
+		user.SetPlaying()
+		if _, err = rs.userRepo.Update(user); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func (rs *RoomService) GameOver(roomID string) error {
+
+	room, err := rs.roomRepo.FetchRoom(roomID)
+	if err != nil {
+		return err
+	}
+	if err = room.GameOver(); err != nil {
+		return err
+	}
+
+	for _, player := range room.Players {
+		player.GameOver()
 	}
 
 	for playerName, _ := range room.Players {
@@ -125,7 +176,7 @@ func (rs *RoomService) GameStart(username, roomID string) error {
 			fmt.Println("game start  , fetchuser err:", err)
 			continue
 		}
-		user.SetPlaying()
+		user.SetPrepare()
 		if _, err = rs.userRepo.Update(user); err != nil {
 			return err
 		}

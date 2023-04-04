@@ -86,6 +86,10 @@ func (r *Room) OutRoom(playerName string) error {
 	return nil
 }
 
+func (r *Room) IsOwner(username string) bool {
+	return r.Owner == username
+}
+
 func (r *Room) DeleteRoom(playerName string) error {
 	r.mu.Lock()
 	r.mu.Unlock()
@@ -122,6 +126,16 @@ func (r *Room) GameStart(username string) error {
 	return nil
 }
 
+func (r *Room) GameOver() error {
+	r.mu.RLock()
+	defer r.mu.RUnlock()
+	if r.isOver() {
+		return errors.New("game is over")
+	}
+	r.Status = STATUS_OVER
+	return nil
+}
+
 func (r *Room) UpdateRoomPlayer(playerName string, status bool) error {
 	r.mu.Lock()
 	defer r.mu.Unlock()
@@ -136,7 +150,7 @@ func (r *Room) UpdateRoomPlayer(playerName string, status bool) error {
 	return nil
 }
 
-func (r *Room) IsOver() bool {
+func (r *Room) isOver() bool {
 	return r.Status == STATUS_OVER
 }
 
@@ -152,6 +166,10 @@ func (r *Room) isCanOutRoom() error {
 		return errors.New("game" + STATUS_MAPING[r.Status])
 	}
 	return nil
+}
+
+func (r *Room) IsPlaying() bool {
+	return r.Status == STATUS_PLAYING
 }
 
 func (r *Room) IsCanCreate() bool {

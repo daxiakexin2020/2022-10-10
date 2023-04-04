@@ -25,6 +25,11 @@ var (
 	ronce        sync.Once
 )
 
+const (
+	defaultLivetime = 20 * 60
+	defaultCapacity = 1000
+)
+
 func Timeout(capacity int64, livetime time.Duration, OnEvicted func(roomID string) error) *roomTimeout {
 	ronce.Do(func() {
 		groomTimeout = newRoomTimeout(capacity, livetime, OnEvicted)
@@ -33,6 +38,9 @@ func Timeout(capacity int64, livetime time.Duration, OnEvicted func(roomID strin
 }
 
 func GTimeout() *roomTimeout {
+	if groomTimeout == nil {
+		return Timeout(defaultCapacity, defaultLivetime, nil)
+	}
 	return groomTimeout
 }
 

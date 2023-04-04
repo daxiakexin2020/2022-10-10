@@ -83,6 +83,12 @@ type BroadcastRequest struct {
 
 type BroadcastResponse struct{ Empry }
 
+type GameOverRequest struct {
+	RoomID string `json:"room_id" mapstructure:"room_id" validate:"required"`
+}
+
+type GameOverResponse struct{ Empry }
+
 func FormatRoomByDBToPro(model *model.Room) Room {
 	players := make(map[string]*Player, len(model.Players))
 	for _, player := range model.Players {

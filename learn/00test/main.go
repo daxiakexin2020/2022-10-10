@@ -27,7 +27,25 @@ type Info struct {
 	sync.Mutex
 }
 
+var m = map[string]*Info{}
+
+func test20() *Info {
+	m["zz"] = &Info{Name: "kx"}
+	return m["zz"]
+}
+
 func main() {
+
+	i2 := test20()
+	fmt.Println("i2 : ", i2)
+
+	i2.Name = "kx update"
+	fmt.Println("i2 update: ", i2)
+
+	for _, v := range m {
+		fmt.Println("old :", v)
+	}
+	return
 
 	tm := make(map[string]string)
 	limit := 3000000

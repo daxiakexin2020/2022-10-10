@@ -7,7 +7,7 @@ import (
 )
 
 /*
-{"service_method":"Server.CreateRoom","meta_data":{"room_name":"room01","username":"zz01", "pmap_id":"981e3bfe-cfaf-11ed-3930-1726d5e31d44","init_price":1000}}
+{"service_method":"Server.CreateRoom","meta_data":{"room_name":"room01","username":"zz01", "pmap_id":"981e3bfe-cfaf-11ed-3930-1726d5e31d44","init_price":100}}
 */
 func (s *Server) CreateRoom(req *protocol.CreateRoomRequest, res *protocol.CreateRoomResponse) error {
 	//pMap, err := s.PMapSrc.FetchPMap(req.PMapID)
@@ -32,7 +32,7 @@ func (s *Server) CreateRoom(req *protocol.CreateRoomRequest, res *protocol.Creat
 }
 
 /*
-{"service_method":"Server.JoinRoom","meta_data":{"username":"zz01","room_id":"1"}}
+{"service_method":"Server.JoinRoom","meta_data":{"username":"zz02","room_id":"1"}}
 */
 func (s *Server) JoinRoom(req *protocol.JoinRoomRequest, res *protocol.JoinRoomResponse) error {
 	room, err := s.RoomSrc.JoinRoom(req.Username, req.RoomID)
@@ -68,6 +68,17 @@ func (s *Server) GameStart(req *protocol.GameStartRequest, res *protocol.GameSta
 	return nil
 }
 
+/**
+{"service_method":"Server.GameOver","header":{"token":"1","bname":"zz"},"meta_data":{"username":"zz","room_id":"1"}}
+*/
+
+func (s *Server) GameOver(req *protocol.GameOverRequest, res *protocol.GameOverResponse) error {
+	if err := s.RoomSrc.GameOver(req.RoomID); err != nil {
+		return err
+	}
+	return nil
+}
+
 /*
 {"service_method":"Server.OutRoom","header":{"token":"1","bname":"zz"},"meta_data":{"username":"zz","room_id":"32da7c5c-c3a3-11ed-3bc2-8fbe2ae760fe"}}
 */
@@ -98,7 +109,13 @@ func (s *Server) UpdateRoomPlayer(req *protocol.UpdateRoomPlayerRequest, res *pr
 	return s.RoomSrc.UpdateRoomPlayer(req.RoomID, req.Username, req.Status)
 }
 
+/*
+{"service_method":"Server.Kick","header":{"token":"1","bname":"zz"},"meta_data":{"username":"zz01","room_id":"1","bekick_username":"zz02"}}
+*/
 func (s *Server) Kick(req *protocol.KickRequest, res *protocol.KickResponse) error {
+	if err := s.RoomSrc.Kick(req.Username, req.BekickedUsername, req.RoomID); err != nil {
+		return err
+	}
 	return nil
 }
 
@@ -130,6 +147,9 @@ func (s *Server) BuildArchitecture(req *protocol.BuildArchitectureRequest, res *
 	if err != nil {
 		return err
 	}
+	if !room.IsPlaying() {
+		return errors.New("game is not start")
+	}
 	player, err := room.FetchPlayer(req.Username)
 	if err != nil {
 		return err
@@ -144,6 +164,9 @@ func (s *Server) BuildArm(req *protocol.BuildArmRequest, res *protocol.BuildArmR
 	room, err := s.RoomSrc.FetchRoom(req.RoomID)
 	if err != nil {
 		return err
+	}
+	if !room.IsPlaying() {
+		return errors.New("game is not start")
 	}
 	player, err := room.FetchPlayer(req.Username)
 	if err != nil {

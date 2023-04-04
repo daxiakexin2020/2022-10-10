@@ -21,7 +21,6 @@ func HandleRoomTimeout(roomID string) error {
 }
 
 func deleteRoom(roomID string) (*model.Room, error) {
-	//fmt.Println("roomID:", roomID)
 	pick, err := data.MemoryRoom()
 	if err != nil {
 		return nil, err

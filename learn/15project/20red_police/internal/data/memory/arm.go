@@ -57,7 +57,7 @@ var (
 	gengineer    = &model.Arm{Id: "1", Name: engineer, DamageValue: DamageValue_0, BloodVolume: BloodVolume_100}
 	gaf_soldier  = &model.Arm{Id: "2", Name: af_soldier, DamageValue: DamageValue_100, BloodVolume: BloodVolume_100}
 	gaf_dog      = &model.Arm{Id: "3", Name: af_dog, DamageValue: DamageValue_0, BloodVolume: BloodVolume_100}
-	gaf_mine_car = &model.Arm{Id: "4", Name: af_mine_car, DamageValue: DamageValue_100, BloodVolume: C_ConstructionPrice_500}
+	gaf_mine_car = &model.Arm{Id: "4", Name: af_mine_car, DamageValue: DamageValue_100, BloodVolume: BloodVolume_600, ConstructionPrice: C_ConstructionPrice_500}
 )
 
 var (

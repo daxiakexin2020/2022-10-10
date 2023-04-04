@@ -2,7 +2,6 @@ package main
 
 import (
 	"20red_police/asynchronous"
-	"20red_police/asynchronous/room_timeout"
 	"20red_police/asynchronous/score_level"
 	"20red_police/components/operation"
 	"20red_police/config"
@@ -32,9 +31,9 @@ func run() {
 
 	go handleExit()
 
-	roomTimeout := room_timeout.Timeout(10000, time.Second*time.Duration(config.GetRoomConfig().RoomLiveTime), iasynchronous.HandleRoomTimeout)
+	//roomTimeout := room_timeout.Timeout(10000, time.Second*time.Duration(config.GetRoomConfig().RoomLiveTime), iasynchronous.HandleRoomTimeout)
 	scoreLevel := score_level.ScoreLevel(10000, 10, iasynchronous.HandleScoreLevel)
-	if err := asynchronous.GoAsynchronous(roomTimeout, scoreLevel); err != nil {
+	if err := asynchronous.GoAsynchronous(scoreLevel); err != nil {
 		panic(err)
 	}
 
@@ -54,9 +53,9 @@ func handleExit() {
 	}()
 	<-network.GOEXIT
 
-	//if err := asynchronous.STOP(); err != nil {
-	//	log.Println("stop asynchronous err, please handle:", err)
-	//}
+	if err := asynchronous.STOP(); err != nil {
+		log.Println("stop asynchronous err, please handle:", err)
+	}
 
 	if err := stores.GoSynchronizationStopBuilder(); err != nil {
 		log.Println("GoSynchronizationStopBuilder err:", err)

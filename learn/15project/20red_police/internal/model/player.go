@@ -1,35 +1,33 @@
 package model
 
 import (
-	"20red_police/components/operation"
 	"20red_police/tools"
-	"fmt"
+	"log"
 	"sync"
-	"sync/atomic"
 	"time"
 )
 
 type Player struct {
-	Id            string
-	Name          string
-	CountryName   string
-	Color         string
-	Money         int32
-	Mch           chan int32
-	Status        bool
-	OutCome       bool
-	Architectures map[string]*arItem
-	Arms          map[string]*armItem
-
-	isBuildingAR        bool
-	buildingARMuThredId string
-	addARMu             sync.RWMutex `json:"-"`
-	buildingARMu        sync.RWMutex `json:"-"`
-
+	Id                   string
+	Name                 string
+	CountryName          string
+	Color                string
+	Money                int32
+	Status               bool
+	OutCome              bool
+	Architectures        map[string]*arItem
+	Arms                 map[string]*armItem
+	mch                  chan int32
+	gameOverCh           chan struct{}
+	isBuildingAR         bool
+	buildingARMuThredId  string
+	addARMu              sync.RWMutex
+	buildingARMu         sync.RWMutex
 	isBuildingARM        bool
 	buildingARMMuThredId string
-	buildingARMMu        sync.RWMutex `json:"-"`
-	addARMMu             sync.RWMutex `json:"-"`
+	buildingARMMu        sync.RWMutex
+	addARMMu             sync.RWMutex
+	gameOverMu           sync.RWMutex
 }
 
 type arItem struct {
@@ -42,13 +40,13 @@ type armItem struct {
 	count uint32
 }
 
-const minInitPrice = 100
-
-var EXIT_PLAYER = make(chan struct{}, 1)
-
-func init() {
-	operation.Oeration().Register(EXIT_PLAYER)
-}
+const (
+	minInitPrice     = 100
+	BuildARTimeout   = 20 * 60
+	BuildARMTimeout  = 20 * 60
+	MockAddPirceTime = 20
+	mchCap           = 10000
+)
 
 func NewPlayer(name string, initPrice int32) *Player {
 	p := &Player{
@@ -56,12 +54,13 @@ func NewPlayer(name string, initPrice int32) *Player {
 		Name:          name,
 		Architectures: map[string]*arItem{},
 		Arms:          map[string]*armItem{},
-		Mch:           make(chan int32, 1000),
+		mch:           make(chan int32, mchCap),
+		gameOverCh:    make(chan struct{}, 1),
 	}
 	if initPrice < minInitPrice {
 		initPrice = minInitPrice
 	}
-	p.Mch <- initPrice
+	p.mch <- initPrice
 	p.Money = initPrice
 	return p
 }
@@ -98,23 +97,12 @@ func (p *Player) newArmItem(name string) *armItem {
 	return &armItem{name: name, count: 1}
 }
 
-func (p *Player) PickFormCh() int32 {
-	m := <-p.Mch
-	atomic.AddInt32(&p.Money, -m)
-	return m
-}
-
 func (p *Player) addToCh(money int32) {
-	p.Mch <- money
-	atomic.AddInt32(&p.Money, money)
+	p.mch <- money
 }
 
 func (p *Player) closeMch() {
-	close(p.Mch)
-}
-
-func (p *Player) CloseMch() {
-
+	close(p.mch)
 }
 
 func (p *Player) IsReady() bool {
@@ -126,10 +114,6 @@ func (p *Player) SetReady() {
 
 func (p *Player) Country() string {
 	return p.CountryName
-}
-
-func (p *Player) PMoney() int32 {
-	return p.Money
 }
 
 func (p *Player) SetUnReady() {
@@ -148,15 +132,16 @@ func (p *Player) SetBuildingAR(threadId string) bool {
 }
 
 func (p *Player) setNotBuildingAR(threaId string) bool {
+	p.buildingARMu.Lock()
+	defer p.buildingARMu.Unlock()
 	if threaId != p.buildingARMuThredId {
 		return false
 	}
-	p.buildingARMu.RLock()
-	defer p.buildingARMu.RUnlock()
 	if !p.isBuildingAR {
 		return false
 	}
 	p.isBuildingAR = false
+	p.buildingARMuThredId = ""
 	return true
 }
 
@@ -172,15 +157,16 @@ func (p *Player) SetBuildingARM(threadId string) bool {
 }
 
 func (p *Player) setNotBuildingARM(threaId string) bool {
+	p.buildingARMMu.Lock()
+	defer p.buildingARMMu.Unlock()
 	if threaId != p.buildingARMMuThredId {
 		return false
 	}
-	p.buildingARMMu.RLock()
-	defer p.buildingARMMu.RUnlock()
 	if !p.isBuildingARM {
 		return false
 	}
 	p.isBuildingARM = false
+	p.buildingARMMuThredId = ""
 	return true
 }
 
@@ -197,16 +183,42 @@ func (p *Player) BuildARMOver(price int32, threadId string, armName string) {
 }
 
 func (p *Player) MockAddPirceIntoCh() {
-	timer := time.NewTicker(time.Second * 60)
+	timer := time.NewTicker(time.Second * MockAddPirceTime)
 	defer timer.Stop()
 	for {
 		select {
 		case <-timer.C:
 			p.addToCh(1000)
 		default:
-			if len(EXIT_PLAYER) == 1 {
-				fmt.Println("我们退出了")
+			if len(p.gameOverCh) == 1 {
+				log.Println("game over,MockAddPirceIntoCh out.................")
+				return
 			}
 		}
 	}
+}
+
+func (p *Player) gameOver() {
+	p.gameOverCh <- struct{}{}
+}
+
+func (p *Player) GameOver() {
+	p.gameOverMu.RLock()
+	defer p.gameOverMu.RUnlock()
+	if len(p.gameOverCh) == 1 {
+		return
+	}
+	p.gameOver()
+}
+
+func (p *Player) LenGameOverch() int {
+	return len(p.gameOverCh)
+}
+
+func (p *Player) PickReadMch() <-chan int32 {
+	return p.mch
+}
+
+func (p *Player) PickWriteMch() chan<- int32 {
+	return p.mch
 }
