@@ -1,6 +1,7 @@
 package server
 
 import (
+	"22go_redis/utils"
 	"fmt"
 	"testing"
 	"time"
@@ -65,8 +66,8 @@ func TestB05(t *testing.T) {
 }
 
 func TestB06(t *testing.T) {
-	add1 := GORedis.SAdd("test01", 1, 100)
-	add2 := GORedis.SAdd("test01", 1, 100)
+	add1 := GORedis.Sadd("test01", 1, 100)
+	add2 := GORedis.Sadd("test01", 1, 100)
 	fmt.Println("add:", add1, add2)
 	i := GORedis.Smembers("test01")
 	fmt.Println("Smembers:", i)
@@ -89,4 +90,57 @@ func TestB07(t *testing.T) {
 	time.Sleep(time.Second)
 	get, b := GORedis.Get("test02")
 	fmt.Println("get111111:", get, b)
+}
+
+func TestB08(t *testing.T) {
+	GORedis.Sadd("test02", 1, 2, 3, 1)
+	fmt.Println("GORedis.Smembers(\"test02\"):", GORedis.Smembers("test02"))
+	smove := GORedis.Smove("test02", "test01", 3)
+	fmt.Println("smove:", smove)
+	fmt.Println("GORedis.Smembers(\"test02\"):", GORedis.Smembers("test02"))
+	fmt.Println("GORedis.Smembers(\"test01\"):", GORedis.Smembers("test01"))
+	fmt.Println("GORedis.Scard(\"test01\"):", GORedis.Scard("test02"))
+
+	ints := utils.RandInts(10, 10)
+	fmt.Println("index:", ints)
+}
+
+func TestB09(t *testing.T) {
+	GORedis.Sadd("test02", 1, 2, 3, 4, 5, 6, 7)
+	spop := GORedis.Srandmember("test02", 2)
+	fmt.Println("Spop:", spop)
+
+	smembers := GORedis.Smembers("test02")
+	fmt.Println("Smembers:", smembers)
+}
+
+func TestB10(t *testing.T) {
+	GORedis.Sadd("test02", 1, 2, 3, 4, 5, 6, 7)
+	spop := GORedis.Srem("test02", 7)
+	fmt.Println("Srem:", spop)
+
+	smembers := GORedis.Smembers("test02")
+	fmt.Println("Smembers:", smembers)
+}
+
+func TestB11(t *testing.T) {
+	m := make(map[int64]interface{})
+	m[10] = "1"
+	m[20] = "2"
+	m[30] = 3
+	m[60] = 6
+	m[50] = 5
+	GORedis.Zadd("test02", m)
+	zrevrange, i := GORedis.Zrevrange("test02", 10, 100)
+	fmt.Println("Zrevrange:", zrevrange, i)
+
+	m2 := make(map[int64]interface{})
+	m2[100] = "1"
+	m2[20] = "2"
+	m2[30] = 3
+	m2[70] = 6
+	m2[50] = 5
+	GORedis.Zadd("test02", m2)
+	zrevrange2, i2 := GORedis.Zrevrange("test02", 10, 100)
+	fmt.Println("Zrevrange2:", zrevrange2, i2)
 }
