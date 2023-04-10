@@ -139,7 +139,7 @@ func TestB11(t *testing.T) {
 	m2[20] = "2"
 	m2[30] = 3
 	m2[70] = 6
-	m2[50] = 5
+	m2[500] = 5
 	GORedis.Zadd("test02", m2)
 	zrevrange2, i2 := GORedis.Zrevrange("test02", 10, 100)
 	fmt.Println("Zrevrange2:", zrevrange2, i2)

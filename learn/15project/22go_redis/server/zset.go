@@ -76,14 +76,28 @@ func (gr *Gredis) Zadd(key string, data map[int64]interface{}) {
 		//}
 		for _, v := range fs {
 			for k, dval := range czvals {
-				if v.score < dval.GetScore() || k == len(czvals)-1 {
+				if v.score < dval.GetScore() {
 					fmt.Println("ccccC:", v.score, v.val, k, len(czvals)-1)
-					if k == len(czvals)-1 {
-						czvals = append(czvals[:k+1], construct.NewCzval(v.val, v.score))
-					} else {
-						czvals = append(czvals[:k], construct.NewCzval(v.val, v.score))
-						czvals = append(czvals, czvals[k+1:]...)
+					for _, v := range czvals {
+						fmt.Println("fs2222222:", v.GetVal(), v.GetScore())
 					}
+					left := make([]*construct.Czval, len(czvals[k:]))
+					copy(left, czvals[k:])
+					for _, v := range left {
+						fmt.Println("200000000000:", v.GetVal(), v.GetScore())
+					}
+					czvals = append(czvals[:k], construct.NewCzval(v.val, v.score))
+					for _, v := range left {
+						fmt.Println("fsfdddddddddd:", v.GetVal(), v.GetScore())
+					}
+					czvals = append(czvals, left...)
+					for _, v := range czvals {
+						fmt.Println("fs33333333:", v.GetVal(), v.GetScore())
+					}
+					continue
+				} else if k == len(czvals)-1 {
+					fmt.Println("ccccC:", v.score, v.val, k, len(czvals)-1)
+					czvals = append(czvals[:k+1], construct.NewCzval(v.val, v.score))
 					for _, v := range czvals {
 						fmt.Println("fs0000000000:", v.GetVal(), v.GetScore())
 					}
