@@ -19,7 +19,7 @@ func NewCset(val []interface{}, etime time.Duration) *Cset {
 }
 
 func (cs *Cset) Type() string {
-	return "set"
+	return SET
 }
 
 func (cs *Cset) GetVal() interface{} {

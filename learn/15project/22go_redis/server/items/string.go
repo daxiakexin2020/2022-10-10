@@ -1,4 +1,4 @@
-package server
+package items
 
 import (
 	"22go_redis/server/construct"
@@ -7,15 +7,15 @@ import (
 )
 
 func (gr *Gredis) Set(key string, val interface{}, expirationTime time.Duration) {
-	gr.MU.Lock()
-	defer gr.MU.Unlock()
-	gr.Data[key] = construct.NewCString(val, expirationTime)
+	gr.Lock()
+	defer gr.Unlock()
+	gr.CGOSet(key, construct.NewCString(val, expirationTime))
 }
 
 func (gr *Gredis) Get(key string) (interface{}, bool) {
-	gr.MU.RLock()
-	defer gr.MU.RUnlock()
-	data, ok := gr.Data[key]
+	gr.RLock()
+	defer gr.RUnlock()
+	data, ok := gr.isData(key)
 	if !ok {
 		return nil, false
 	}
@@ -23,9 +23,9 @@ func (gr *Gredis) Get(key string) (interface{}, bool) {
 }
 
 func (gr *Gredis) STRLEN(key string) (int, error) {
-	gr.MU.RLock()
-	defer gr.MU.RUnlock()
-	vInterface, ok := gr.Data[key]
+	gr.RLock()
+	defer gr.RUnlock()
+	vInterface, ok := gr.isData(key)
 	if !ok {
 		return 0, errors.New("this key is not set")
 	}
@@ -36,9 +36,9 @@ func (gr *Gredis) STRLEN(key string) (int, error) {
 }
 
 func (gr *Gredis) Decr(key string) error {
-	gr.MU.Lock()
-	defer gr.MU.Unlock()
-	vInterface, ok := gr.Data[key]
+	gr.Lock()
+	defer gr.Unlock()
+	vInterface, ok := gr.isData(key)
 	if !ok {
 		return errors.New("this key is not set")
 	}

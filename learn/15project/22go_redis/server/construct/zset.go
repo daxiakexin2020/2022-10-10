@@ -30,7 +30,7 @@ func NewCZset(etime time.Duration) *CZset {
 }
 
 func (cz *CZset) Type() string {
-	return "zset"
+	return ZSET
 }
 
 func (cz *CZset) GetVal() interface{} {

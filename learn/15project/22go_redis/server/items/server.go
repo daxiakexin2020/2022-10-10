@@ -1,4 +1,4 @@
-package server
+package items
 
 import (
 	"22go_redis/server/construct"
@@ -99,6 +99,10 @@ func NewGredis(maxSizeStr string, option ...Option) (*Gredis, error) {
 	}
 	gr.apply(option...)
 	return gr, nil
+}
+
+func (gr *Gredis) isData(key string) (construct.VInterface, bool) {
+	return gr.CGOIsData(key)
 }
 
 func Parse(str string) (int64, string, error) {

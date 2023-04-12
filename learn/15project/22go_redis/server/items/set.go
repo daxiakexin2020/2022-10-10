@@ -1,4 +1,4 @@
-package server
+package items
 
 import (
 	"22go_redis/server/construct"
@@ -6,16 +6,19 @@ import (
 )
 
 func (gr *Gredis) Sadd(key string, val ...interface{}) int {
-	gr.MU.Lock()
-	defer gr.MU.Unlock()
+	gr.Lock()
+	defer gr.Unlock()
 	return gr.sadd(key, val...)
 }
 
 func (gr *Gredis) Smembers(key string) []interface{} {
-	gr.MU.Lock()
-	defer gr.MU.Unlock()
-	vInterface, ok := gr.Data[key]
+	gr.Lock()
+	defer gr.Unlock()
+	vInterface, ok := gr.isData(key)
 	if !ok {
+		return nil
+	}
+	if vInterface.Type() != construct.SET {
 		return nil
 	}
 	tv := vInterface.GetVal().([]interface{})
@@ -23,41 +26,44 @@ func (gr *Gredis) Smembers(key string) []interface{} {
 }
 
 func (gr *Gredis) Scard(key string) int {
-	gr.MU.RLock()
-	defer gr.MU.RUnlock()
-	if vInterface, ok := gr.Data[key]; !ok {
+	gr.RLock()
+	defer gr.RUnlock()
+	if vInterface, ok := gr.isData(key); !ok {
 		return 0
 	} else {
-		if i, tok := vInterface.GetVal().([]interface{}); tok {
-			return len(i)
+		if vInterface.Type() != construct.SET {
+			return 0
 		}
-		return 0
+		return len(vInterface.GetVal().([]interface{}))
 	}
 }
 
 func (gr *Gredis) Sdiff(key string, keys ...string) []interface{} {
-	gr.MU.RLock()
-	gr.MU.RUnlock()
-	vInterface, ok := gr.Data[key]
+	gr.RLock()
+	gr.RUnlock()
+	vInterface, ok := gr.isData(key)
 	if !ok {
+		return nil
+	}
+	if vInterface.Type() != construct.SET {
 		return nil
 	}
 	dest := vInterface.GetVal().([]interface{})
 	var sdata []interface{}
 	for _, k := range keys {
-		if v, ok := gr.Data[k]; ok {
-			if i, iok := v.GetVal().([]interface{}); iok {
-				sdata = append(sdata, i...)
-			}
+		v := gr.CGOGet(k)
+		if v.Type() != construct.SET {
+			continue
 		}
+		sdata = append(sdata, v.GetVal().([]interface{})...)
 	}
 	return utils.SliceDiff(dest, sdata)
 }
 
 func (gr *Gredis) Smove(key string, destKey string, m interface{}) int {
-	gr.MU.Lock()
-	defer gr.MU.Unlock()
-	vInterface, ok := gr.Data[key]
+	gr.Lock()
+	defer gr.Unlock()
+	vInterface, ok := gr.isData(key)
 	if !ok {
 		return 0
 	}
@@ -66,7 +72,7 @@ func (gr *Gredis) Smove(key string, destKey string, m interface{}) int {
 		return 0
 	}
 
-	dvInterface, ok := gr.Data[destKey]
+	dvInterface, ok := gr.isData(destKey)
 	if !ok {
 		gr.sadd(destKey, m)
 	} else {
@@ -89,9 +95,9 @@ func (gr *Gredis) Smove(key string, destKey string, m interface{}) int {
 }
 
 func (gr *Gredis) Spop(key string, count int) []interface{} {
-	gr.MU.Lock()
-	defer gr.MU.Unlock()
-	vInterface, ok := gr.Data[key]
+	gr.Lock()
+	defer gr.Unlock()
+	vInterface, ok := gr.isData(key)
 	if !ok {
 		return nil
 	}
@@ -123,9 +129,9 @@ func (gr *Gredis) Spop(key string, count int) []interface{} {
 }
 
 func (gr *Gredis) Srandmember(key string, count int) []interface{} {
-	gr.MU.Lock()
-	defer gr.MU.Unlock()
-	vInterface, ok := gr.Data[key]
+	gr.Lock()
+	defer gr.Unlock()
+	vInterface, ok := gr.isData(key)
 	if !ok {
 		return nil
 	}
@@ -146,9 +152,9 @@ func (gr *Gredis) Srandmember(key string, count int) []interface{} {
 }
 
 func (gr *Gredis) Srem(key string, m ...interface{}) int {
-	gr.MU.Lock()
-	defer gr.MU.Unlock()
-	vInterface, ok := gr.Data[key]
+	gr.Lock()
+	defer gr.Unlock()
+	vInterface, ok := gr.isData(key)
 	if !ok {
 		return 0
 	}
@@ -171,10 +177,10 @@ func (gr *Gredis) Srem(key string, m ...interface{}) int {
 }
 
 func (gr *Gredis) sadd(key string, val ...interface{}) int {
-	vInterface, ok := gr.Data[key]
+	vInterface, ok := gr.isData(key)
 	if !ok {
 		uval := utils.SliceUniq(val)
-		gr.Data[key] = construct.NewCset(uval, 0)
+		gr.CGOSet(key, construct.NewCset(uval, 0))
 		return len(uval)
 	} else {
 		otv := vInterface.GetVal().([]interface{})

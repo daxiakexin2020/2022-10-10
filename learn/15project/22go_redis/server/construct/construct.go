@@ -14,8 +14,57 @@ type VInterface interface {
 }
 
 type CGORedis struct {
-	Data map[string]VInterface
-	MU   sync.RWMutex
+	data map[string]VInterface
+	mu   sync.RWMutex
+}
+
+func NewCGORedis() *CGORedis {
+	return &CGORedis{
+		data: map[string]VInterface{},
+	}
+}
+
+func (cgo *CGORedis) CGOSet(key string, val VInterface) {
+	cgo.data[key] = val
+}
+
+func (cgo *CGORedis) CGOGet(key string) VInterface {
+	return cgo.data[key]
+}
+
+func (cgo *CGORedis) CGODel(key string) {
+	delete(cgo.data, key)
+}
+
+func (cgo *CGORedis) CGOIsData(key string) (VInterface, bool) {
+	if vInterface, ok := cgo.data[key]; ok {
+		return vInterface, ok
+	}
+	return nil, false
+}
+
+func (cgo *CGORedis) CGOKeys() []string {
+	var keys []string
+	for k, _ := range cgo.data {
+		keys = append(keys, k)
+	}
+	return keys
+}
+
+func (cgo *CGORedis) Lock() {
+	cgo.mu.Lock()
+}
+
+func (cgo *CGORedis) Unlock() {
+	cgo.mu.Unlock()
+}
+
+func (cgo *CGORedis) RLock() {
+	cgo.mu.RLock()
+}
+
+func (cgo *CGORedis) RUnlock() {
+	cgo.mu.RUnlock()
 }
 
 const (
@@ -27,31 +76,3 @@ const (
 	BITMAP  = "bitmap"
 	UNKNOWN = "unknown"
 )
-
-type (
-	TypeString interface{}
-	TypeSet    []interface{}
-)
-
-func NewCGORedis() *CGORedis {
-	return &CGORedis{
-		Data: map[string]VInterface{},
-	}
-}
-
-type exTime struct {
-	time int64
-}
-
-func (ex *exTime) GetExTime() int64 {
-	return ex.time
-}
-
-func (ex *exTime) SetExTime(t time.Duration) bool {
-	ex.time = time.Now().Add(time.Second * t).Unix()
-	return true
-}
-
-func NewExTime(t time.Duration) *exTime {
-	return &exTime{time: time.Now().Add(time.Second * t).Unix()}
-}

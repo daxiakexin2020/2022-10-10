@@ -1,4 +1,5 @@
 http://c.biancheng.net/redis_command/
+https://blog.csdn.net/miao0916/article/details/125321486
 
 key 过期
     定时删除
