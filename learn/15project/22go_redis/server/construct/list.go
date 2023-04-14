@@ -102,7 +102,7 @@ func (cl *Clist) RemoveTail() *node {
 	if cl.size == 0 {
 		return nil
 	}
-	node := cl.tail
+	n := cl.tail
 	if cl.tail.prev != nil {
 		cl.tail = cl.tail.prev
 		cl.tail.next = nil
@@ -111,7 +111,7 @@ func (cl *Clist) RemoveTail() *node {
 		cl.head = nil
 	}
 	cl.size--
-	return node
+	return n
 }
 
 func (cl *Clist) GetHead() *node {

@@ -12,7 +12,7 @@ type IcReq interface{}
 // 回复父类，定义空接口，用于扩展支持任意类型
 type IcResp interface{}
 
-// 拦截器
+// 拦截器， 由具体的业务，实现
 type IInterceptor interface {
 	Intercept(IChain) IcResp
 }
@@ -23,6 +23,7 @@ type IChain interface {
 	Proceed(IcReq) IcResp
 }
 
+// 责任链构造器
 type IBuilder interface {
 	Head(interceptor IInterceptor)
 	Tail(interceptor IInterceptor)

@@ -34,7 +34,7 @@ func (gr *Gredis) Scard(key string) int {
 		if vInterface.Type() != construct.SET {
 			return 0
 		}
-		return len(vInterface.GetVal().([]interface{}))
+		return vInterface.(*construct.Cset).Len()
 	}
 }
 
@@ -67,6 +67,11 @@ func (gr *Gredis) Smove(key string, destKey string, m interface{}) int {
 	if !ok {
 		return 0
 	}
+
+	if vInterface.Type() != construct.SET {
+		return 0
+	}
+
 	source := vInterface.GetVal().([]interface{})
 	if !utils.InSlice(source, m) {
 		return 0

@@ -32,6 +32,7 @@ func NewMsgHandle() *MsgHandle {
 	return handle
 }
 
+// 真正执行
 func (mh *MsgHandle) Intercept(chain ziface.IChain) ziface.IcResp {
 	request := chain.Request()
 	if request != nil {

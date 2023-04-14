@@ -31,3 +31,7 @@ func (cs *Cset) SetVal(val interface{}) {
 		cs.val = i
 	}
 }
+
+func (cs *Cset) Len() int {
+	return len(cs.val)
+}

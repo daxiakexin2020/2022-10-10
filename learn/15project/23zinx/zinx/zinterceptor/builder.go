@@ -10,9 +10,10 @@ import "github.com/aceld/zinx/ziface"
 
 // Builder 责任链构造器
 type Builder struct {
-	body       []ziface.IInterceptor
-	head, tail ziface.IInterceptor
-	req        ziface.IcReq
+	body []ziface.IInterceptor
+	head ziface.IInterceptor
+	tail ziface.IInterceptor
+	req  ziface.IcReq
 }
 
 func NewBuilder() ziface.IBuilder {

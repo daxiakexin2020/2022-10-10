@@ -20,7 +20,10 @@ func (c *Chain) Request() ziface.IcReq {
 
 func (c *Chain) Proceed(request ziface.IcReq) ziface.IcResp {
 	if c.position < len(c.interceptors) {
+		//这是下一个需要执行的拦截器信息 c.position+1
 		chain := NewChain(c.interceptors, c.position+1, request)
+
+		//这是当前需要执行的拦截器  c.position
 		interceptor := c.interceptors[c.position]
 		response := interceptor.Intercept(chain)
 		return response

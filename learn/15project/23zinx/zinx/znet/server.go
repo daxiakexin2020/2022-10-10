@@ -139,7 +139,7 @@ func (s *Server) Start() {
 	zlog.Ins().InfoF("[START] Server name: %s,listener at IP: %s, Port %d is starting", s.Name, s.IP, s.Port)
 	s.exitChan = make(chan struct{})
 
-	// 将解码器添加到拦截器
+	// 将解码器添加到拦截器 类似中间件
 	if s.decoder != nil {
 		s.msgHandler.AddInterceptor(s.decoder)
 	}
@@ -250,7 +250,6 @@ func (s *Server) Start() {
 				} else {
 					//3.4 处理该新连接请求的 业务 方法， 此时应该有 handler 和 conn是绑定的
 					dealConn = newServerConn(s, conn, cID)
-
 					// TCP HeartBeat 心跳检测
 					if s.hc != nil {
 						//从Server端克隆一个心跳检测器
@@ -259,7 +258,6 @@ func (s *Server) Start() {
 						//绑定当前链接
 						heartBeatChecker.BindConn(dealConn)
 					}
-
 				}
 
 				cID++

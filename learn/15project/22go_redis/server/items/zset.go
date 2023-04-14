@@ -19,6 +19,9 @@ func (gr *Gredis) Zrevrange(key string, start int64, end int64) ([]interface{}, 
 	if !ok {
 		return nil, nil
 	}
+	if vInterface.Type() != construct.ZSET {
+		return nil, nil
+	}
 	czvals, ok := vInterface.GetVal().([]*construct.Czval)
 	if !ok {
 		return nil, nil
