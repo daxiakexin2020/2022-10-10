@@ -1,7 +1,12 @@
 server:
-  name: [ ZZ:Server ]
+  name: "[ ZZ:Server ]"
   ip_version: tcp
   ip: 127.0.0.1
   port: 6666
+
 msg_handle:
   worker_pool_size: 10
+
+conection:
+  io_reader_buffer_size: 4096
+

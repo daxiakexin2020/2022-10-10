@@ -11,6 +11,7 @@ import (
 	"github.com/aceld/zinx/ziface"
 	"github.com/aceld/zinx/zlog"
 	"github.com/aceld/zinx/znet"
+	"log"
 	"math/big"
 	"os"
 	"time"
@@ -38,11 +39,12 @@ func (this *PingRouter) Handle(request ziface.IRequest) {
 // openssl生成证书和私钥方法参考 https://blog.csdn.net/qq_44637753/article/details/124152315
 func genExampleCrtAndKeyFile(crtFileName, KeyFileName string) (err error) {
 	// 如果已存在则重新生成
-	_ = os.Remove(crtFileName)
-	_ = os.Remove(KeyFileName)
+	//_ = os.Remove(crtFileName)
+	//_ = os.Remove(KeyFileName)
 
 	defer func() {
 		if err != nil {
+			log.Println("err>>>>>>>>>>>>>>>:", err)
 			// 如果期间发生错误，删除以及生成的证书和私钥文件
 			_ = os.Remove(crtFileName)
 			_ = os.Remove(KeyFileName)
@@ -112,11 +114,11 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	defer func() {
-		// example中的证书和私钥文件仅作测试时使用 测试结束后删除
-		_ = os.Remove(certFile)
-		_ = os.Remove(keyFile)
-	}()
+	//defer func() {
+	//	// example中的证书和私钥文件仅作测试时使用 测试结束后删除
+	//	_ = os.Remove(certFile)
+	//	_ = os.Remove(keyFile)
+	//}()
 
 	//创建一个server，当指定了CertFile和PrivateKeyFile时服务器开启TLS模式
 	s := znet.NewUserConfServer(&zconf.Config{

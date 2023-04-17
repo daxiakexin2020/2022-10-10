@@ -31,7 +31,7 @@ func wait() {
 	fmt.Println("===exit===", sig)
 }
 
-func main() {
+func main1() {
 	// 创建一个TLS客户端
 	c := znet.NewTLSClient("127.0.0.1", 8899)
 

@@ -23,11 +23,11 @@ func (gs *ServerConfig) CName() string {
 
 func makeServerConfig() ServerConfig {
 	serverOnce.Do(func() {
-		gsc := ServerConfig{}
-		if err := Generate(gsc.CName(), &gsc); err != nil {
-			log.Fatalf("读取%s配置出错%v", gsc.CName(), err)
+		c := ServerConfig{}
+		if err := Generate(c.CName(), &c); err != nil {
+			log.Fatalf("读取%s配置出错%v", c.CName(), err)
 		}
-		sverConfig = gsc
+		sverConfig = c
 	})
 	return sverConfig
 }
