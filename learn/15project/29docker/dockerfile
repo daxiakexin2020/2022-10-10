@@ -1,0 +1,7 @@
+FROM centos
+
+WORKDIR /tmp
+
+ADD main /tmp
+
+CMD /tmp/main
