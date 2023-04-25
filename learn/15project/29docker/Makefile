@@ -1,5 +1,3 @@
 build:clean
-	go build -o main main.go
+	GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o main main.go
 clean:
-	@echo "rm -r ./main"
-	@rm -r ./main
