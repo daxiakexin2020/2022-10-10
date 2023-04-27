@@ -7,18 +7,36 @@ import (
 	"time"
 )
 
-func (c *rclient) Get(key string) (string, error) {
-	return c.Client.Get(context.Background(), key).Result()
+var (
+	Total    int
+	GetCount int
+)
+
+func (c *Rclient) Get(key string) (string, error) {
+	return c.client.Get(context.Background(), key).Result()
 }
 
-func (c *rclient) Set(key string, val interface{}, expiration time.Duration) error {
-	return c.Client.Set(context.Background(), key, val, expiration).Err()
+func (c *Rclient) Set(key string, val interface{}, expiration time.Duration) error {
+	return c.client.Set(context.Background(), key, val, expiration).Err()
 }
 
-var Total int
-var GetCount int
+func (r *Rclient) HSet(key string, field string, val interface{}) (int64, error) {
+	return r.client.HSet(context.Background(), key, field, val).Result()
+}
 
-func (rc *rclient) DispersedLock(key string) (bool, error) {
+func (r *Rclient) HDel(key string, field string) (int64, error) {
+	return r.client.HDel(context.Background(), key, field).Result()
+}
+
+func (r *Rclient) HGet(key string, field string) (string, error) {
+	return r.client.HGet(context.Background(), key, field).Result()
+}
+
+func (r *Rclient) Del(key string) (int64, error) {
+	return r.client.Del(context.Background(), key).Result()
+}
+
+func (rc *Rclient) DispersedLock(key string) (bool, error) {
 
 	var ctx, cancel = context.WithCancel(context.Background())
 
@@ -28,7 +46,7 @@ func (rc *rclient) DispersedLock(key string) (bool, error) {
 
 	//1  不存在此key，设置成功，同时设置过期时间
 	value := string(uuid.NodeId())
-	ifSetOk, err := rc.Client.SetNX(ctx, key, value, 1*time.Millisecond).Result()
+	ifSetOk, err := rc.client.SetNX(ctx, key, value, 1*time.Millisecond).Result()
 	if !ifSetOk {
 		return ifSetOk, err
 	}
@@ -49,7 +67,7 @@ func (rc *rclient) DispersedLock(key string) (bool, error) {
 		return 0
 	end
 `
-	val, err := rc.Client.Eval(context.Background(), lua, []string{key}, value).Result()
+	val, err := rc.client.Eval(context.Background(), lua, []string{key}, value).Result()
 	if err != nil {
 		panic(err.Error())
 	}
@@ -58,7 +76,7 @@ func (rc *rclient) DispersedLock(key string) (bool, error) {
 }
 
 // 自动续期
-func (rc *rclient) WatchDog(ctx context.Context, key string, expiration time.Duration, tag string) {
+func (rc *Rclient) WatchDog(ctx context.Context, key string, expiration time.Duration, tag string) {
 	for {
 		select {
 		// 业务完成
@@ -68,7 +86,7 @@ func (rc *rclient) WatchDog(ctx context.Context, key string, expiration time.Dur
 			// 业务未完成
 		default:
 			// 自动续期
-			rc.Client.PExpire(ctx, key, expiration)
+			rc.client.PExpire(ctx, key, expiration)
 			// 继续等待
 			time.Sleep(expiration / 2)
 		}

@@ -3,8 +3,8 @@ package main
 import (
 	"fmt"
 	"log"
+	"redis/bus"
 	"redis/service"
-	"sync"
 )
 
 func main() {
@@ -22,18 +22,20 @@ func test() {
 		log.Fatalf("连接redis失败->>>>>%v", err)
 	}
 
-	key := "test_key"
+	id := "val_id"
+	name := "val_name"
+	token := "val_token"
+	auth := bus.NewAuth(id, name, token, bus.WithNamesapce("val_namespce"))
+	err = auth.Set(client)
+	fmt.Println("set auth err:", err)
 
-	wg := sync.WaitGroup{}
-	for i := 0; i < 10; i++ {
-		wg.Add(1)
-		go func() {
-			defer wg.Done()
-			res, err := client.DispersedLock(key)
-			fmt.Println(res, err)
-		}()
-	}
+	get, err := client.HGet(auth.Token, bus.Auth_Namespace)
+	fmt.Println("HGet:::::", get, err)
 
-	wg.Wait()
-	fmt.Println("total", service.Total, service.GetCount)
+	del, err := client.Del(auth.Token)
+	fmt.Println("Del:::::", del, err)
+
+	get2, err2 := client.HGet(auth.Token, bus.Auth_Name)
+	fmt.Println("HGet2:::::", get2, err2)
+
 }

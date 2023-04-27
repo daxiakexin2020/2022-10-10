@@ -3,52 +3,43 @@ package service
 import (
 	"context"
 	"github.com/go-redis/redis/v8"
-	"sync"
 )
 
-var (
-	RClient *rclient
-	once    sync.Once
-)
-
-type rclient struct {
+type Rclient struct {
 	config *redis.Options
-	Client *redis.Client
+	client *redis.Client
 }
 
-type Option func(c *rclient)
+type Option func(c *Rclient)
 
 func WithDB(db int) Option {
-	return func(r *rclient) {
+	return func(r *Rclient) {
 		r.config.DB = db
 	}
 }
 
 func WithPassword(password string) Option {
-	return func(r *rclient) {
+	return func(r *Rclient) {
 		r.config.Password = password
 	}
 }
 
-func (r *rclient) apply(opts []Option) {
+func (r *Rclient) apply(opts []Option) {
 	for _, opt := range opts {
 		opt(r)
 	}
 }
 
-func NewClient(addr string, opts ...Option) (*rclient, error) {
+func NewClient(addr string, opts ...Option) (*Rclient, error) {
 
-	var err error
-	once.Do(func() {
-		rc := &rclient{config: &redis.Options{
-			Addr: addr,
-		}}
-		rc.apply(opts)
-		cli := redis.NewClient(rc.config)
-		if err = cli.Ping(context.Background()).Err(); err == nil {
-			rc.Client = cli
-			RClient = rc
-		}
-	})
-	return RClient, err
+	rc := &Rclient{config: &redis.Options{
+		Addr: addr,
+	}}
+	rc.apply(opts)
+	cli := redis.NewClient(rc.config)
+	if err := cli.Ping(context.Background()).Err(); err != nil {
+		return nil, err
+	}
+	rc.client = cli
+	return rc, nil
 }
