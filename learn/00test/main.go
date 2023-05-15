@@ -27,6 +27,16 @@ type Info struct {
 	sync.Mutex
 }
 
+type List struct {
+	Id   string `json:"id"`
+	Data []Item `json:"data"`
+}
+
+type Item struct {
+	Age    int `json:"age"`
+	Salary int `json:"salary"`
+}
+
 var m = map[string]*Info{}
 
 func test20() *Info {
@@ -35,6 +45,21 @@ func test20() *Info {
 }
 
 func main() {
+
+	l := &List{
+		Id:   "123456",
+		Data: make([]Item, 0),
+	}
+	l.Data = append(l.Data, Item{Age: 20, Salary: 200000})
+	l.Data = append(l.Data, Item{Age: 30, Salary: 300000})
+
+	marshal, _ := json.Marshal(l)
+
+	UnL := &List{Data: make([]Item, 0)}
+
+	json.Unmarshal(marshal, &UnL)
+	fmt.Println("L:::", UnL)
+	return
 
 	i2 := test20()
 	fmt.Println("i2 : ", i2)
