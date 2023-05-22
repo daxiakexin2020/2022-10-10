@@ -4,7 +4,9 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"github.com/oliveagle/jsonpath"
 	"io"
+	"log"
 	"math"
 	"net/http"
 	"os"
@@ -46,6 +48,22 @@ func test20() *Info {
 
 func main() {
 
+	jsonStr := "{\n  \"FO_EXPENSEBILL\": {\n    \"ADVANCEMONEY\": 0,\n    \"BILLDATE\": 0,\n    \"CONTRACTNUM\": \"\",\n    \"DEPARTMENTID\": \"\",\n    \"INVOICEMONEY\": 0,\n    \"ISQUOTECONTRACT\": \"\",\n    \"LOANMONEY\": 0,\n    \"MAINBODY\": \"中国铁建国际集团有限公司本级（生产验证）\",\n    \"MEMO\": \"许江报销\",\n    \"OPERATORDEPARTMENT\": \"财务部\",\n    \"PAYMONEY\": 0,\n    \"PAYTYPECODE\": \"010银行支付\",\n    \"PERSONTAX\": \"\",\n    \"RUNNINGMONEY\": 0,\n    \"STAFFCODE\": \"许江\",\n    \"UNITCODE\": \"财务部\"\n  },\n  \"FO_EXPENSEBILL_INVVATITEM\": [\n    {\n      \"BILLDETAITYPE\": \"\",\n      \"BILLTYPE\": \"增值税普通发票\",\n      \"CONSUMPTIONTYPE\": \"差旅费\",\n      \"CURRMONEY\": 0,\n      \"INVOICECHECKCODE\": \"82322969860869404193\",\n      \"INVOICECODE\": \"034022000104\",\n      \"INVOICEDATE\": 1623945600,\n      \"INVOICENUM\": \"02802144\",\n      \"MONEYTOTAL\": 904,\n      \"NOTETHEINVOICE\": \"桥喜家果专用章91340200MA2NTBJD7W\",\n      \"PURNAME\": \"芜湖市人民防空办公室\",\n      \"PURTAXNO\": \"113402000030106774\",\n      \"SUPPLIERNAME\": \"芜湖昶隆办公设备销售有限责任公司\",\n      \"SUPPLIERTAXNO\": \"91340200MA2NTBJD7W\",\n      \"TAXMONEY\": 0,\n      \"TAXRATE\": \"0.13\",\n      \"TICKETNUMBER\": 0\n    }\n  ],\n  \"FO_EXPENSEBILL_ITEM\": [\n    {\n      \"BILLDETAITYPE\": \"增值税普通发票\",\n      \"BUSINESSSUBCLASS\": \"\",\n      \"CONSUMPTIONTYPE\": \"差旅费\",\n      \"DEPARTMENTCODE\": \"\",\n      \"EXPENSEATTRIBUTE\": \"\",\n      \"TAXMONEY_N\": 104.61,\n      \"TAXRATE\": 0.13,\n      \"TICKETMONEY\": 799.99\n    }\n  ]\n}"
+	jsonByte := []byte(jsonStr)
+
+	var obj interface{}
+	path := "$.FO_EXPENSEBILL.MAINBODY"
+	err := json.Unmarshal(jsonByte, &obj)
+
+	log.Println("Unmarshal err:", err)
+
+	val, err := jsonpath.JsonPathLookup(obj, path)
+	log.Println("jsonPathLookup :", val, err)
+
+	json, err := json.Marshal(val)
+	log.Println("marshal:", string(json))
+
+	return
 	l := &List{
 		Id:   "123456",
 		Data: make([]Item, 0),
@@ -53,11 +71,8 @@ func main() {
 	l.Data = append(l.Data, Item{Age: 20, Salary: 200000})
 	l.Data = append(l.Data, Item{Age: 30, Salary: 300000})
 
-	marshal, _ := json.Marshal(l)
-
 	UnL := &List{Data: make([]Item, 0)}
 
-	json.Unmarshal(marshal, &UnL)
 	fmt.Println("L:::", UnL)
 	return
 
@@ -121,9 +136,6 @@ func main() {
 
 	return
 	info := &Info{}
-	var s interface{}
-	s = "{\"name\":\"zz\", \"msg\":18}"
-	err := json.Unmarshal([]byte(s.(string)), info)
 	fmt.Println(err, info)
 	return
 
