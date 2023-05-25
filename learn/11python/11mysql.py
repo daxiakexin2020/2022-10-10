@@ -20,7 +20,6 @@ class MysqlDemo:
             print(x)
 
     def Demo02(self):
-
         cursor = self.db.cursor()
 
         createSql = "CREATE TABLE sites (name VARCHAR(255), url VARCHAR(255))"
@@ -29,7 +28,16 @@ class MysqlDemo:
         setPriKeySql = "ALTER TABLE sites ADD COLUMN id INT AUTO_INCREMENT PRIMARY KEY"
         cursor.execute(setPriKeySql)
 
+    def Demo03(self):
+        cursor = self.db.cursor()
+        insertSql = "insert into sites (name,url) VALUES (%s,%s)"
+        val = ('zhang-san', 'http://baidu.com')
+        execute = cursor.execute(insertSql, val)
+        self.db.commit()  # 有数据更新，必须使用该方法
+        print("insert result:{0}".format(execute))
+
 
 md = MysqlDemo()
-md.Demo1()
-md.Demo02()
+# md.Demo1()
+# md.Demo02()
+md.Demo03()
