@@ -1,0 +1,11 @@
+package error
+
+const (
+	SUCCESS_CODE    = 0
+	SERVER_ERR_CODE = 500
+
+	PARAMS_BIND_ERR_CODE = 5000
+
+	NOT_JSON_CODE           = 10002
+	JSON_TO_GOALNG_ERR_CODE = 10003
+)

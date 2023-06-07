@@ -11,6 +11,7 @@ func main() {
 
 	速度上来说，一般是drop>truncate>delete
 
-	删除数据，一般用delete，删除表，用drop，
+	删除数据，一般用delete，删除表，用drop
+
 	*/
 }
