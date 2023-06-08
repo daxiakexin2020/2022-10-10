@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"log"
-	"strings"
+	"reflect"
 )
 
 type JsonRepository struct{}
@@ -30,19 +30,97 @@ func (jr *JsonRepository) JsonToGolangStruct(model *model.JsonToGolangStruct) (i
 	if err != nil {
 		return nil, err
 	}
-
 	ret := "type " + model.Name + " struct " + "{"
 
-	builder := strings.Builder{}
-	builder.WriteString(ret)
-	builder.WriteString("\n")
+	ret += ("\n")
+	recursion := jr.recursion(ret, dest, false)
+	recursion += "}"
+	return recursion, nil
+}
 
-	for k, _ := range dest {
-		builder.WriteString(k)
-		builder.WriteString("\n")
+func (jr *JsonRepository) recursion(s string, data interface{}, addFlag bool) string {
+
+	dest, ok := data.(map[string]interface{})
+	if ok {
+		for k, v := range dest {
+			s += "	" + k + "	"
+			valueType := jr.valueType(v)
+			if valueType == "map" {
+				tmp := " struct " + "{\n"
+				valueType = jr.recursion(tmp, v.(map[string]interface{}), true)
+			}
+			if valueType == "slice" {
+				tmp := "	[]"
+				valueType = jr.recursion(tmp, v.([]interface{}), false)
+			}
+			s += (valueType)
+			s += ("\n")
+		}
+	} else {
+		valueType := jr.valueType(data)
+		if valueType == "slice" {
+			sdata, ok := data.([]interface{})
+			if ok {
+				log.Println("sdata:", sdata)
+				rs1, ok1 := sdata[0].([]map[string]interface{})
+				rs2, ok2 := sdata[0].(map[string]interface{})
+				rs3, ok3 := sdata[0].(interface{})
+				if ok1 && len(rs1) > 0 {
+					tmp := " struct " + "{\n"
+					valueType = jr.recursion(tmp, rs1[0], true)
+				} else if ok2 {
+					tmp := " struct " + "{\n"
+					valueType = jr.recursion(tmp, rs2, true)
+				} else if ok3 {
+					valueType = jr.valueType(rs3)
+				}
+			}
+		}
+		s += (valueType)
+		s += ("\n")
 	}
-	log.Println("换:", builder.String())
-	return builder.String(), nil
+
+	if addFlag {
+		s += "}\n"
+	}
+	return s
+}
+
+func (jr *JsonRepository) valueType(v interface{}) string {
+	rtype := reflect.ValueOf(v)
+	log.Println("rtype.Kind()", rtype.Kind())
+	switch rtype.Kind() {
+	case reflect.Uint:
+		return "uint"
+	case reflect.Uint32:
+		return "uint32"
+	case reflect.Int:
+		return "int"
+	case reflect.Int8:
+		return "int8"
+	case reflect.Int16:
+		return "int16"
+	case reflect.Int32:
+		return "int32"
+	case reflect.Int64:
+		return "int64"
+	case reflect.Float32:
+		return "float32"
+	case reflect.Float64:
+		return "float64"
+	case reflect.Bool:
+		return "bool"
+	case reflect.String:
+		return "string"
+	case reflect.Map:
+		//遍历，递归
+		return "map"
+	case reflect.Slice:
+		//拿一个值，递归判断类型
+		return "slice"
+	default:
+		return "un"
+	}
 }
 
 func (jr *JsonRepository) jsonCheck(data interface{}) (map[string]interface{}, error) {

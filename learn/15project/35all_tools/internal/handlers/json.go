@@ -48,5 +48,5 @@ func (jh *JsonHanler) JsonToGolangStruct(ctx *gin.Context) {
 		jh.Err(ctx, cerr.JSON_TO_GOALNG_ERR_CODE, err.Error(), nil)
 		return
 	}
-	jh.Success(ctx, golangStruct)
+	ctx.String(200, "%s", golangStruct)
 }
