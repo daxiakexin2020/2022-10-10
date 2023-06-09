@@ -6,6 +6,7 @@ import (
 	"errors"
 	"log"
 	"reflect"
+	"strings"
 )
 
 type JsonRepository struct{}
@@ -43,7 +44,13 @@ func (jr *JsonRepository) recursion(s string, data interface{}, addFlag bool) st
 	dest, ok := data.(map[string]interface{})
 	if ok {
 		for k, v := range dest {
-			s += "	" + k + "	"
+			split := strings.Split(k, "_")
+			var upStr string
+			for _, item := range split {
+				title := strings.Title(item)
+				upStr += title
+			}
+			s += "	" + upStr + "	"
 			valueType := jr.valueType(v)
 			if valueType == "map" {
 				tmp := " struct " + "{\n"
@@ -62,17 +69,15 @@ func (jr *JsonRepository) recursion(s string, data interface{}, addFlag bool) st
 			sdata, ok := data.([]interface{})
 			if ok {
 				log.Println("sdata:", sdata)
-				rs1, ok1 := sdata[0].([]map[string]interface{})
-				rs2, ok2 := sdata[0].(map[string]interface{})
-				rs3, ok3 := sdata[0].(interface{})
-				if ok1 && len(rs1) > 0 {
-					tmp := " struct " + "{\n"
-					valueType = jr.recursion(tmp, rs1[0], true)
-				} else if ok2 {
-					tmp := " struct " + "{\n"
-					valueType = jr.recursion(tmp, rs2, true)
-				} else if ok3 {
-					valueType = jr.valueType(rs3)
+				switch rs := sdata[0].(type) {
+				case []map[string]interface{}:
+					tmp := "struct " + "{\n"
+					valueType = jr.recursion(tmp, rs[0], true)
+				case map[string]interface{}:
+					tmp := "struct " + "{\n"
+					valueType = jr.recursion(tmp, rs, true)
+				case interface{}:
+					valueType = jr.valueType(rs)
 				}
 			}
 		}
@@ -88,12 +93,18 @@ func (jr *JsonRepository) recursion(s string, data interface{}, addFlag bool) st
 
 func (jr *JsonRepository) valueType(v interface{}) string {
 	rtype := reflect.ValueOf(v)
-	log.Println("rtype.Kind()", rtype.Kind())
+	log.Println("rtype.Kind()", v, rtype.Kind())
 	switch rtype.Kind() {
 	case reflect.Uint:
 		return "uint"
+	case reflect.Uint8:
+		return "uint8"
+	case reflect.Uint16:
+		return "uint16"
 	case reflect.Uint32:
 		return "uint32"
+	case reflect.Uint64:
+		return "uint64"
 	case reflect.Int:
 		return "int"
 	case reflect.Int8:
@@ -113,10 +124,8 @@ func (jr *JsonRepository) valueType(v interface{}) string {
 	case reflect.String:
 		return "string"
 	case reflect.Map:
-		//遍历，递归
 		return "map"
 	case reflect.Slice:
-		//拿一个值，递归判断类型
 		return "slice"
 	default:
 		return "un"
