@@ -24,7 +24,16 @@ func InitApp(engine *gin.Engine, conf2 *conf.WebServerConfig) (model.ServerRepo,
 	jsonSerive := service.NewJsonService(jsonRepo)
 	base := handlers.NewBase()
 	jsonHanler := handlers.NewJsonHandler(jsonSerive, base)
-	apiRouter := router.NewApiRouter(engine, jsonHanler)
+	enDeRepo := local.NewEnDeRepository()
+	enDeService := service.NewEnDeService(enDeRepo)
+	enDeHandler := handlers.NewEnDeHandler(enDeService)
+	symmetryEnDeRepo := local.NewSymmetryEnDeRepository(enDeRepo)
+	symmetryEnDeService := service.NewSymmetryEnDeService(symmetryEnDeRepo)
+	symmetryEnDeHandler := handlers.NewSymmetryEnDeHandler(symmetryEnDeService)
+	comprehensiveRepo := local.NewComprehensiveRepository()
+	comprehensiveService := service.NewComprehensiveService(comprehensiveRepo)
+	comprehensiveHandler := handlers.NewComprehensive(comprehensiveService)
+	apiRouter := router.NewApiRouter(engine, jsonHanler, enDeHandler, symmetryEnDeHandler, comprehensiveHandler)
 	serverRepo := server.NewServer(engine, apiRouter, conf2)
 	return serverRepo, nil
 }
