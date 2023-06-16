@@ -9,7 +9,7 @@ package main
 import (
 	"35all_tools/conf"
 	"35all_tools/internal/data/local"
-	"35all_tools/internal/handlers"
+	"35all_tools/internal/handler"
 	"35all_tools/internal/model"
 	"35all_tools/internal/router"
 	"35all_tools/internal/server"
@@ -22,17 +22,17 @@ import (
 func InitApp(engine *gin.Engine, conf2 *conf.WebServerConfig) (model.ServerRepo, error) {
 	jsonRepo := local.NewJsonRepository()
 	jsonSerive := service.NewJsonService(jsonRepo)
-	base := handlers.NewBase()
-	jsonHanler := handlers.NewJsonHandler(jsonSerive, base)
+	base := handler.NewBase()
+	jsonHanler := handler.NewJsonHandler(jsonSerive, base)
 	enDeRepo := local.NewEnDeRepository()
 	enDeService := service.NewEnDeService(enDeRepo)
-	enDeHandler := handlers.NewEnDeHandler(enDeService)
+	enDeHandler := handler.NewEnDeHandler(enDeService)
 	symmetryEnDeRepo := local.NewSymmetryEnDeRepository(enDeRepo)
 	symmetryEnDeService := service.NewSymmetryEnDeService(symmetryEnDeRepo)
-	symmetryEnDeHandler := handlers.NewSymmetryEnDeHandler(symmetryEnDeService)
+	symmetryEnDeHandler := handler.NewSymmetryEnDeHandler(symmetryEnDeService)
 	comprehensiveRepo := local.NewComprehensiveRepository()
 	comprehensiveService := service.NewComprehensiveService(comprehensiveRepo)
-	comprehensiveHandler := handlers.NewComprehensive(comprehensiveService)
+	comprehensiveHandler := handler.NewComprehensiveHandler(comprehensiveService)
 	apiRouter := router.NewApiRouter(engine, jsonHanler, enDeHandler, symmetryEnDeHandler, comprehensiveHandler)
 	serverRepo := server.NewServer(engine, apiRouter, conf2)
 	return serverRepo, nil
