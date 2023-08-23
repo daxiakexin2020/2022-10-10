@@ -3,7 +3,7 @@ package main
 func main() {
 
 	/**
-	todo	设计思想
+	todo 设计思想
 		不要通过共享内存，进行通信，而是通过通信，共享内存
 		1.传统的模式：共享内存通信  Thread1=》 内存 《=Thread2
 		2.Go的CSP模式：通过channel进行通信   Goroutine1=》 Channel 《=Goroutine2

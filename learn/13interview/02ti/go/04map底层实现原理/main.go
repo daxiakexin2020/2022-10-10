@@ -14,6 +14,7 @@ const (
 func test() {
 	runtime.GC()
 	//https://www.topgoer.cn/docs/goquestions/goquestions-1cjh2q3c8knbv
+	//https://www.jianshu.com/p/e1f380c4ae48
 	/**
 	todo  结构
 		type hmap struct {
@@ -35,6 +36,6 @@ func test() {
 		装载因子已经超过 6.5；
 		哈希使用了太多溢出桶；
 
-	
+
 	*/
 }

@@ -21,6 +21,6 @@ type FetchCompanyTreeRequst struct {
 	Base
 }
 
-func test() {
-	a := &FetchCompanyTreeRequst{}
-}
+//func test() {
+//	a := &FetchCompanyTreeRequst{}
+//}

@@ -7,18 +7,19 @@ import (
 /*******************************task**************************************/
 
 type Task struct {
-	handle func() error
+	handle func(data ...interface{}) error
+	params []interface{}
 }
 
-func NewTask(h func() error) *Task {
+func NewTask(h func(data ...interface{}) error) *Task {
 	t := &Task{
 		handle: h,
 	}
 	return t
 }
 
-func (t *Task) Excetue() {
-	t.handle()
+func (t *Task) Excetue(data ...interface{}) {
+	t.handle(data...)
 }
 
 /*******************************pool**************************************/
@@ -39,7 +40,7 @@ func NewPool(cap int) *Pool {
 
 func (p *Pool) worker(workId int) {
 	for t := range p.JobChannel {
-		t.Excetue()
+		t.Excetue(t.params)
 		fmt.Printf("*******************workID=%d执行了任务\n********************", workId)
 	}
 }
@@ -61,10 +62,11 @@ func (p *Pool) Add(t *Task) {
 }
 
 func Test() {
-	t := NewTask(func() error {
-		fmt.Println("第一个测试协程池的task")
+	t := NewTask(func(data ...interface{}) error {
+		fmt.Println("第一个测试协程池的task", data[0], data[1])
 		return nil
 	})
+	t.params = []interface{}{"22", 1}
 
 	p := NewPool(3)
 
