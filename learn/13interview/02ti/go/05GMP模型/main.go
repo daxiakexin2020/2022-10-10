@@ -6,7 +6,7 @@ func main() {
 
 func test() {
 	/**
-	G：任务
+	G：gorountine协程
 	M：抽象线程
 	P：控制器，调度器
 
