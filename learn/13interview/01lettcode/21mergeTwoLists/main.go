@@ -5,8 +5,8 @@ import (
 )
 
 func main() {
-	list1 := helper.MakeList(3)
-	list2 := helper.MakeList(5)
+	list1 := helper.MakeList(3, helper.ASC)
+	list2 := helper.MakeList(5, helper.ASC)
 	res := mergeTwoLists(list1, list2)
 	helper.ShowList(res)
 }

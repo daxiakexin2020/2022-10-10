@@ -18,6 +18,8 @@ func NewTask(h func(data ...interface{}) error) *Task {
 	return t
 }
 
+//todo https://www.cnblogs.com/FunTester/p/17513421.html
+
 func (t *Task) Excetue(data ...interface{}) {
 	t.handle(data...)
 }
@@ -59,6 +61,10 @@ func (p *Pool) Add(t *Task) {
 	for job := range p.EntryChannel {
 		p.JobChannel <- job
 	}
+}
+
+func Task01() {
+
 }
 
 func Test() {
