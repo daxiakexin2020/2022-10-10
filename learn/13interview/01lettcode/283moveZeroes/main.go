@@ -5,7 +5,7 @@ import "fmt"
 func main() {
 	//nums := []int{0, 1, 0, 3, 12}
 	//nums := []int{0, 0, 1}
-	nums := []int{1, 2, 3, 0, 0, 4, 5, 6, 0}
+	nums := []int{1, 2, 3, 100, 0, 4, 5, 6, 0}
 	moveZeroes(nums)
 	fmt.Println("nums:", nums)
 }

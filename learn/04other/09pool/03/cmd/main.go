@@ -12,7 +12,7 @@ func main() {
 
 func test() {
 
-	pool, err := server.GeneratePool(5, 100, 10, 10)
+	pool, err := server.GeneratePool(5, 1000, 10, 10)
 	if err != nil {
 		log.Printf("GeneratePool err:%v\n", err)
 		return
@@ -26,7 +26,7 @@ func test() {
 
 	tick := time.Tick(time.Second * 30)
 
-	for i := 0; i < 100; i++ {
+	for i := 0; i < 10000; i++ {
 		err := pool.AddTask(func() error {
 			return nil
 		})
