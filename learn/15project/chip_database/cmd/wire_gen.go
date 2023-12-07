@@ -8,6 +8,7 @@ package main
 
 import (
 	"chip_database/conf"
+	"chip_database/internal/data/db"
 	"chip_database/internal/kernel"
 	"chip_database/internal/route"
 	"chip_database/internal/server"
@@ -17,10 +18,21 @@ import (
 
 // Injectors from wire.go:
 
-func initApp(eneing *gin.Engine, c *conf.WebServerConfig) (*kernal.Kernel, error) {
-	infoService := service.NewInfoService()
-	info := server.NewInfo(infoService)
-	apiRouter := route.NewApiRouter(eneing, info)
+func initApp(eneing *gin.Engine, c *conf.WebServerConfig, sqliteC *conf.SqliteDatabaseConfig) (*kernal.Kernel, error) {
+	client, err := db.NewClient(sqliteC)
+	if err != nil {
+		return nil, err
+	}
+	baseInfo := db.NewBaseInfo(client)
+	baseInfoService := service.NewBaseInfoService(baseInfo)
+	testItem := db.NewTestItem(client)
+	testItemService := service.NewTestItemService(testItem)
+	serverBaseInfo := server.NewBaseInfo(baseInfoService, testItemService)
+	serverTestItem := server.NewTestItem(testItemService)
+	source := db.NewSource(client)
+	sourceService := service.NewSourceService(source)
+	serverSource := server.NewSource(sourceService)
+	apiRouter := route.NewApiRouter(eneing, serverBaseInfo, serverTestItem, serverSource)
 	kernel := kernal.New(eneing, c, apiRouter)
 	return kernel, nil
 }

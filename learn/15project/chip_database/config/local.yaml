@@ -5,4 +5,4 @@ web_server:
 
 sqlite_database:
   db: chip.db
-  path: ./db_file/
+  path: db_file/
