@@ -6,3 +6,6 @@ web_server:
 sqlite_database:
   db: chip.db
   path: db_file/
+
+file_handle_proxy:
+  base: http://127.0.0.1:6666

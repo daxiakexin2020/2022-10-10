@@ -21,8 +21,8 @@ func (tis *TestItemService) Delete(id int) error {
 	return tis.testItemDB.Delete(id)
 }
 
-func (tis *TestItemService) Update() error {
-	return nil
+func (tis *TestItemService) Update(m *model.TestItem) error {
+	return tis.testItemDB.Update(m)
 }
 
 func (tis *TestItemService) Find(id int) (*model.TestItem, error) {

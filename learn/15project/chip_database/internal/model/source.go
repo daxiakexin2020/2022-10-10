@@ -8,16 +8,25 @@ import (
 )
 
 type Source struct {
-	Id         int64  `json:"id" form:"id"`
-	TestId     int    `json:"test_id" form:"test_id"`
-	Type       string `json:"type" form:"type" validate:"required"`
-	Path       string `json:"path" form:"path"`
-	Md5        string `json:"md5" form:"md5"`
-	IsActivate int    `json:"is_activate" form:"is_activate"`
+	Id               int64  `json:"id" form:"id"`
+	TestId           int    `json:"test_id" form:"test_id"`
+	Type             string `json:"type" form:"type" validate:"required"`
+	Path             string `json:"path" form:"path"`
+	Md5              string `json:"md5" form:"md5"`
+	IsActivate       int    `json:"is_activate" form:"is_activate"`
+	OriginalFileName string `json:"original_file_name" form:"original_file_name"`
 }
 
 type DeleteSource struct {
 	Id int64 `json:"id" form:"id" validate:"required"`
+}
+
+type FindSource struct {
+	Id int64 `json:"id" form:"id" validate:"required"`
+}
+
+type FetchAllByTestId struct {
+	TestId int `json:"test_id" form:"test_id" validate:"required"`
 }
 
 func (s *Source) IsActivated() bool {
@@ -55,6 +64,10 @@ const (
 	scsv  = ".csv"
 	sxlsx = ".xlsx"
 	sxls  = ".xls"
+)
+
+const (
+	FormatPath = "/api/source/tmp_test"
 )
 
 var pathTypeMap = map[string]string{

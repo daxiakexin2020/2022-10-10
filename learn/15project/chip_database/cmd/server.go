@@ -12,7 +12,7 @@ func main() {
 
 func run() {
 
-	k, err := initApp(gin.New(), conf.GetWebServerConfig(), conf.GetSqliteDatabaseConfig())
+	k, err := initApp(gin.New(), conf.GetWebServerConfig(), conf.GetSqliteDatabaseConfig(), conf.GetFileHandleProxyOnce())
 	if err != nil {
 		os.Exit(-1)
 	}

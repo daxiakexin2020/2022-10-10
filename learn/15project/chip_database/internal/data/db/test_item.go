@@ -18,7 +18,9 @@ func (ti *TestItem) Delete(id int) error {
 	return ti.db.db.Delete(&model.TestItem{}, id).Error
 }
 
-func (ti *TestItem) Update() {}
+func (ti *TestItem) Update(m *model.TestItem) error {
+	return ti.db.db.Model(&m).Updates(m).Error
+}
 
 func (ti *TestItem) Find(id int) (*model.TestItem, error) {
 	var testItem *model.TestItem

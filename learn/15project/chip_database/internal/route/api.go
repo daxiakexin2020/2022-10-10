@@ -40,6 +40,7 @@ func (r *ApiRouter) RegisterHandlers() {
 	source := api.Group("source/")
 	{
 		source.POST("upload", r.source.Upload)
-		source.DELETE("delete", r.source.Delete)
+		source.POST("delete", r.source.Delete)
+		source.POST("tmp_test", r.source.TmpTest)
 	}
 }

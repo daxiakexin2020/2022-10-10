@@ -9,10 +9,11 @@ import (
 type TestItem struct {
 	*Base
 	testItemSrv *service.TestItemService
+	sourceSrv   *service.SourceService
 }
 
-func NewTestItem(testItemSrv *service.TestItemService) *TestItem {
-	return &TestItem{testItemSrv: testItemSrv}
+func NewTestItem(testItemSrv *service.TestItemService, sourceSrv *service.SourceService) *TestItem {
+	return &TestItem{testItemSrv: testItemSrv, sourceSrv: sourceSrv}
 }
 
 func (tt *TestItem) Create(ctx *gin.Context) {
@@ -25,6 +26,14 @@ func (tt *TestItem) Create(ctx *gin.Context) {
 		tt.DBErr(ctx, err.Error(), condition)
 		return
 	}
+
+	if len(condition.SourceIds) > 0 && condition.Id > 0 {
+		if err := tt.sourceSrv.UpdateTestIdByIds(condition.SourceIds, condition.Id); err != nil {
+			tt.DBErr(ctx, err.Error(), condition)
+			return
+		}
+	}
+
 	tt.Success(ctx, condition)
 }
 
@@ -42,6 +51,22 @@ func (tt *TestItem) Delete(ctx *gin.Context) {
 }
 
 func (tt *TestItem) Update(ctx *gin.Context) {
+
+	condition := &model.TestItem{}
+	if err := tt.CheckJson(ctx, condition); err != nil {
+		tt.ParamErr(ctx, err.Error(), condition)
+		return
+	}
+	if condition.Id == 0 {
+		tt.ParamErr(ctx, "update,id is needed", condition)
+		return
+	}
+	if err := tt.testItemSrv.Update(condition); err != nil {
+		tt.DBErr(ctx, err.Error(), condition)
+		return
+	}
+
+	tt.Success(ctx, condition)
 }
 
 func (tt *TestItem) FetchAllByBaseId(ctx *gin.Context) {

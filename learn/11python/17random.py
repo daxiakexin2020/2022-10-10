@@ -14,7 +14,11 @@ class RandomDemo:
         randrange = random.randrange(1, 10)
         print("range:{0}".format(randrange))
 
+    def xl(self):
+        print("\a")
+
 
 demo = RandomDemo()
-demo.Demo01()
-demo.Demo02()
+# demo.Demo01()
+# demo.Demo02()
+demo.xl()

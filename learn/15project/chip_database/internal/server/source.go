@@ -4,7 +4,9 @@ import (
 	cerr "chip_database/error"
 	"chip_database/internal/model"
 	"chip_database/internal/service"
+	"fmt"
 	"github.com/gin-gonic/gin"
+	"io"
 )
 
 type Source struct {
@@ -24,10 +26,15 @@ func (s *Source) Upload(ctx *gin.Context) {
 	}
 
 	file, mfile, err := ctx.Request.FormFile("file")
+
 	if err != nil {
 		s.ParamErr(ctx, err.Error(), condition)
 		return
 	}
+
+	remote, err := s.sourceSrv.FormatFromRemote(file)
+	fmt.Println("source data len", mfile.Size)
+	fmt.Println("format result", remote, err)
 
 	fullDirInfo, err := s.sourceSrv.GenernalFullDir(mfile.Filename, mfile.Size)
 
@@ -37,6 +44,7 @@ func (s *Source) Upload(ctx *gin.Context) {
 	}
 
 	md5, err := s.sourceSrv.SourceMd5(file)
+
 	if err != nil {
 		s.Err(ctx, cerr.UPLOAD_ERR_CODE, err.Error(), condition)
 		return
@@ -49,6 +57,7 @@ func (s *Source) Upload(ctx *gin.Context) {
 
 	condition.Md5 = md5
 	condition.Path = fullDirInfo
+	condition.OriginalFileName = mfile.Filename
 	if condition.TestId > 0 && condition.Id > 0 {
 		condition.SetActivated()
 		err = s.sourceSrv.Update(condition)
@@ -62,7 +71,7 @@ func (s *Source) Upload(ctx *gin.Context) {
 		return
 	}
 
-	s.Success(ctx, condition)
+	s.Success(ctx, nil)
 }
 
 func (s *Source) Delete(ctx *gin.Context) {
@@ -80,4 +89,33 @@ func (s *Source) Delete(ctx *gin.Context) {
 
 func (s *Source) Update(ctx *gin.Context) {
 
+}
+
+func (s *Source) Find(ctx *gin.Context) {
+
+}
+
+func (s *Source) FetchAllByTestId() {
+
+}
+
+func (s *Source) TmpTest(ctx *gin.Context) {
+
+	r := ctx.Request.Body
+	b := make([]byte, 0)
+	for {
+		tb := make([]byte, 1024)
+		n, err := r.Read(tb)
+		tb = tb[0:n]
+		b = append(b, tb...)
+		if err == io.EOF {
+			fmt.Println("client read over,total count byte :............", len(b))
+			break
+		}
+		if err != nil {
+			fmt.Println("client read err")
+			break
+		}
+	}
+	s.Success(ctx, len(b))
 }
